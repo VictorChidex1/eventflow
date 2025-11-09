@@ -10,8 +10,17 @@ export default defineConfig({
     open: true,
   },
   base: isProduction ? "/eventflow/" : "/",
-  // Add this line to build to docs folder instead of dist
   build: {
     outDir: "docs",
+    // This ensures unique filenames on every build
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`,
+      },
+    },
   },
+  // This clears the build folder before each build
+  emptyOutDir: true,
 });

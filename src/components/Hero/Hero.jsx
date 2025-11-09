@@ -35,7 +35,7 @@ const Hero = () => {
               <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Calendar className="text-primary-600" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">5500+</h3>
+              <h3 className="text-2xl font-bold text-gray-900">5,500+</h3>
               <p className="text-gray-600">Events Created</p>
             </div>
 
@@ -54,6 +54,11 @@ const Hero = () => {
               <h3 className="text-2xl font-bold text-gray-900">500+</h3>
               <p className="text-gray-600">Cities Covered</p>
             </div>
+          </div>
+
+          {/* Hidden build info for debugging */}
+          <div style={{ display: "none" }} data-build-info="hero-stats-updated">
+            Build Time: {new Date().toISOString()}
           </div>
         </div>
       </div>
