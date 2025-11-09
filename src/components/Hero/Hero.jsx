@@ -35,7 +35,7 @@ const Hero = () => {
               <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Calendar className="text-primary-600" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">500+</h3>
+              <h3 className="text-2xl font-bold text-gray-900">2000+</h3>
               <p className="text-gray-600">Events Created</p>
             </div>
 
@@ -43,7 +43,7 @@ const Hero = () => {
               <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Users className="text-primary-600" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">50K+</h3>
+              <h3 className="text-2xl font-bold text-gray-900">500K+</h3>
               <p className="text-gray-600">Happy Attendees</p>
             </div>
 
@@ -51,7 +51,7 @@ const Hero = () => {
               <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <MapPin className="text-primary-600" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">25+</h3>
+              <h3 className="text-2xl font-bold text-gray-900">250+</h3>
               <p className="text-gray-600">Cities Covered</p>
             </div>
           </div>
