@@ -35,7 +35,7 @@ const Hero = () => {
               <div className="bg-white rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <Calendar className="text-primary-600" size={24} />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900">5,700+</h3>
+              <h3 className="text-2xl font-bold text-gray-900">5,800+</h3>
               <p className="text-gray-600">Events Created</p>
             </div>
 
