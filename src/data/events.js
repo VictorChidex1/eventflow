@@ -1,0 +1,97 @@
+// Sample event data - in real app, this would come from an API
+export const events = [
+  {
+    id: 1,
+    title: "Tech Innovation Summit 2024",
+    description:
+      "Join the biggest tech conference of the year with industry leaders and innovators.",
+    date: "2024-12-15",
+    time: "09:00 AM",
+    location: "Convention Center, San Francisco",
+    price: 99,
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=500",
+    category: "Conference",
+    availableTickets: 45,
+    totalTickets: 200,
+  },
+  {
+    id: 2,
+    title: "Summer Music Festival",
+    description:
+      "A weekend of amazing music, food, and fun with top artists from around the world.",
+    date: "2024-07-20",
+    time: "02:00 PM",
+    location: "Central Park, New York",
+    price: 75,
+    image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=500",
+    category: "Music",
+    availableTickets: 12,
+    totalTickets: 500,
+  },
+  {
+    id: 3,
+    title: "Startup Pitch Competition",
+    description:
+      "Watch promising startups pitch their ideas to top investors and win funding.",
+    date: "2024-09-05",
+    time: "10:00 AM",
+    location: "Innovation Hub, Austin",
+    price: 25,
+    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=500",
+    category: "Business",
+    availableTickets: 89,
+    totalTickets: 150,
+  },
+  {
+    id: 4,
+    title: "Yoga & Wellness Retreat",
+    description:
+      "Rejuvenate your mind and body with expert instructors in a serene environment.",
+    date: "2024-08-12",
+    time: "07:00 AM",
+    location: "Mountain Resort, Colorado",
+    price: 150,
+    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500",
+    category: "Wellness",
+    availableTickets: 23,
+    totalTickets: 50,
+  },
+  {
+    id: 5,
+    title: "Food & Wine Expo",
+    description:
+      "Taste exquisite cuisines and premium wines from top chefs and wineries.",
+    date: "2024-10-18",
+    time: "06:00 PM",
+    location: "Grand Hotel, Chicago",
+    price: 120,
+    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500",
+    category: "Food & Drink",
+    availableTickets: 67,
+    totalTickets: 300,
+  },
+  {
+    id: 6,
+    title: "Charity Gala Dinner",
+    description:
+      "An elegant evening supporting children's education with fine dining and entertainment.",
+    date: "2024-11-22",
+    time: "07:30 PM",
+    location: "Luxury Ballroom, Miami",
+    price: 200,
+    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500",
+    category: "Charity",
+    availableTickets: 34,
+    totalTickets: 100,
+  },
+];
+
+export const categories = [
+  "All",
+  "Conference",
+  "Music",
+  "Business",
+  "Wellness",
+  "Food & Drink",
+  "Charity",
+];
