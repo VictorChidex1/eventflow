@@ -84,6 +84,48 @@ export const events = [
     availableTickets: 34,
     totalTickets: 100,
   },
+  {
+    id: 7,
+    title: "Local Band Concert",
+    description:
+      "An amazing night with the best local bands in town. Rock, pop, and indie music!",
+    date: "2024-08-15",
+    time: "07:00 PM",
+    location: "Downtown Music Hall, Your City",
+    price: 35,
+    image: "/images/concert.png", // Add concert.jpg to public/images/
+    category: "Music",
+    availableTickets: 120,
+    totalTickets: 300,
+  },
+  {
+    id: 8,
+    title: "Startup Workshop",
+    description:
+      "Learn how to launch your startup from successful entrepreneurs and investors.",
+    date: "2024-09-10",
+    time: "09:00 AM",
+    location: "Innovation Center, Tech Park",
+    price: 0, // Free event!
+    image: "/images/workshop.png", // Add workshop.jpg to public/images/
+    category: "Business",
+    availableTickets: 45,
+    totalTickets: 50,
+  },
+  {
+    id: 9,
+    title: "Beach Yoga Session",
+    description:
+      "Morning yoga session on the beach to start your day with peace and energy.",
+    date: "2024-07-08",
+    time: "06:30 AM",
+    location: "Sunset Beach",
+    price: 15,
+    image: "/images/yoga.png", // Add yoga.jpg to public/images/
+    category: "Wellness",
+    availableTickets: 25,
+    totalTickets: 30,
+  },
 ];
 
 export const categories = [
