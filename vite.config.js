@@ -12,15 +12,14 @@ export default defineConfig({
   base: isProduction ? "/eventflow/" : "/",
   build: {
     outDir: "docs",
-    // This ensures unique filenames on every build
+    // Nuclear cache busting
     rollupOptions: {
       output: {
-        entryFileNames: `assets/[name]-[hash].js`,
-        chunkFileNames: `assets/[name]-[hash].js`,
-        assetFileNames: `assets/[name]-[hash].[ext]`,
+        entryFileNames: `[name]-${Date.now()}.js`,
+        chunkFileNames: `[name]-${Date.now()}.js`,
+        assetFileNames: `[name]-${Date.now()}.[ext]`,
       },
     },
   },
-  // This clears the build folder before each build
   emptyOutDir: true,
 });
