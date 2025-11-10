@@ -97,30 +97,51 @@ const EventDetail = ({ event, onClose, onBack }) => {
 
               <p className="text-gray-600 text-lg mb-6">{event.description}</p>
 
-              {/* Additional Details */}
+              {/* About This Event - UNIQUE CONTENT */}
               <div className="bg-gray-50 rounded-xl p-6 mb-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   About This Event
                 </h3>
-                <p className="text-gray-600">
-                  Join us for an unforgettable experience! This event brings
-                  together like-minded individuals to celebrate, learn, and
-                  connect. Don't miss out on this amazing opportunity to be part
-                  of something special.
+                <p className="text-gray-600 leading-relaxed">
+                  {event.about ||
+                    "Join us for an unforgettable experience! This event brings together like-minded individuals to celebrate, learn, and connect. Don't miss out on this amazing opportunity to be part of something special."}
                 </p>
               </div>
 
-              {/* What to Expect */}
+              {/* What to Expect - UNIQUE CONTENT */}
               <div className="bg-primary-50 rounded-xl p-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   What to Expect
                 </h3>
-                <ul className="text-gray-600 space-y-2">
-                  <li>• Amazing networking opportunities</li>
-                  <li>• Professional speakers and performers</li>
-                  <li>• Delicious food and refreshments</li>
-                  <li>• Memorable experiences and connections</li>
-                  <li>• Professional photography coverage</li>
+                <ul className="text-gray-600 space-y-3">
+                  {event.whatToExpect ? (
+                    event.whatToExpect.map((item, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-primary-600 mr-3 mt-1">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))
+                  ) : (
+                    // Fallback content if whatToExpect is not provided
+                    <>
+                      <li className="flex items-start">
+                        <span className="text-primary-600 mr-3 mt-1">•</span>
+                        <span>Amazing networking opportunities</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-primary-600 mr-3 mt-1">•</span>
+                        <span>Professional speakers and performers</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-primary-600 mr-3 mt-1">•</span>
+                        <span>Delicious food and refreshments</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-primary-600 mr-3 mt-1">•</span>
+                        <span>Memorable experiences and connections</span>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </div>
             </div>

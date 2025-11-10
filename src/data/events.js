@@ -13,6 +13,16 @@ export const events = [
     category: "Owambe",
     availableTickets: 150,
     totalTickets: 300,
+    about:
+      "Get ready for the most epic Nigerian party of the year! Our Grand Owambe brings together the best of Nigerian culture with non-stop music, delicious local cuisine, and an atmosphere filled with joy and celebration. This is more than just a party - it's a cultural experience you'll never forget!",
+    whatToExpect: [
+      "Live Fuji and Afrobeat performances",
+      "Unlimited Nigerian delicacies (Jollof, Suya, Small chops)",
+      "Traditional dance competitions with cash prizes",
+      "Professional photography and videography",
+      "Free aso-ebi for early bird tickets",
+      "Surprise celebrity appearances",
+    ],
   },
   {
     id: 2,
@@ -27,6 +37,16 @@ export const events = [
     category: "Owambe",
     availableTickets: 200,
     totalTickets: 250,
+    about:
+      "Witness the rich cultural heritage of the Yoruba people in this authentic traditional wedding ceremony. From the introduction rites to the final blessings, every moment is steeped in tradition and significance. This is a unique opportunity to experience Nigerian culture at its finest.",
+    whatToExpect: [
+      "Complete Yoruba introduction ceremony",
+      "Traditional marriage rites and blessings",
+      "Cultural dance performances",
+      "Live talking drum ensemble",
+      "Traditional attire fashion show",
+      "Gift presentation and family exchange",
+    ],
   },
   {
     id: 3,
@@ -41,6 +61,16 @@ export const events = [
     category: "Carnival",
     availableTickets: 500,
     totalTickets: 1000,
+    about:
+      "Welcome to Africa's largest street party! The Calabar Carnival is a month-long celebration of culture, music, and art that transforms the city into a vibrant spectacle of color and rhythm. Join over 2 million participants in this unforgettable experience that showcases the best of Nigerian and African culture.",
+    whatToExpect: [
+      "Colorful parade with 50,000 costumed performers",
+      "International music artists and DJs",
+      "Cultural displays from all Nigerian ethnic groups",
+      "Street food festival with local delicacies",
+      "Fireworks display and light shows",
+      "Carnival queen competition",
+    ],
   },
   {
     id: 4,
@@ -55,6 +85,16 @@ export const events = [
     category: "Carnival",
     availableTickets: 300,
     totalTickets: 500,
+    about:
+      "The Eyo Festival, also known as the 'Adamu Orisha Play,' is a unique Lagos cultural festival that dates back centuries. This sacred ceremony features the iconic white-clad Eyo masquerades who parade through the streets of Lagos Island. It's a rare opportunity to witness one of Nigeria's most protected cultural traditions.",
+    whatToExpect: [
+      "Procession of Eyo masquerades from five divisions",
+      "Traditional rites and ceremonies",
+      "Cultural performances and storytelling",
+      "Historical reenactments",
+      "Traditional music and drumming",
+      "Cultural exhibition and artifacts display",
+    ],
   },
   {
     id: 5,
@@ -69,6 +109,16 @@ export const events = [
     category: "Afrobeats",
     availableTickets: 45,
     totalTickets: 200,
+    about:
+      "Get ready for the concert of the year! We're bringing together the biggest names in Afrobeats for an unforgettable night of music, dance, and pure energy. From Grammy winners to rising stars, this concert features the artists who are taking Nigerian music global. Don't miss your chance to see them all on one stage!",
+    whatToExpect: [
+      "Full performances from Burna Boy, Wizkid, and Davido",
+      "Special guest appearances from other top artists",
+      "World-class sound and lighting production",
+      "Dance competitions with cash prizes",
+      "Meet and greet opportunities (VIP only)",
+      "After-party with celebrity DJs",
+    ],
   },
   {
     id: 6,
@@ -83,6 +133,16 @@ export const events = [
     category: "Afrobeats",
     availableTickets: 80,
     totalTickets: 150,
+    about:
+      "Experience Lagos nightlife at its finest! Our Naija Club Night brings together the best DJs, the hottest music, and the most vibrant crowd. From the latest Afrobeats hits to classic Naija jams, we've got the soundtrack for an unforgettable night. Dress to impress and get ready to dance till sunrise!",
+    whatToExpect: [
+      "Top DJs playing the latest Afrobeats and Afro-pop",
+      "VIP bottle service and exclusive lounge areas",
+      "Dance competitions with premium prizes",
+      "Professional photography and social media coverage",
+      "Complimentary welcome drinks",
+      "Surprise celebrity guest appearances",
+    ],
   },
   {
     id: 7,
@@ -97,6 +157,16 @@ export const events = [
     category: "Business",
     availableTickets: 120,
     totalTickets: 200,
+    about:
+      "The Naija Startup Summit is Nigeria's premier gathering for entrepreneurs, investors, and innovators. This intensive one-day event brings together the brightest minds in Nigerian tech and business to share insights, forge partnerships, and drive the future of African innovation. Whether you're building the next unicorn or looking to invest, this is where connections happen.",
+    whatToExpect: [
+      "Keynote speeches from successful Nigerian entrepreneurs",
+      "Startup pitch competitions with investor panels",
+      "Networking sessions with VCs and angel investors",
+      "Workshops on fundraising and business growth",
+      "Technology exhibition and demo zone",
+      "One-on-one mentorship sessions",
+    ],
   },
   {
     id: 8,
@@ -111,6 +181,16 @@ export const events = [
     category: "Food & Drink",
     availableTickets: 180,
     totalTickets: 300,
+    about:
+      "Calling all food lovers! The Naija Food Festival is a culinary journey through Nigeria's diverse food culture. From street food favorites to royal delicacies, experience the flavors that make Nigerian cuisine world-famous. Meet master chefs, learn cooking secrets, and taste your way through every region of Nigeria.",
+    whatToExpect: [
+      "Over 50 food vendors from across Nigeria",
+      "Live cooking demonstrations by celebrity chefs",
+      "Jollof rice competition with celebrity judges",
+      "Traditional cooking methods exhibition",
+      "Food pairing with local wines and drinks",
+      "Recipe books and cooking utensil marketplace",
+    ],
   },
   {
     id: 9,
@@ -125,6 +205,16 @@ export const events = [
     category: "Religious",
     availableTickets: 500,
     totalTickets: 1000,
+    about:
+      "Experience a transformative night of spiritual renewal and divine connection. The Night of Worship brings together anointed ministers and gospel artists for an unforgettable encounter with God. This is more than a concert - it's a spiritual gathering designed to refresh your soul and strengthen your faith through powerful worship and inspiring messages.",
+    whatToExpect: [
+      "Powerful worship sessions with live bands",
+      "Inspirational messages from anointed ministers",
+      "Special performances by top gospel artists",
+      "Prayer and altar call sessions",
+      "Free prayer and counseling services",
+      "Communion service and spiritual blessings",
+    ],
   },
   {
     id: 10,
@@ -139,6 +229,16 @@ export const events = [
     category: "Cultural",
     availableTickets: 250,
     totalTickets: 400,
+    about:
+      "Immerse yourself in the rich cultural heritage of the Igbo people at this annual festival celebrating tradition, art, and community. From ancient masquerades to contemporary art, this festival showcases the diversity and resilience of Igbo culture through generations.",
+    whatToExpect: [
+      "Traditional masquerade displays (Mmanwu)",
+      "Igbo cultural dance competitions",
+      "Traditional wrestling matches",
+      "Cultural fashion show and attire exhibition",
+      "Local cuisine tasting from different Igbo communities",
+      "Art and craft exhibitions from Igbo artists",
+    ],
   },
   {
     id: 11,
@@ -153,6 +253,16 @@ export const events = [
     category: "Technology",
     availableTickets: 150,
     totalTickets: 300,
+    about:
+      "The Lagos Tech Festival is West Africa's largest technology conference, bringing together innovators, developers, and tech enthusiasts from across the continent. Explore the latest in AI, blockchain, web development, and digital innovation while connecting with the people shaping Africa's technological future.",
+    whatToExpect: [
+      "Technical workshops on emerging technologies",
+      "48-hour hackathon with cash prizes",
+      "Startup exhibition and investor meetups",
+      "Career fair with top tech companies",
+      "Panel discussions with industry leaders",
+      "Hands-on tech demos and product launches",
+    ],
   },
   {
     id: 12,
@@ -167,6 +277,16 @@ export const events = [
     category: "Sports",
     availableTickets: 200,
     totalTickets: 500,
+    about:
+      "Get ready for the most anticipated football match of the season! The Naija Derby brings together two of Nigeria's most passionate football clubs in a battle for local supremacy. Experience the electric atmosphere, passionate fans, and world-class football that makes Nigerian derby matches legendary.",
+    whatToExpect: [
+      "Premier league quality football match",
+      "Pre-match entertainment and fan zones",
+      "Half-time cultural performances",
+      "Stadium-wide chanting and supporter displays",
+      "Post-match player meet and greet",
+      "Official merchandise and souvenir shops",
+    ],
   },
   {
     id: 13,
@@ -181,6 +301,16 @@ export const events = [
     category: "Education",
     availableTickets: 45,
     totalTickets: 60,
+    about:
+      "Ace your JAMB/UTME with our intensive preparation masterclass designed by top educators and past examiners. This comprehensive program covers all four subjects with proven strategies, timed practice tests, and personalized feedback to maximize your score and secure your preferred university admission.",
+    whatToExpect: [
+      "Comprehensive coverage of all JAMB subjects",
+      "Timed practice tests under exam conditions",
+      "Expert strategies for time management",
+      "Personalized performance analysis",
+      "Access to past questions and solutions",
+      "One-on-one tutoring sessions",
+    ],
   },
   {
     id: 14,
@@ -195,6 +325,16 @@ export const events = [
     category: "Art",
     availableTickets: 85,
     totalTickets: 150,
+    about:
+      "Discover the vibrant world of Nigerian contemporary art at this exclusive exhibition showcasing groundbreaking works from both established masters and emerging talents. This curated collection represents the diverse voices and innovative techniques shaping the future of African art on the global stage.",
+    whatToExpect: [
+      "Exhibition of 50+ contemporary artworks",
+      "Live painting sessions with featured artists",
+      "Artists' talks and curator tours",
+      "Interactive art installation experiences",
+      "Art investment and collection workshops",
+      "Exclusive preview for ticket holders",
+    ],
   },
   {
     id: 15,
@@ -209,6 +349,16 @@ export const events = [
     category: "Technology",
     availableTickets: 112,
     totalTickets: 250,
+    about:
+      "Join Africa's leading blockchain innovators, developers, and investors at the premier Web3 summit. Explore the transformative potential of decentralized technologies, from DeFi and NFTs to smart contracts and DAOs. This is where the future of Africa's digital economy is being built.",
+    whatToExpect: [
+      "Technical deep dives on blockchain protocols",
+      "Live coding workshops for Web3 development",
+      "NFT creation and marketplace tutorials",
+      "Investment panels with crypto VCs",
+      "Regulatory and compliance discussions",
+      "Networking with blockchain startups",
+    ],
   },
   {
     id: 16,
@@ -223,6 +373,16 @@ export const events = [
     category: "Education",
     availableTickets: 45,
     totalTickets: 50,
+    about:
+      "Transform your career with our intensive digital skills bootcamp designed for the modern workforce. In just two days, you'll gain practical, job-ready skills in high-demand areas including web development, UI/UX design, and digital marketing. No prior experience required - just bring your laptop and determination!",
+    whatToExpect: [
+      "Hands-on web development projects",
+      "UI/UX design principles and tools",
+      "Digital marketing strategy workshops",
+      "Career coaching and portfolio building",
+      "Industry expert mentorship sessions",
+      "Job placement assistance program",
+    ],
   },
   {
     id: 17,
@@ -237,6 +397,16 @@ export const events = [
     category: "Education",
     availableTickets: 28,
     totalTickets: 40,
+    about:
+      "Overcome stage fright and master the art of persuasive communication in our intensive public speaking masterclass. Led by professional speakers and communication experts, this transformative experience will equip you with the confidence and techniques to captivate any audience, from boardrooms to conference stages.",
+    whatToExpect: [
+      "Personalized speech coaching sessions",
+      "Video analysis and feedback on delivery",
+      "Confidence-building exercises",
+      "Audience engagement techniques",
+      "Crisis management and Q&A practice",
+      "Professional video recording of final speech",
+    ],
   },
 ];
 
