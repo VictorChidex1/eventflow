@@ -63,9 +63,10 @@ const Header = () => {
           </a>
         </nav>
 
-        {/* Desktop Actions */}
+        {/* Desktop Actions - FIXED SEARCH BAR */}
         <div className="hidden sm:flex items-center space-x-3">
-          <div className="mobile-search">
+          {/* Fixed Search Bar Container */}
+          <div className="mobile-search relative">
             <Search
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
               size={18}
@@ -140,7 +141,7 @@ const Header = () => {
                 Dashboard
               </motion.a>
 
-              {/* Mobile Search */}
+              {/* Mobile Search - Also Fixed */}
               <motion.div
                 className="relative mt-4"
                 initial={{ opacity: 0, x: -20 }}
