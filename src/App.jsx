@@ -10,6 +10,8 @@ function App() {
     <div className="min-h-screen bg-white">
       <Header />
       <main>
+        {" "}
+        {/* Remove pt-16 here */}
         <Hero />
         <EventsList />
       </main>
