@@ -1,5 +1,6 @@
 import React from "react";
 import { Calendar, MapPin, Ticket, ArrowRight } from "lucide-react";
+import "./EventCard.css"; // Import from same folder
 
 const EventCard = ({ event }) => {
   const formatDate = (dateString) => {

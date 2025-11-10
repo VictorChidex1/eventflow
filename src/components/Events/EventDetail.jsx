@@ -8,6 +8,7 @@ import {
   Share2,
   Heart,
 } from "lucide-react";
+import "./EventDetail.css"; // Import from same folder
 
 const EventDetail = ({ event, onClose, onBack }) => {
   const formatDate = (dateString) => {

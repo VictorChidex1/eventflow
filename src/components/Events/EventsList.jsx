@@ -3,6 +3,7 @@ import { Search, Filter } from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "./EventCard";
 import EventDetail from "./EventDetail";
+import "./EventsList.css"; // Import from same folder
 
 const EventsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
