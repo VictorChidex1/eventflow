@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Calendar,
-  Users,
-  MapPin,
-  ArrowRight,
-  Star,
-  PlayCircle,
-} from "lucide-react";
+import { Calendar, Users, MapPin, ArrowRight, Star } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -28,12 +21,10 @@ const Hero = () => {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center pb-20">
         <div className="max-w-4xl mx-auto">
           {/* Badge with more space */}
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-12 mt-8">
-            {" "}
-            {/* Added mt-8 for more space */}
             <Star className="w-4 h-4 text-yellow-400" fill="currentColor" />
             <span className="text-white text-sm font-medium">
               Trusted by 10,000+ Event Organizers
@@ -67,7 +58,6 @@ const Hero = () => {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
 
-            {/* Changed from "Watch Demo" to "Browse Events" */}
             <button className="group bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold py-4 px-8 rounded-xl border border-white/20 transition-all duration-300 transform hover:scale-105 flex items-center gap-3 text-lg">
               <Calendar className="w-5 h-5" />
               <span>Browse Events</span>
@@ -107,16 +97,18 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Trusted By Section */}
-          <div className="mt-16">
+          {/* Trusted By Section - MOVED UPWARD */}
+          <div className="mt-12">
+            {" "}
+            {/* Changed from mt-16 to mt-8 */}
             <p className="text-gray-400 text-sm font-medium mb-6">
               TRUSTED BY LEADING BRANDS
             </p>
             <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-              <div className="text-white font-bold text-xl">NETFLIX</div>
+              <div className="text-white font-bold text-xl">MAVINS</div>
               <div className="text-white font-bold text-xl">SPOTIFY</div>
-              <div className="text-white font-bold text-xl">NIKE</div>
-              <div className="text-white font-bold text-xl">APPLE</div>
+              <div className="text-white font-bold text-xl">YBNL</div>
+              <div className="text-white font-bold text-xl">INDOMIE</div>
               <div className="text-white font-bold text-xl">GOOGLE</div>
             </div>
           </div>
