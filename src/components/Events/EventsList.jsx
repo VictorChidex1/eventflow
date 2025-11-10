@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "./EventCard";
+import EventDetail from "./EventDetail";
 
 const EventsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("date");
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   // Filter and sort events
   const filteredEvents = events
@@ -30,6 +32,14 @@ const EventsList = () => {
           return 0;
       }
     });
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+  };
+
+  const handleCloseDetail = () => {
+    setSelectedEvent(null);
+  };
 
   return (
     <section id="events" className="py-20 bg-gray-50">
@@ -91,7 +101,13 @@ const EventsList = () => {
         {filteredEvents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <div
+                key={event.id}
+                onClick={() => handleEventClick(event)}
+                className="cursor-pointer transform hover:scale-105 transition-transform duration-300"
+              >
+                <EventCard event={event} />
+              </div>
             ))}
           </div>
         ) : (
@@ -112,6 +128,15 @@ const EventsList = () => {
         <div className="mt-8 text-center text-gray-600">
           Showing {filteredEvents.length} of {events.length} events
         </div>
+
+        {/* Event Detail Modal */}
+        {selectedEvent && (
+          <EventDetail
+            event={selectedEvent}
+            onClose={handleCloseDetail}
+            onBack={handleCloseDetail}
+          />
+        )}
       </div>
     </section>
   );
