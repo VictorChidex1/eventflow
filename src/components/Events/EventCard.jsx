@@ -11,7 +11,7 @@ const EventCard = ({ event }) => {
   };
 
   const formatPrice = (price) => {
-    return price === 0 ? "Free" : `$${price}`;
+    return price === 0 ? "Free" : `₦${price.toLocaleString()}`;
   };
 
   const getTicketStatus = (available, total) => {
