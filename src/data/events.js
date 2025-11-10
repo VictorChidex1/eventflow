@@ -9,7 +9,7 @@ export const events = [
     time: "04:00 PM",
     location: "Ikeja City Mall, Lagos",
     price: 10000,
-    image: "/images/owambe.png", // Party image
+    image: "images/owambe.png", // Party image
     category: "Owambe",
     availableTickets: 150,
     totalTickets: 300,
