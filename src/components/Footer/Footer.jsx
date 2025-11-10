@@ -57,7 +57,7 @@ const Footer = () => {
             <ul className="space-y-2 text-gray-400">
               <li>
                 <a
-                  href="/help-center"
+                  href="#/help-center"
                   className="hover:text-white transition-colors"
                 >
                   Help Center
