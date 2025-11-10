@@ -33,7 +33,7 @@ export const events = [
     time: "10:00 AM",
     location: "Event Center, Ibadan",
     price: 5000,
-    image: "/images/traditional-wedding.png", // Wedding image
+    image: "images/traditional-wedding.png", // Wedding image
     category: "Owambe",
     availableTickets: 200,
     totalTickets: 250,
@@ -57,7 +57,7 @@ export const events = [
     time: "08:00 AM",
     location: "Calabar, Cross River",
     price: 5000,
-    image: "/images/calabar-carnival.png", // Carnival image
+    image: "images/calabar-carnival.png", // Carnival image
     category: "Carnival",
     availableTickets: 500,
     totalTickets: 1000,
@@ -81,7 +81,7 @@ export const events = [
     time: "07:00 AM",
     location: "Tafawa Balewa Square, Lagos",
     price: 3000,
-    image: "/images/eyo-festival.png",
+    image: "images/eyo-festival.png",
     category: "Carnival",
     availableTickets: 300,
     totalTickets: 500,
@@ -105,7 +105,7 @@ export const events = [
     time: "06:00 PM",
     location: "Eko Hotels, Lagos",
     price: 25000,
-    image: "/images/afrobeats-concert.png", // Concert image
+    image: "images/afrobeats-concert.png", // Concert image
     category: "Afrobeats",
     availableTickets: 45,
     totalTickets: 200,
@@ -129,7 +129,7 @@ export const events = [
     time: "10:00 PM",
     location: "Quilox, Victoria Island",
     price: 8000,
-    image: "/images/naija-club-night.png", // Club image
+    image: "images/naija-club-night.png", // Club image
     category: "Afrobeats",
     availableTickets: 80,
     totalTickets: 150,
@@ -153,7 +153,7 @@ export const events = [
     time: "09:00 AM",
     location: "Landmark Center, Lagos",
     price: 15000,
-    image: "/images/startup-summit.png",
+    image: "images/startup-summit.png",
     category: "Business",
     availableTickets: 120,
     totalTickets: 200,
@@ -177,7 +177,7 @@ export const events = [
     time: "12:00 PM",
     location: "Muritala Mohammed Park, Abuja",
     price: 5000,
-    image: "/images/naija-food-festival.png",
+    image: "images/naija-food-festival.png",
     category: "Food & Drink",
     availableTickets: 180,
     totalTickets: 300,
@@ -201,7 +201,7 @@ export const events = [
     time: "05:00 PM",
     location: "Redemption Camp, Lagos-Ibadan Expressway",
     price: 0,
-    image: "/images/worship.png", // Church image
+    image: "images/worship.png", // Church image
     category: "Religious",
     availableTickets: 500,
     totalTickets: 1000,
@@ -225,7 +225,7 @@ export const events = [
     time: "10:00 AM",
     location: "Owerri, Imo State",
     price: 2000,
-    image: "/images/igbo-festival.png",
+    image: "images/igbo-festival.png",
     category: "Cultural",
     availableTickets: 250,
     totalTickets: 400,
@@ -249,7 +249,7 @@ export const events = [
     time: "09:00 AM",
     location: "Eko Convention Center, Lagos",
     price: 20000,
-    image: "/images/lagos-tech-festival.png",
+    image: "images/lagos-tech-festival.png",
     category: "Technology",
     availableTickets: 150,
     totalTickets: 300,
@@ -273,7 +273,7 @@ export const events = [
     time: "04:00 PM",
     location: "National Stadium, Lagos",
     price: 3000,
-    image: "/images/derby-match.png",
+    image: "images/derby-match.png",
     category: "Sports",
     availableTickets: 200,
     totalTickets: 500,
@@ -297,7 +297,7 @@ export const events = [
     time: "09:00 AM",
     location: "University of Lagos",
     price: 15000,
-    image: "/images/jamb.png",
+    image: "images/jamb.png",
     category: "Education",
     availableTickets: 45,
     totalTickets: 60,
@@ -321,7 +321,7 @@ export const events = [
     time: "11:00 AM",
     location: "National Gallery, Lagos",
     price: 3000,
-    image: "/images/art-show.png",
+    image: "images/art-show.png",
     category: "Art",
     availableTickets: 85,
     totalTickets: 150,
@@ -345,7 +345,7 @@ export const events = [
     time: "10:00 AM",
     location: "Eko Innovation Center, Lagos",
     price: 25000, // ₦25,000
-    image: "/images/blockchain.png",
+    image: "images/blockchain.png",
     category: "Technology",
     availableTickets: 112,
     totalTickets: 250,
@@ -369,7 +369,7 @@ export const events = [
     time: "09:00 AM",
     location: "University of Lagos",
     price: 45000, // ₦45,000
-    image: "/images/digital-skills.png",
+    image: "images/digital-skills.png",
     category: "Education",
     availableTickets: 45,
     totalTickets: 50,
@@ -393,7 +393,7 @@ export const events = [
     time: "10:00 AM",
     location: "Muson Center, Lagos",
     price: 20000, // ₦20,000
-    image: "/images/public-speaking.png",
+    image: "images/public-speaking.png",
     category: "Education",
     availableTickets: 28,
     totalTickets: 40,
