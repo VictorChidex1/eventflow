@@ -5,6 +5,7 @@ import Hero from "./components/Hero/Hero";
 import EventsList from "./components/Events/EventsList";
 import Footer from "./components/Footer/Footer";
 import HelpCenter from "./components/HelpCenter/HelpCenter";
+import ContactUs from "./components/ContactUs/ContactUs";
 import "./index.css";
 
 function App() {
@@ -30,6 +31,16 @@ function App() {
             element={
               <main>
                 <HelpCenter />
+              </main>
+            }
+          />
+
+          {/* Contact Us Route - ADD THIS */}
+          <Route
+            path="/contact-us"
+            element={
+              <main>
+                <ContactUs />
               </main>
             }
           />
