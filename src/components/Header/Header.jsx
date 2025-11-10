@@ -1,7 +1,14 @@
-import React from "react";
-import { Calendar, Ticket, User, Search, Menu } from "lucide-react";
+import React, { useState } from "react";
+import { Calendar, Ticket, User, Search, Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Header = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
     <header className="header-mobile safe-padding">
       <div className="header-content-mobile">
@@ -16,8 +23,11 @@ const Header = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <button className="mobile-menu-button">
-          <Menu size={24} />
+        <button
+          className="mobile-menu-button md:hidden"
+          onClick={toggleMobileMenu}
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
         {/* Navigation - Hidden on mobile */}
@@ -48,7 +58,7 @@ const Header = () => {
           </a>
         </nav>
 
-        {/* Search and User Actions */}
+        {/* Search and User Actions - Hidden on mobile */}
         <div className="hidden sm:flex items-center space-x-3">
           <div className="mobile-search">
             <Search
@@ -71,6 +81,82 @@ const Header = () => {
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay with Animation */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "tween", duration: 0.3 }}
+            className="md:hidden fixed inset-0 bg-white z-40 pt-20 safe-padding"
+          >
+            <div className="flex flex-col space-y-6 px-4">
+              {/* Mobile Navigation Links */}
+              <a
+                href="#home"
+                className="text-gray-700 hover:text-primary-600 font-medium text-lg py-2 border-b border-gray-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Home
+              </a>
+              <a
+                href="#events"
+                className="text-gray-700 hover:text-primary-600 font-medium text-lg py-2 border-b border-gray-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Events
+              </a>
+              <a
+                href="#create"
+                className="text-gray-700 hover:text-primary-600 font-medium text-lg py-2 border-b border-gray-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Create Event
+              </a>
+              <a
+                href="#dashboard"
+                className="text-gray-700 hover:text-primary-600 font-medium text-lg py-2 border-b border-gray-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Dashboard
+              </a>
+
+              {/* Mobile Search */}
+              <div className="relative mt-4">
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Mobile Action Buttons */}
+              <div className="flex flex-col space-y-3 mt-4">
+                <button
+                  className="btn-secondary flex items-center justify-center space-x-2 text-base py-3"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Ticket size={20} />
+                  <span>My Tickets</span>
+                </button>
+                <button
+                  className="btn-primary flex items-center justify-center space-x-2 text-base py-3"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User size={20} />
+                  <span>Sign In</span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

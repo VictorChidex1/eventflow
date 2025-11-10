@@ -254,3 +254,40 @@
     padding-right: env(safe-area-inset-right);
   }
 }
+
+/* Mobile Menu Styles */
+.mobile-menu-overlay {
+  @apply fixed inset-0 bg-white z-50 pt-20 safe-padding;
+}
+
+.mobile-menu-content {
+  @apply flex flex-col space-y-6 px-4;
+}
+
+.mobile-menu-link {
+  @apply text-gray-700 hover:text-primary-600 font-medium text-lg py-2 border-b border-gray-200;
+}
+
+/* Ensure the header has proper z-index */
+.header-mobile {
+  @apply bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 w-full;
+}
+
+/* Smooth transitions for mobile menu */
+.mobile-menu-enter {
+  transform: translateX(-100%);
+}
+
+.mobile-menu-enter-active {
+  transform: translateX(0);
+  transition: transform 300ms ease-in-out;
+}
+
+.mobile-menu-exit {
+  transform: translateX(0);
+}
+
+.mobile-menu-exit-active {
+  transform: translateX(-100%);
+  transition: transform 300ms ease-in-out;
+}
