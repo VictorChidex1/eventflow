@@ -15,6 +15,7 @@ import Pricing from "./components/Pricing/Pricing";
 import CreateEvent from "./components/CreateEvent/CreateEvent";
 import Login from "./pages/Login"; // ← WE'LL CREATE THIS NEXT
 import Signup from "./pages/Signup"; // ← WE'LL CREATE THIS NEXT
+import Profile from "./pages/Profile/Profile";
 import "./index.css";
 
 function App() {
@@ -110,6 +111,17 @@ function App() {
                   {/* ← WRAP WITH ProtectedRoute */}
                   <main>
                     <CreateEvent />
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <main>
+                    <Profile />
                   </main>
                 </ProtectedRoute>
               }
