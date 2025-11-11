@@ -1,5 +1,7 @@
 import React from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext"; // ← ADD THIS IMPORT
+import ProtectedRoute from "./components/ProtectedRoute"; // ← ADD THIS IMPORT
 import Header from "./components/Header/Header";
 import Hero from "./components/Hero/Hero";
 import EventsList from "./components/Events/EventsList";
@@ -11,98 +13,112 @@ import TermsOfService from "./components/TermsofService/TermsofService";
 import Features from "./components/Features/Features";
 import Pricing from "./components/Pricing/Pricing";
 import CreateEvent from "./components/CreateEvent/CreateEvent";
+import Login from "./pages/Login"; // ← WE'LL CREATE THIS NEXT
+import Signup from "./pages/Signup"; // ← WE'LL CREATE THIS NEXT
 import "./index.css";
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-white">
-        <Header />
-        <Routes>
-          {/* Home Page Route */}
-          <Route
-            path="/"
-            element={
-              <main>
-                <Hero />
-                <EventsList />
-              </main>
-            }
-          />
+    <AuthProvider>
+      {" "}
+      {/* ← WRAP EVERYTHING WITH AuthProvider */}
+      <Router>
+        <div className="min-h-screen bg-white">
+          <Header />
+          <Routes>
+            {/* Home Page Route */}
+            <Route
+              path="/"
+              element={
+                <main>
+                  <Hero />
+                  <EventsList />
+                </main>
+              }
+            />
 
-          {/* Help Center Route */}
-          <Route
-            path="/help-center"
-            element={
-              <main>
-                <HelpCenter />
-              </main>
-            }
-          />
+            {/* ADD LOGIN AND SIGNUP ROUTES */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
 
-          {/* Contact Us Route - ADD THIS */}
-          <Route
-            path="/contact-us"
-            element={
-              <main>
-                <ContactUs />
-              </main>
-            }
-          />
+            {/* Help Center Route */}
+            <Route
+              path="/help-center"
+              element={
+                <main>
+                  <HelpCenter />
+                </main>
+              }
+            />
 
-          {/* Privacy Policy Route - ADD THIS */}
-          <Route
-            path="/privacy-policy"
-            element={
-              <main>
-                <PrivacyPolicy />
-              </main>
-            }
-          />
+            {/* Contact Us Route */}
+            <Route
+              path="/contact-us"
+              element={
+                <main>
+                  <ContactUs />
+                </main>
+              }
+            />
 
-          {/* Terms of Service Route - ADD THIS */}
-          <Route
-            path="/terms-of-service"
-            element={
-              <main>
-                <TermsOfService />
-              </main>
-            }
-          />
+            {/* Privacy Policy Route */}
+            <Route
+              path="/privacy-policy"
+              element={
+                <main>
+                  <PrivacyPolicy />
+                </main>
+              }
+            />
 
-          {/* Features Route - ADD THIS */}
-          <Route
-            path="/features"
-            element={
-              <main>
-                <Features />
-              </main>
-            }
-          />
+            {/* Terms of Service Route */}
+            <Route
+              path="/terms-of-service"
+              element={
+                <main>
+                  <TermsOfService />
+                </main>
+              }
+            />
 
-          {/* Pricing Route - ADD THIS */}
-          <Route
-            path="/pricing"
-            element={
-              <main>
-                <Pricing />
-              </main>
-            }
-          />
+            {/* Features Route */}
+            <Route
+              path="/features"
+              element={
+                <main>
+                  <Features />
+                </main>
+              }
+            />
 
-          {/* Create Event Route - ADD THIS */}
-          <Route
-            path="/create-event"
-            element={
-              <main>
-                <CreateEvent />
-              </main>
-            }
-          />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+            {/* Pricing Route */}
+            <Route
+              path="/pricing"
+              element={
+                <main>
+                  <Pricing />
+                </main>
+              }
+            />
+
+            {/* PROTECTED Create Event Route - THIS IS THE IMPORTANT CHANGE */}
+            <Route
+              path="/create-event"
+              element={
+                <ProtectedRoute>
+                  {" "}
+                  {/* ← WRAP WITH ProtectedRoute */}
+                  <main>
+                    <CreateEvent />
+                  </main>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <Footer />
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
