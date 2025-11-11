@@ -10,6 +10,7 @@ import PrivacyPolicy from "./components/PrivacyPolicy/PrivacyPolicy";
 import TermsOfService from "./components/TermsofService/TermsofService";
 import Features from "./components/Features/Features";
 import Pricing from "./components/Pricing/Pricing";
+import CreateEvent from "./components/CreateEvent/CreateEvent";
 import "./index.css";
 
 function App() {
@@ -85,6 +86,16 @@ function App() {
             element={
               <main>
                 <Pricing />
+              </main>
+            }
+          />
+
+          {/* Create Event Route - ADD THIS */}
+          <Route
+            path="/create-event"
+            element={
+              <main>
+                <CreateEvent />
               </main>
             }
           />

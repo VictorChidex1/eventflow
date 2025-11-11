@@ -35,7 +35,10 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a
+                  href="#/create-event"
+                  className="hover:text-white transition-colors"
+                >
                   Create Event
                 </a>
               </li>
