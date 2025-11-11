@@ -5,7 +5,7 @@ export const events = [
     title: "Grand Owambe Party",
     description:
       "Experience the ultimate Nigerian party with live Fuji music, amazing food, and vibrant atmosphere.",
-    date: "2024-12-25",
+    date: "2026-05-25",
     time: "04:00 PM",
     location: "Ikeja City Mall, Lagos",
     price: 10000,
@@ -29,7 +29,7 @@ export const events = [
     title: "Traditional Wedding Ceremony",
     description:
       "Join us for a beautiful Yoruba traditional wedding with cultural displays and entertainment.",
-    date: "2024-08-10",
+    date: "2025-12-10",
     time: "10:00 AM",
     location: "Event Center, Ibadan",
     price: 5000,
@@ -53,7 +53,7 @@ export const events = [
     title: "Calabar Carnival 2024",
     description:
       "Africa's biggest street party with colorful costumes, music, and cultural displays.",
-    date: "2024-12-27",
+    date: "2026-02-27",
     time: "08:00 AM",
     location: "Calabar, Cross River",
     price: 5000,
@@ -77,7 +77,7 @@ export const events = [
     title: "Eyo Festival",
     description:
       "Experience Lagos' unique cultural festival with the iconic white-clad Eyo masquerades.",
-    date: "2024-05-25",
+    date: "2026-05-25",
     time: "07:00 AM",
     location: "Tafawa Balewa Square, Lagos",
     price: 3000,
@@ -101,7 +101,7 @@ export const events = [
     title: "Afrobeats Live Concert",
     description:
       "Featuring Burna Boy, Wizkid, Davido and other top Nigerian artists in an epic night of music.",
-    date: "2024-07-20",
+    date: "2026-07-20",
     time: "06:00 PM",
     location: "Eko Hotels, Lagos",
     price: 25000,
@@ -125,7 +125,7 @@ export const events = [
     title: "Naija Club Night",
     description:
       "Dance to the hottest Naija hits with DJs spinning the latest Afrobeats and Afro-pop.",
-    date: "2024-06-15",
+    date: "2026-06-15",
     time: "10:00 PM",
     location: "Quilox, Victoria Island",
     price: 8000,
@@ -149,7 +149,7 @@ export const events = [
     title: "Naija Startup Summit",
     description:
       "Connect with Nigeria's top entrepreneurs and investors in the tech and business space.",
-    date: "2024-09-05",
+    date: "2026-03-05",
     time: "09:00 AM",
     location: "Landmark Center, Lagos",
     price: 15000,
@@ -173,7 +173,7 @@ export const events = [
     title: "Naija Food Festival",
     description:
       "Taste authentic Nigerian dishes from Jollof rice to Suya, Pounded Yam and more!",
-    date: "2024-08-18",
+    date: "2026-07-18",
     time: "12:00 PM",
     location: "Muritala Mohammed Park, Abuja",
     price: 5000,
@@ -197,7 +197,7 @@ export const events = [
     title: "Night of Worship",
     description:
       "Powerful night of praise and worship with top gospel artists and ministers.",
-    date: "2024-07-12",
+    date: "2026-02-12",
     time: "05:00 PM",
     location: "Redemption Camp, Lagos-Ibadan Expressway",
     price: 0,
@@ -221,7 +221,7 @@ export const events = [
     title: "Igbo Cultural Festival",
     description:
       "Celebrate Igbo culture with traditional dances, masquerades, and cultural displays.",
-    date: "2024-10-01",
+    date: "2026-10-01",
     time: "10:00 AM",
     location: "Owerri, Imo State",
     price: 2000,
@@ -245,7 +245,7 @@ export const events = [
     title: "Lagos Tech Festival",
     description:
       "Nigeria's biggest tech gathering with workshops, hackathons, and startup exhibitions.",
-    date: "2024-11-08",
+    date: "2026-03-08",
     time: "09:00 AM",
     location: "Eko Convention Center, Lagos",
     price: 20000,
@@ -269,7 +269,7 @@ export const events = [
     title: "Naija Derby Football Match",
     description:
       "Watch the epic clash between local football rivals in an electrifying atmosphere.",
-    date: "2024-09-20",
+    date: "2026-04-20",
     time: "04:00 PM",
     location: "National Stadium, Lagos",
     price: 3000,
@@ -293,7 +293,7 @@ export const events = [
     title: "JAMB Prep Masterclass",
     description:
       "Comprehensive preparation for UTME with expert tutors and practice tests.",
-    date: "2024-02-10",
+    date: "2026-02-10",
     time: "09:00 AM",
     location: "University of Lagos",
     price: 15000,
@@ -317,7 +317,7 @@ export const events = [
     title: "Nigerian Contemporary Art Show",
     description:
       "Featuring works from Nigeria's most promising contemporary artists.",
-    date: "2024-08-25",
+    date: "2026-10-25",
     time: "11:00 AM",
     location: "National Gallery, Lagos",
     price: 3000,
@@ -341,7 +341,7 @@ export const events = [
     title: "Blockchain & Web3 Summit",
     description:
       "Explore the future of decentralized technology, NFTs, and cryptocurrency innovations.",
-    date: "2024-09-30",
+    date: "2026-09-30",
     time: "10:00 AM",
     location: "Eko Innovation Center, Lagos",
     price: 25000, // ₦25,000
@@ -365,7 +365,7 @@ export const events = [
     title: "Digital Skills Bootcamp",
     description:
       "Intensive 2-day bootcamp covering web development, design, and digital marketing skills.",
-    date: "2024-08-17",
+    date: "2026-03-17",
     time: "09:00 AM",
     location: "University of Lagos",
     price: 45000, // ₦45,000
@@ -389,7 +389,7 @@ export const events = [
     title: "Public Speaking Masterclass",
     description:
       "Transform your public speaking skills with expert coaches and practical exercises.",
-    date: "2024-07-29",
+    date: "2025-06-29",
     time: "10:00 AM",
     location: "Muson Center, Lagos",
     price: 20000, // ₦20,000
@@ -406,6 +406,174 @@ export const events = [
       "Audience engagement techniques",
       "Crisis management and Q&A practice",
       "Professional video recording of final speech",
+    ],
+  },
+  {
+    id: 18,
+    title: "Lagos Fashion Week",
+    description:
+      "Experience the latest in African fashion with top designers and runway shows.",
+    date: "2026-10-15",
+    time: "06:00 PM",
+    location: "Federal Palace Hotel, Lagos",
+    price: 20000,
+    image: "images/fashion-week.png",
+    category: "Art",
+    availableTickets: 75,
+    totalTickets: 200,
+    about:
+      "Lagos Fashion Week showcases the best of African fashion talent, from established designers to emerging creatives. This four-day event features runway shows, exhibitions, and networking opportunities in the heart of Nigeria's fashion capital.",
+    whatToExpect: [
+      "Runway shows from top African designers",
+      "Emerging designer showcase",
+      "Fashion photography exhibitions",
+      "Industry networking sessions",
+      "Pop-up shops from local brands",
+      "Celebrity guest appearances",
+    ],
+  },
+  {
+    id: 19,
+    title: "Naija Comedy Night",
+    description:
+      "An evening of laughter with Nigeria's top comedians and rising stars.",
+    date: "2026-04-20",
+    time: "08:00 PM",
+    location: "Muson Center, Lagos",
+    price: 8000,
+    image: "images/comedy-night.png",
+    category: "Entertainment",
+    availableTickets: 120,
+    totalTickets: 250,
+    about:
+      "Get ready for a night of non-stop laughter as Nigeria's finest comedians take the stage. From viral sensations to comedy legends, this event brings together the best of Nigerian humor in one unforgettable evening.",
+    whatToExpect: [
+      "Performances from 10+ top comedians",
+      "Stand-up comedy showcases",
+      "Sketch comedy performances",
+      "Audience interaction segments",
+      "Open mic for rising talents",
+      "After-party with performers",
+    ],
+  },
+  {
+    id: 20,
+    title: "Yoga & Wellness Retreat",
+    description:
+      "Rejuvenate your mind and body with expert-led yoga sessions and wellness workshops.",
+    date: "2026-08-14",
+    time: "07:00 AM",
+    location: "Eko Atlantic, Lagos",
+    price: 12000,
+    image: "images/yoga-retreat.png",
+    category: "Wellness",
+    availableTickets: 40,
+    totalTickets: 50,
+    about:
+      "Escape the city hustle and reconnect with yourself at our premium wellness retreat. This full-day experience combines yoga, meditation, nutrition workshops, and holistic healing practices for complete mind-body transformation.",
+    whatToExpect: [
+      "Sunrise yoga sessions with expert instructors",
+      "Guided meditation and mindfulness practices",
+      "Nutrition and wellness workshops",
+      "Holistic healing sessions",
+      "Healthy gourmet meals",
+      "Wellness goodie bag for all attendees",
+    ],
+  },
+  {
+    id: 21,
+    title: "Naija Film Festival",
+    description:
+      "Celebrate Nigerian cinema with film screenings, director Q&As, and industry panels.",
+    date: "2026-05-22",
+    time: "10:00 AM",
+    location: "Filmhouse Cinemas, Lagos",
+    price: 5000,
+    image: "images/film-festival.png",
+    category: "Art",
+    availableTickets: 200,
+    totalTickets: 300,
+    about:
+      "The Naija Film Festival showcases the best of Nigerian and African cinema, featuring groundbreaking films, documentaries, and short films. Meet filmmakers, attend masterclasses, and celebrate the art of storytelling.",
+    whatToExpect: [
+      "Screening of 20+ Nigerian films",
+      "Q&A sessions with directors and actors",
+      "Film industry panels and workshops",
+      "Networking events with filmmakers",
+      "Awards ceremony for best films",
+      "Virtual reality film experiences",
+    ],
+  },
+  {
+    id: 22,
+    title: "Tech Career Fair 2024",
+    description:
+      "Connect with top tech companies and find your dream job in Nigeria's booming tech scene.",
+    date: "2026-10-08",
+    time: "09:00 AM",
+    location: "Landmark Event Center, Lagos",
+    price: 0,
+    image: "images/tech-career-fair.png",
+    category: "Technology",
+    availableTickets: 500,
+    totalTickets: 800,
+    about:
+      "Join Nigeria's largest tech career fair connecting top talent with leading technology companies. Whether you're a recent graduate or experienced professional, this is your opportunity to meet hiring managers, attend interviews, and advance your tech career.",
+    whatToExpect: [
+      "50+ top tech companies recruiting",
+      "On-the-spot interviews and job offers",
+      "CV review and career counseling",
+      "Tech skill assessment sessions",
+      "Industry insights and salary trends",
+      "Networking with tech professionals",
+    ],
+  },
+  {
+    id: 23,
+    title: "Naija Entrepreneurship Summit",
+    description:
+      "Learn from successful Nigerian entrepreneurs and investors in this power-packed business summit.",
+    date: "2026-12-02",
+    time: "09:00 AM",
+    location: "Eko Convention Center, Lagos",
+    price: 15000,
+    image: "images/entrepreneurship-summit.png",
+    category: "Business",
+    availableTickets: 180,
+    totalTickets: 300,
+    about:
+      "The Naija Entrepreneurship Summit brings together the brightest minds in Nigerian business to share insights, strategies, and success stories. Whether you're starting out or scaling up, this summit provides practical knowledge and networking opportunities to accelerate your entrepreneurial journey.",
+    whatToExpect: [
+      "Keynote speeches from successful Nigerian entrepreneurs",
+      "Startup pitch sessions with investor feedback",
+      "Business strategy workshops",
+      "Networking with venture capitalists",
+      "One-on-one mentorship sessions",
+      "Resource exhibition with business tools",
+    ],
+  },
+  {
+    id: 24,
+    title: "Afro Jazz & Soul Experience",
+    description:
+      "An intimate evening of smooth Afro Jazz and Soul music featuring top Nigerian instrumentalists and vocalists.",
+    date: "2024-10-28",
+    time: "07:00 PM",
+    location: "Jazzhole, Lagos",
+    price: 12000,
+    image: "images/afro-jazz-soul.png",
+    category: "Afrobeats",
+    availableTickets: 60,
+    totalTickets: 80,
+    about:
+      "Experience the soulful side of African music in this intimate concert featuring Nigeria's finest jazz and soul musicians. From smooth instrumentals to powerful vocals, this evening celebrates the rich musical heritage that blends traditional African rhythms with contemporary jazz and soul influences.",
+    whatToExpect: [
+      "Live performances from top Afro Jazz artists",
+      "Acoustic soul music sessions",
+      "Interactive audience segments",
+      "Musician Q&A sessions",
+      "Complimentary welcome drinks",
+      "Exclusive merchandise collection",
     ],
   },
 ];
@@ -425,4 +593,5 @@ export const categories = [
   "Education",
   "Religious",
   "Cultural",
+  "Entertainment",
 ];

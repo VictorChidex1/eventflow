@@ -11,8 +11,11 @@ const EventsList = () => {
   const [sortBy, setSortBy] = useState("date");
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Filter and sort events
-  const filteredEvents = events
+  // LIMIT TO 17 EVENTS FOR HOMEPAGE - ONLY CHANGE MADE
+  const limitedEvents = events.slice(0, 17);
+
+  // Filter and sort events (using limitedEvents instead of events)
+  const filteredEvents = limitedEvents
     .filter((event) => {
       const matchesSearch =
         event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,7 +130,7 @@ const EventsList = () => {
 
         {/* Results Count */}
         <div className="mt-8 text-center text-gray-600">
-          Showing {filteredEvents.length} of {events.length} events
+          Showing {filteredEvents.length} of {limitedEvents.length} events
         </div>
 
         {/* Event Detail Modal */}

@@ -64,6 +64,8 @@ const Events = () => {
       Sports: "bg-emerald-100 text-emerald-800",
       Education: "bg-violet-100 text-violet-800",
       Art: "bg-pink-100 text-pink-800",
+      Entertainment: "bg-rose-100 text-rose-800", // New category
+      Wellness: "bg-teal-100 text-teal-800", // New category
     };
     return colors[category] || "bg-gray-100 text-gray-800";
   };
@@ -96,6 +98,13 @@ const Events = () => {
       15: "/images/blockchain.png",
       16: "/images/digital-skills.png",
       17: "/images/public-speaking.png",
+      18: "/images/fashion-week.png",
+      19: "/images/comedy-night.png",
+      20: "/images/yoga-retreat.png",
+      21: "/images/film-festival.png",
+      22: "/images/tech-career-fair.png",
+      23: "images/entrepreneurship-summit.png",
+      24: "images/afro-jazz-soul.png",
     };
 
     return imageMap[event.id] || "/images/owambe.png";
