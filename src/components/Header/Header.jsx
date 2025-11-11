@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Calendar, Ticket, User, Search, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom"; // ADD THIS IMPORT
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,13 +20,13 @@ const Header = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
+            {/* Logo - UPDATE THIS TO USE LINK */}
+            <Link to="/" className="flex items-center space-x-2">
               <div className="bg-blue-600 text-white p-2 rounded-lg">
                 <Calendar size={20} />
               </div>
               <span className="text-xl font-bold text-gray-900">EventFlow</span>
-            </div>
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
@@ -35,14 +36,14 @@ const Header = () => {
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - UPDATE THESE TO USE LINK */}
             <nav className="hidden md:flex items-center space-x-6">
-              <a
-                href="#home"
+              <Link
+                to="/"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Home
-              </a>
+              </Link>
               <a
                 href="#events"
                 className="text-gray-700 hover:text-blue-600 font-medium"
@@ -89,7 +90,7 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mobile Menu Overlay with Framer Motion */}
+      {/* Mobile Menu Overlay with Framer Motion - UPDATE THESE TO USE LINK */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -101,16 +102,19 @@ const Header = () => {
           >
             <div className="flex flex-col space-y-4 p-6">
               {/* Animated Menu Links */}
-              <motion.a
-                href="#home"
-                className="text-gray-700 hover:text-blue-600 font-medium text-lg py-2 border-b border-gray-200"
-                onClick={closeMobileMenu}
+              <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                Home
-              </motion.a>
+                <Link
+                  to="/"
+                  className="text-gray-700 hover:text-blue-600 font-medium text-lg py-2 border-b border-gray-200 block"
+                  onClick={closeMobileMenu}
+                >
+                  Home
+                </Link>
+              </motion.div>
 
               <motion.a
                 href="#events"

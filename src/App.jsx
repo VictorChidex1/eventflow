@@ -9,6 +9,7 @@ import ContactUs from "./components/ContactUs/ContactUs";
 import PrivacyPolicy from "./components/PrivacyPolicy/PrivacyPolicy";
 import TermsOfService from "./components/TermsofService/TermsofService";
 import Features from "./components/Features/Features";
+import Pricing from "./components/Pricing/Pricing";
 import "./index.css";
 
 function App() {
@@ -74,6 +75,16 @@ function App() {
             element={
               <main>
                 <Features />
+              </main>
+            }
+          />
+
+          {/* Pricing Route - ADD THIS */}
+          <Route
+            path="/pricing"
+            element={
+              <main>
+                <Pricing />
               </main>
             }
           />
