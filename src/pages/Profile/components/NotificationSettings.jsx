@@ -85,7 +85,7 @@ const NotificationSettings = () => {
     },
   ];
 
-  // Custom Toggle Component with Check/X icons
+  // Fixed Custom Toggle Component - ON=Left, OFF=Right
   const CustomToggle = ({ isOn, onToggle }) => (
     <button
       onClick={onToggle}
@@ -95,7 +95,7 @@ const NotificationSettings = () => {
     >
       <span
         className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out flex items-center justify-center ${
-          isOn ? "translate-x-5" : "translate-x-0"
+          isOn ? "translate-x-0" : "translate-x-5"
         }`}
       >
         {isOn ? (
