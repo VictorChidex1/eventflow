@@ -16,6 +16,7 @@ import CreateEvent from "./components/CreateEvent/CreateEvent";
 import Login from "./pages/Login"; // ← WE'LL CREATE THIS NEXT
 import Signup from "./pages/Signup"; // ← WE'LL CREATE THIS NEXT
 import Profile from "./pages/Profile/Profile";
+import Events from "./pages/Events/Events";
 import "./index.css";
 
 function App() {
@@ -124,6 +125,16 @@ function App() {
                     <Profile />
                   </main>
                 </ProtectedRoute>
+              }
+            />
+
+            {/* Added Events Route - THIS IS THE IMPORTANT CHANGE */}
+            <Route
+              path="/events"
+              element={
+                <main>
+                  <Events />
+                </main>
               }
             />
           </Routes>

@@ -59,7 +59,7 @@ const Header = () => {
                 Home
               </Link>
               <Link
-                to="/#events"
+                to="/events"
                 className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
               >
                 Events
@@ -160,7 +160,7 @@ const Header = () => {
                 transition={{ delay: 0.15 }}
               >
                 <Link
-                  to="/#events"
+                  to="/events"
                   className="text-gray-700 hover:text-blue-600 font-medium text-lg py-4 border-b border-gray-100 block"
                   onClick={closeMobileMenu}
                 >
