@@ -74,7 +74,7 @@ const ContactUs = () => {
       icon: <MapPin className="w-6 h-6" />,
       title: "Visit Us",
       description: "Come say hello at our office",
-      details: "4 Babatope Bejide Crescent. Lekki Phase 1",
+      details: "4 Babatope Bejide Crescent, Lekki Phase 1",
       link: "https://maps.google.com",
       color: "bg-red-500",
     },

@@ -6,6 +6,9 @@ import EventsList from "./components/Events/EventsList";
 import Footer from "./components/Footer/Footer";
 import HelpCenter from "./components/HelpCenter/HelpCenter";
 import ContactUs from "./components/ContactUs/ContactUs";
+import PrivacyPolicy from "./components/PrivacyPolicy/PrivacyPolicy";
+import TermsOfService from "./components/TermsofService/TermsofService";
+import Features from "./components/Features/Features";
 import "./index.css";
 
 function App() {
@@ -41,6 +44,36 @@ function App() {
             element={
               <main>
                 <ContactUs />
+              </main>
+            }
+          />
+
+          {/* Privacy Policy Route - ADD THIS */}
+          <Route
+            path="/privacy-policy"
+            element={
+              <main>
+                <PrivacyPolicy />
+              </main>
+            }
+          />
+
+          {/* Terms of Service Route - ADD THIS */}
+          <Route
+            path="/terms-of-service"
+            element={
+              <main>
+                <TermsOfService />
+              </main>
+            }
+          />
+
+          {/* Features Route - ADD THIS */}
+          <Route
+            path="/features"
+            element={
+              <main>
+                <Features />
               </main>
             }
           />
