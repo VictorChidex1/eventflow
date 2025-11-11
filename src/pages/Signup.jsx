@@ -35,11 +35,10 @@ const Signup = () => {
       // Simulate API call - replace with actual registration
       console.log("Signing up with:", formData);
 
-      // For demo purposes, we'll create a mock user
-      // In a real app, you'd make an API call to your backend
+      // Use the actual name from the form
       const userData = {
         id: Math.random().toString(36).substr(2, 9), // Random ID for demo
-        name: formData.name,
+        name: formData.name, // Use the actual name from form
         email: formData.email,
       };
 

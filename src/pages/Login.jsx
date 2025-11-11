@@ -17,11 +17,15 @@ const Login = () => {
       // Simulate API call - replace with actual authentication
       console.log("Logging in with:", { email, password });
 
-      // For demo purposes, we'll create a mock user
-      // In a real app, you'd make an API call to your backend
+      // For demo purposes, we'll extract a name from the email
+      // In a real app, you'd get this from your backend API response
+      const userName = email.split("@")[0]; // Use part before @ as name
+      const formattedName =
+        userName.charAt(0).toUpperCase() + userName.slice(1); // Capitalize first letter
+
       const userData = {
         id: "1",
-        name: "Event Organizer",
+        name: formattedName, // Use dynamic name from email
         email: email,
       };
 
