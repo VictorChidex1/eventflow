@@ -51,7 +51,7 @@ const Header = () => {
                 Events
               </a>
               <a
-                href="#create"
+                href="#/create-event"
                 className="text-gray-700 hover:text-blue-600 font-medium"
               >
                 Create Event
