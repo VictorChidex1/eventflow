@@ -21,7 +21,7 @@ const EventDetail = ({ event, onClose, onBack }) => {
   };
 
   const formatPrice = (price) => {
-    return price === 0 ? "Free" : `₦${price.toLocaleString()}`;
+    return price === 0 ? "Free" : `#${price.toLocaleString()}`;
   };
 
   const getTicketStatus = (available, total) => {

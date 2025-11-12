@@ -129,7 +129,7 @@ export const events = [
     time: "10:00 PM",
     location: "Quilox, Victoria Island",
     price: 8000,
-    image: "images/naija-club-night.png", // Club image
+    image: "images/naija-club-night.png",
     category: "Afrobeats",
     availableTickets: 80,
     totalTickets: 150,
@@ -201,7 +201,7 @@ export const events = [
     time: "05:00 PM",
     location: "Redemption Camp, Lagos-Ibadan Expressway",
     price: 0,
-    image: "images/worship.png", // Church image
+    image: "images/worship.png",
     category: "Religious",
     availableTickets: 500,
     totalTickets: 1000,
@@ -344,7 +344,7 @@ export const events = [
     date: "2026-09-30",
     time: "10:00 AM",
     location: "Eko Innovation Center, Lagos",
-    price: 25000, // ₦25,000
+    price: 25000,
     image: "images/blockchain.png",
     category: "Technology",
     availableTickets: 112,
@@ -368,7 +368,7 @@ export const events = [
     date: "2026-03-17",
     time: "09:00 AM",
     location: "University of Lagos",
-    price: 45000, // ₦45,000
+    price: 45000,
     image: "images/digital-skills.png",
     category: "Education",
     availableTickets: 45,
