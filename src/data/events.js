@@ -576,6 +576,81 @@ export const events = [
       "Exclusive merchandise collection",
     ],
   },
+
+  {
+    id: 25,
+    title: "Naija Cultural Extravaganza",
+    description:
+      "Celebrate Nigeria's diverse cultures with traditional dances, music, and cuisine from all regions.",
+    date: "2025-12-28",
+    time: "12:00 PM",
+    location: "National Stadium, Abuja",
+    price: 5000,
+    image: "images/naija-cultural-extravaganza.png",
+    category: "Cultural",
+    availableTickets: 400,
+    totalTickets: 500,
+    about:
+      "Experience the rich tapestry of Nigerian culture in one spectacular event! From the Durbar of the North to the Masquerades of the East and the Gelede of the West, this festival brings together the best of Nigeria's cultural heritage. Witness breathtaking performances, taste authentic regional dishes, and immerse yourself in the traditions that make Nigeria unique.",
+    whatToExpect: [
+      "Traditional dance performances from all 6 geopolitical zones",
+      "Live music from cultural troupes across Nigeria",
+      "Cooking demonstrations of regional delicacies",
+      "Cultural fashion show featuring traditional attire",
+      "Art and craft exhibitions from local artisans",
+      "Interactive cultural workshops and storytelling",
+    ],
+  },
+
+  {
+    id: 26,
+    title: "Afrobeat Dance Battle Championship",
+    description:
+      "Nigeria's biggest dance competition featuring the hottest Afrobeat moves and rhythms. Cash prizes await!",
+    date: "2026-03-28",
+    time: "06:00 PM",
+    location: "Freedom Park, Lagos",
+    price: 7000,
+    image: "images/afrobeat-dance-battle.png",
+    category: "Afrobeats",
+    availableTickets: 250,
+    totalTickets: 350,
+    about:
+      "Get ready for the most electrifying dance competition in West Africa! The Afrobeat Dance Battle Championship brings together the finest dancers from across Nigeria to showcase their skills to the hottest Afrobeat tracks. Whether it's Shaku Shaku, Zanku, or your own unique style, this is where legends are made. With celebrity judges and massive cash prizes, this is the ultimate stage for Nigerian dance talent.",
+    whatToExpect: [
+      "Dance battles across multiple Afrobeat categories",
+      "Celebrity judges including Poco Lee and Kaffy",
+      "Live DJ spinning the latest Naija hits",
+      "Cash prizes totaling ₦2,000,000",
+      "Special performances by dance crews",
+      "Audience participation and dance workshops",
+    ],
+  },
+
+  {
+    id: 27,
+    title: "Naija SME Summit & Marketplace",
+    description:
+      "Connect with Nigeria's brightest entrepreneurs, discover innovative products, and support local businesses.",
+    date: "2026-09-12",
+    time: "10:00 AM",
+    location: "Landmark Centre, Lagos",
+    price: 3000,
+    image: "images/naija-sme-summit.png",
+    category: "Business",
+    availableTickets: 500,
+    totalTickets: 600,
+    about:
+      "Empowering Nigeria's next generation of business leaders! The Naija SME Summit brings together innovative entrepreneurs, investors, and business enthusiasts in a dynamic marketplace. Discover groundbreaking Nigerian products, learn from successful founders, and network with industry leaders. From tech startups to fashion brands and food businesses, this is where Nigerian entrepreneurship thrives.",
+    whatToExpect: [
+      "150+ vendor marketplace featuring Nigerian products",
+      "Keynote speeches from successful Naija entrepreneurs",
+      "Startup pitch competition with investor panel",
+      "Business workshops on funding and growth strategies",
+      "Networking sessions with venture capitalists",
+      "Live product demonstrations and tasting sessions",
+    ],
+  },
 ];
 
 export const categories = [
