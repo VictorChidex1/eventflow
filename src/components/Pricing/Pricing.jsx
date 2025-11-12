@@ -1,22 +1,9 @@
 import React, { useState } from "react";
-import {
-  Check,
-  X,
-  Star,
-  Zap,
-  Crown,
-  CreditCard,
-  Calendar,
-  Users,
-  BarChart3,
-  Shield,
-  MessageCircle,
-  Download,
-} from "lucide-react";
+import { Check, X, Star, Zap, Crown, CreditCard } from "lucide-react";
 import "./Pricing.css";
 
 const Pricing = () => {
-  const [billingCycle, setBillingCycle] = useState("monthly"); // 'monthly' or 'annual'
+  const [billingCycle, setBillingCycle] = useState("monthly");
 
   const plans = [
     {
@@ -28,7 +15,7 @@ const Pricing = () => {
       },
       savings: "Save 17%",
       popular: false,
-      icon: <Star className="w-6 h-6" />,
+      icon: <Star className="w-4 h-4" />,
       features: [
         { included: true, text: "Up to 100 attendees per event" },
         { included: true, text: "Basic event creation tools" },
@@ -52,7 +39,7 @@ const Pricing = () => {
       },
       savings: "Save 17%",
       popular: true,
-      icon: <Zap className="w-6 h-6" />,
+      icon: <Zap className="w-4 h-4" />,
       features: [
         { included: true, text: "Up to 1,000 attendees per event" },
         { included: true, text: "Advanced event creation tools" },
@@ -76,7 +63,7 @@ const Pricing = () => {
       },
       savings: "Volume discounts",
       popular: false,
-      icon: <Crown className="w-6 h-6" />,
+      icon: <Crown className="w-4 h-4" />,
       features: [
         { included: true, text: "Unlimited attendees" },
         { included: true, text: "Full feature access" },
@@ -207,7 +194,7 @@ const Pricing = () => {
       <div className="pricing-header">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-4">
-            <CreditCard className="w-12 h-12 text-white" />
+            <CreditCard className="w-10 h-10 text-white" />
           </div>
           <h1 className="pricing-title">Simple, Transparent Pricing</h1>
           <p className="pricing-subtitle">
@@ -288,9 +275,9 @@ const Pricing = () => {
                     }`}
                   >
                     {feature.included ? (
-                      <Check className="w-4 h-4 feature-icon included" />
+                      <Check className="feature-icon included" />
                     ) : (
-                      <X className="w-4 h-4 feature-icon excluded" />
+                      <X className="feature-icon excluded" />
                     )}
                     <span>{feature.text}</span>
                   </div>
