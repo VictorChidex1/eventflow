@@ -62,16 +62,20 @@ const CreateEvent = () => {
   });
 
   const eventCategories = [
-    "Conference",
-    "Workshop",
-    "Concert",
-    "Festival",
+    "Owambe",
+    "Carnival",
+    "Afrobeats",
+    "Business",
+    "Wellness",
+    "Food & Drink",
+    "Charity",
+    "Art",
     "Sports",
-    "Networking",
-    "Seminar",
-    "Party",
-    "Exhibition",
-    "Other",
+    "Technology",
+    "Education",
+    "Religious",
+    "Cultural",
+    "Entertainment",
   ];
 
   const handleInputChange = (e) => {
