@@ -15,47 +15,12 @@ const Events = () => {
   const safeEvents = events || [];
   const safeCategories = categories || ["All"];
 
-  // CORRECTED: Image path resolution for public/images/ structure
-  const getEventImage = (event) => {
-    if (event.image) {
-      const cleanPath = event.image.replace(/^images\//, "").replace(/^\//, "");
-      return `/images/${cleanPath}`;
-    }
-
-    const imageMap = {
-      1: "/images/owambe.png",
-      2: "/images/traditional-wedding.png",
-      3: "/images/calabar-carnival.png",
-      4: "/images/eyo-festival.png",
-      5: "/images/afrobeats-concert.png",
-      6: "/images/naija-club-night.png",
-      7: "/images/startup-summit.png",
-      8: "/images/naija-food-festival.png",
-      9: "/images/worship.png",
-      10: "/images/igbo-festival.png",
-      11: "/images/lagos-tech-festival.png",
-      12: "/images/derby-match.png",
-      13: "/images/jamb.png",
-      14: "/images/art-show.png",
-      15: "/images/blockchain.png",
-      16: "/images/digital-skills.png",
-      17: "/images/public-speaking.png",
-      18: "/images/fashion-week.png",
-      19: "/images/comedy-night.png",
-      20: "/images/yoga-retreat.png",
-      21: "/images/film-festival.png",
-      22: "/images/tech-career-fair.png",
-      23: "/images/entrepreneurship-summit.png",
-      24: "/images/afro-jazz-soul.png",
-    };
-
-    return imageMap[event.id] || "/images/owambe.png";
-  };
-
-  // Create events with corrected image paths
+  // SIMPLIFIED: Use the image paths as they are from events.js
+  // They should work both locally and on GitHub Pages
   const eventsWithCorrectedImages = safeEvents.map((event) => ({
     ...event,
-    image: getEventImage(event),
+    // Use the image path exactly as defined in events.js
+    image: event.image,
   }));
 
   // Filter and sort events
