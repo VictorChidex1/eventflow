@@ -44,8 +44,8 @@ const HelpCenter = () => {
       title: "Phone Support",
       description: "Call us for urgent assistance",
       action: "Call Now",
-      phone: "+1 (555) 123-4567",
-      link: "tel:+15551234567",
+      phone: "+234 (803) 123-4567",
+      link: "tel:+2348031234567",
       availability: "Mon-Fri, 9AM-6PM WAT",
     },
   ];

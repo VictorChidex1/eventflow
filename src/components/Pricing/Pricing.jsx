@@ -1,12 +1,15 @@
+// components/Pricing/Pricing.jsx
 import React, { useState } from "react";
 import { Check, X, Star, Zap, Crown, CreditCard } from "lucide-react";
 import "./Pricing.css";
 import PlanCalculator from "../PlanCalculator/PlanCalculator";
 import PaymentCurrency from "../PaymentCurrency/PaymentCurrency";
 import SocialProof from "../SocialProof/SocialProof";
+import EnterpriseContactForm from "../EnterpriseContact/EnterpriseContactForm"; // NEW IMPORT
 
 const Pricing = () => {
-  const [billingCycle, setBillingCycle] = useState("monthly"); // 'monthly' or 'annual'
+  const [billingCycle, setBillingCycle] = useState("monthly");
+  const [showEnterpriseForm, setShowEnterpriseForm] = useState(false); // NEW STATE
 
   const plans = [
     {
@@ -191,6 +194,16 @@ const Pricing = () => {
     },
   ];
 
+  // NEW FUNCTION: Handle Enterprise plan click
+  const handleEnterpriseContact = () => {
+    setShowEnterpriseForm(true);
+  };
+
+  // NEW FUNCTION: Close the enterprise form
+  const handleCloseEnterpriseForm = () => {
+    setShowEnterpriseForm(false);
+  };
+
   return (
     <section className="pricing-container">
       {/* Header Section */}
@@ -296,10 +309,16 @@ const Pricing = () => {
                 ))}
               </div>
 
+              {/* UPDATED BUTTON: Enterprise plan now opens the form */}
               <button
                 className={`cta-button ${plan.color} ${
                   plan.popular ? "popular" : ""
                 }`}
+                onClick={
+                  plan.name === "Enterprise"
+                    ? handleEnterpriseContact
+                    : undefined
+                }
               >
                 {plan.cta}
               </button>
@@ -412,6 +431,18 @@ const Pricing = () => {
           </div>
         </div>
       </div>
+
+      {/* NEW: Enterprise Contact Form Modal */}
+      {showEnterpriseForm && (
+        <div className="enterprise-modal-overlay">
+          <div className="enterprise-modal">
+            <EnterpriseContactForm
+              onClose={handleCloseEnterpriseForm}
+              initialPlan="enterprise"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -1,0 +1,460 @@
+/* components/EnterpriseContact/EnterpriseContactForm.css */
+.enterprise-contact-form {
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.header-icon {
+  width: 4rem;
+  height: 4rem;
+  color: #7c3aed;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  padding: 0.75rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+
+.form-header h2 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #1a202c, #2d3748);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.form-header p {
+  color: #718096;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+  font-weight: 400;
+}
+
+.form-section {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #f7fafc;
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 1rem;
+}
+
+.form-section h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid #e9d5ff;
+  position: relative;
+}
+
+.form-section h3::before {
+  content: "";
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border-radius: 3px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.input-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.input-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: #8b5cf6;
+  flex-shrink: 0;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  padding: 1rem 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  font-family: inherit;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.input-group input::placeholder,
+.input-group textarea::placeholder {
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #8b5cf6;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.input-group input:hover,
+.input-group select:hover,
+.input-group textarea:hover {
+  border-color: #c4b5fd;
+  background: white;
+}
+
+.input-group input.error,
+.input-group select.error,
+.input-group textarea.error {
+  border-color: #fc8181;
+  background: #fef5f5;
+}
+
+.input-group input.error:focus,
+.input-group select.error:focus,
+.input-group textarea.error:focus {
+  box-shadow: 0 0 0 4px rgba(252, 129, 129, 0.1);
+}
+
+.error-message {
+  color: #e53e3e;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-message::before {
+  content: "⚠";
+  font-size: 0.75rem;
+}
+
+.submit-error {
+  text-align: center;
+  padding: 1rem 1.5rem;
+  background: #fed7d7;
+  border: 2px solid #feb2b2;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  color: #c53030;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 2px solid #f7fafc;
+}
+
+.primary-button,
+.secondary-button {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 140px;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.primary-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+.secondary-button {
+  background: white;
+  color: #4a5568;
+  border: 2px solid #e2e8f0;
+  font-weight: 600;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.button-loader {
+  animation: spin 1s linear infinite;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.button-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Success State */
+.success-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #f0fff4, #f7fafc);
+  border-radius: 20px;
+}
+
+.success-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.success-state h3 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #38a169, #2f855a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.success-state p {
+  color: #4a5568;
+  font-size: 1.25rem;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 500;
+}
+
+.success-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Textarea specific styles */
+.input-group textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.input-group textarea:focus {
+  min-height: 140px;
+}
+
+/* Select dropdown styling */
+.input-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 3rem;
+}
+
+/* Budget input styling */
+.input-group input[type="text"] {
+  letter-spacing: 0.5px;
+}
+
+/* Required field indicator */
+.input-group label::after {
+  content: "*";
+  color: #e53e3e;
+  margin-left: 0.25rem;
+  font-weight: bold;
+}
+
+.input-group:has(input:not([required])) label::after,
+.input-group:has(select:not([required])) label::after,
+.input-group:has(textarea:not([required])) label::after {
+  content: "";
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enterprise-contact-form {
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 20px;
+  }
+
+  .form-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .form-header p {
+    font-size: 1.125rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .success-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-section h3 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .enterprise-contact-form {
+    padding: 1.25rem;
+    margin: 0.5rem;
+  }
+
+  .form-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-header p {
+    font-size: 1rem;
+  }
+
+  .header-icon {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.5rem;
+  }
+
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .primary-button,
+  .secondary-button {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Animation for form appearance */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.enterprise-contact-form {
+  animation: slideIn 0.5s ease-out;
+}
+
+/* Focus states for accessibility */
+.primary-button:focus,
+.secondary-button:focus {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
