@@ -2,25 +2,32 @@ import React from "react";
 import TrustMetrics from "./TrustMetrics";
 import ClientTestimonials from "./ClientTestimonials";
 import TrustBadges from "./TrustBadges";
-import ClientLogos from "./ClientLogos";
+import ClientLogos from "./ClientLogos"; // Keeping the original import path
 import "./SocialProof.css";
 
 const SocialProof = () => {
   return (
-    // Remove the gradient background from the container and let Pricing handle the background
-    <section className="social-proof-container mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Trust Metrics */}
-        <TrustMetrics />
+    <section className="social-proof-container py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Trust Metrics Section */}
+        <div className="mb-20">
+          <TrustMetrics />
+        </div>
 
-        {/* Client Logos */}
-        <ClientLogos />
+        {/* Client Logos Section */}
+        <div className="mb-20">
+          <ClientLogos />
+        </div>
 
-        {/* Testimonials */}
-        <ClientTestimonials />
+        {/* Trust Badges Section */}
+        <div className="mb-20">
+          <TrustBadges />
+        </div>
 
-        {/* Trust Badges */}
-        <TrustBadges />
+        {/* Testimonials Section */}
+        <div>
+          <ClientTestimonials />
+        </div>
       </div>
     </section>
   );
