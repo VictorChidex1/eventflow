@@ -1,41 +1,41 @@
 import React from "react";
 
 const ClientLogos = () => {
-  // Actual client logos from public/images folder
+  // Use relative paths for better compatibility
   const clients = [
     {
       name: "Paystack",
-      logo: "/images/Paystack-logo.png", // Update with your actual file names
+      logo: "./images/Paystack-logo.png",
       width: 160,
       height: 60,
     },
     {
       name: "Flutterwave",
-      logo: "/images/flutterwave-logo.png",
+      logo: "./images/flutterwave-logo.png",
       width: 180,
       height: 50,
     },
     {
       name: "Moniepoint Inc",
-      logo: "/images/moniepoint-inc-logo.png",
+      logo: "./images/moniepoint-inc-logo.png",
       width: 170,
       height: 55,
     },
     {
       name: "Mavins Record",
-      logo: "/images/mavin-records-logo.jpg",
+      logo: "./images/mavin-records-logo.jpg",
       width: 160,
       height: 60,
     },
     {
       name: "Livespot 360",
-      logo: "/images/livespot360.png",
+      logo: "./images/livespot360.png",
       width: 175,
       height: 52,
     },
     {
       name: "Osas Didit",
-      logo: "/images/osas-didit.png",
+      logo: "./images/osas-didit.png",
       width: 165,
       height: 58,
     },
@@ -62,6 +62,10 @@ const ClientLogos = () => {
                   width={client.width}
                   height={client.height}
                   loading="lazy"
+                  onError={(e) => {
+                    console.error(`Failed to load image: ${client.logo}`);
+                    e.target.style.display = "none";
+                  }}
                 />
               </div>
               <span className="logo-name">{client.name}</span>
