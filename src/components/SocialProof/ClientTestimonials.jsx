@@ -9,7 +9,7 @@ const ClientTestimonials = () => {
       name: "Agbaho Victor",
       company: "Tech Conference NG",
       role: "Event Director",
-      image: "/images/agbaho-victor.png", // Updated path
+      image: "images/agbaho-victor.png", // Updated path
       content:
         "EventFlow transformed how we manage our annual tech conference. The ticketing system is seamless, and the real-time analytics helped us make data-driven decisions. Our attendees loved the smooth experience!",
       rating: 5,
@@ -18,7 +18,7 @@ const ClientTestimonials = () => {
       name: "Miriam Nwakama",
       company: "Lagos Wedding Expo",
       role: "Organizer",
-      image: "/images/miriam-nwakama.png", // Updated path
+      image: "images/miriam-nwakama.png", // Updated path
       content:
         "As a wedding planner, I needed a reliable platform for my expos. EventFlow's professional features and excellent support made managing 2,000+ attendees effortless. Highly recommended!",
       rating: 5,
@@ -27,7 +27,7 @@ const ClientTestimonials = () => {
       name: "Esther Onyinye",
       company: "Startup Grind Abuja",
       role: "Community Lead",
-      image: "/images/esther-onyinye.jpg", // Updated path
+      image: "images/esther-onyinye.jpg", // Updated path
       content:
         "The payment processing in Naira without extra fees was a game-changer for our community events. EventFlow understands the Nigerian market perfectly.",
       rating: 5,
