@@ -9,8 +9,11 @@ import {
   MessageSquare,
   Send,
   Loader,
+  Download,
+  Eye,
 } from "lucide-react";
 import "./EnterpriseContactForm.css";
+import LeadsAdminPanel from "./LeadsAdminPanel"; // ADD THIS IMPORT
 
 const EnterpriseContactForm = ({ onClose, initialPlan = "enterprise" }) => {
   const [formData, setFormData] = useState({
@@ -32,6 +35,7 @@ const EnterpriseContactForm = ({ onClose, initialPlan = "enterprise" }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false); // ADD THIS STATE
 
   const companySizes = [
     "1-10 employees",
@@ -92,6 +96,75 @@ const EnterpriseContactForm = ({ onClose, initialPlan = "enterprise" }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Enhanced frontend-only submission with localStorage
+  const submitLeadToFrontend = async (formData) => {
+    const leadData = {
+      ...formData,
+      submittedAt: new Date().toISOString(),
+      plan: initialPlan,
+      source: "pricing-page",
+      leadId: `lead_${Date.now()}`, // Generate unique ID
+    };
+
+    // 1. Log to console (for development)
+    console.log("📧 Enterprise Lead Captured:", leadData);
+
+    // 2. Save to localStorage (temporary storage)
+    const existingLeads = JSON.parse(
+      localStorage.getItem("eventflowEnterpriseLeads") || "[]"
+    );
+    const updatedLeads = [...existingLeads, leadData];
+    localStorage.setItem(
+      "eventflowEnterpriseLeads",
+      JSON.stringify(updatedLeads)
+    );
+
+    // 3. Simulate API delay for better UX
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    return { success: true, leadId: leadData.leadId, data: leadData };
+  };
+
+  // Helper function to download lead as JSON
+  const downloadLeadAsJSON = (leadData) => {
+    const dataStr = JSON.stringify(leadData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+
+    // Create actual download
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `eventflow-lead-${leadData.leadId}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Generate email fallback link
+  const generateEmailLink = () => {
+    const subject = `Enterprise Inquiry - ${formData.companyName}`;
+    const body = `Hello Eventflow team,%0D%0A%0D%0AI'm interested in your Enterprise solution. Here are my details:%0D%0A%0D%0ACompany: ${
+      formData.companyName
+    }%0D%0AContact: ${formData.contactName}%0D%0AEmail: ${
+      formData.email
+    }%0D%0APhone: ${formData.phone}%0D%0ACompany Size: ${
+      formData.companySize
+    }%0D%0AMonthly Events: ${formData.monthlyEvents}%0D%0AMax Attendees: ${
+      formData.maxAttendees
+    }%0D%0ATimeline: ${formData.timeline}%0D%0ABudget: ${
+      formData.budget || "Not specified"
+    }%0D%0AIntegrations: ${
+      formData.integrations || "None"
+    }%0D%0A%0D%0ARequirements: ${
+      formData.requirements || "None"
+    }%0D%0A%0D%0ASpecial Requests: ${formData.specialRequests || "None"}`;
+
+    return `mailto:sales@eventflow.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -99,40 +172,26 @@ const EnterpriseContactForm = ({ onClose, initialPlan = "enterprise" }) => {
 
     setIsSubmitting(true);
 
-    // Simulate API call - Replace with actual backend integration
     try {
-      // TODO: Replace with actual API endpoint
-      const response = await simulateAPICall(formData);
+      // Use enhanced frontend-only submission
+      const response = await submitLeadToFrontend(formData);
 
-      console.log("Enterprise lead submitted:", {
-        ...formData,
-        submittedAt: new Date().toISOString(),
-        plan: initialPlan,
-      });
+      console.log("Enterprise lead submitted successfully:", response);
 
       // Success handling
       setIsSubmitted(true);
 
-      // TODO: Integrate with your backend
-      // Example: await fetch('/api/enterprise-leads', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
+      // Optional: Download as JSON file (for manual processing)
+      downloadLeadAsJSON(response.data);
     } catch (error) {
-      console.error("Error submitting form:", error);
-      setErrors({ submit: "Failed to submit form. Please try again." });
+      console.error("Error in form submission:", error);
+      setErrors({
+        submit:
+          "Failed to submit form. Please try again or email us directly at sales@eventflow.com",
+      });
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const simulateAPICall = (data) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({ status: 200, message: "Success" });
-      }, 2000);
-    });
   };
 
   const handleChange = (field, value) => {
@@ -163,6 +222,11 @@ const EnterpriseContactForm = ({ onClose, initialPlan = "enterprise" }) => {
     setIsSubmitted(false);
   };
 
+  // ADD THIS: Function to toggle admin panel
+  const toggleAdminPanel = () => {
+    setShowAdminPanel(!showAdminPanel);
+  };
+
   if (isSubmitted) {
     return (
       <div className="enterprise-contact-form success-state">
@@ -172,20 +236,71 @@ const EnterpriseContactForm = ({ onClose, initialPlan = "enterprise" }) => {
           We've received your enterprise inquiry. Our sales team will contact
           you within 24 hours to discuss your custom Eventflow solution.
         </p>
+
+        {/* Development Notice */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="development-notice">
+            <strong>🛠️ Development Mode:</strong> Lead saved to browser storage.
+            Check console for details.
+            <button onClick={toggleAdminPanel} className="admin-panel-toggle">
+              <Eye className="button-icon" />
+              View All Leads
+            </button>
+          </div>
+        )}
+
         <div className="success-actions">
           <button onClick={handleReset} className="secondary-button">
             Submit Another Inquiry
           </button>
-          <button onClick={onClose} className="primary-button">
+          <a
+            href={generateEmailLink()}
+            className="primary-button email-fallback-button"
+          >
+            <Mail className="button-icon" />
+            Email Us Directly
+          </a>
+          <button
+            onClick={() =>
+              downloadLeadAsJSON({
+                ...formData,
+                submittedAt: new Date().toISOString(),
+                leadId: `lead_${Date.now()}`,
+              })
+            }
+            className="secondary-button download-button"
+          >
+            <Download className="button-icon" />
+            Download Data
+          </button>
+          <button onClick={onClose} className="secondary-button">
             Close
           </button>
         </div>
+
+        {/* ADD THIS: Admin Panel in Success State */}
+        {showAdminPanel && (
+          <div className="admin-panel-container">
+            <LeadsAdminPanel onClose={() => setShowAdminPanel(false)} />
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <div className="enterprise-contact-form">
+      {/* ADD THIS: Admin Panel Toggle Button (Development Only) */}
+      {process.env.NODE_ENV === "development" && (
+        <button
+          onClick={toggleAdminPanel}
+          className="admin-panel-floating-button"
+        >
+          <Eye size={16} />
+          Leads
+        </button>
+      )}
+
       <div className="form-header">
         <Building className="header-icon" />
         <h2>Enterprise Solutions Inquiry</h2>
@@ -466,6 +581,13 @@ const EnterpriseContactForm = ({ onClose, initialPlan = "enterprise" }) => {
           </button>
         </div>
       </form>
+
+      {/* ADD THIS: Admin Panel */}
+      {showAdminPanel && (
+        <div className="admin-panel-container">
+          <LeadsAdminPanel onClose={() => setShowAdminPanel(false)} />
+        </div>
+      )}
     </div>
   );
 };
