@@ -6,28 +6,28 @@ const ClientTestimonials = () => {
 
   const testimonials = [
     {
-      name: "Adebayo Johnson",
+      name: "Agbaho Victor",
       company: "Tech Conference NG",
       role: "Event Director",
-      image: "👨🏾‍💼",
+      image: "/images/agbaho-victor.png", // Updated path
       content:
         "EventFlow transformed how we manage our annual tech conference. The ticketing system is seamless, and the real-time analytics helped us make data-driven decisions. Our attendees loved the smooth experience!",
       rating: 5,
     },
     {
-      name: "Chiamaka Okoro",
+      name: "Miriam Nwakama",
       company: "Lagos Wedding Expo",
       role: "Organizer",
-      image: "👩🏾‍💼",
+      image: "/images/miriam-nwakama.png", // Updated path
       content:
         "As a wedding planner, I needed a reliable platform for my expos. EventFlow's professional features and excellent support made managing 2,000+ attendees effortless. Highly recommended!",
       rating: 5,
     },
     {
-      name: "Emeka Nwankwo",
+      name: "Esther Onyinye",
       company: "Startup Grind Abuja",
       role: "Community Lead",
-      image: "👨🏾‍🎓",
+      image: "/images/esther-onyinye.jpg", // Updated path
       content:
         "The payment processing in Naira without extra fees was a game-changer for our community events. EventFlow understands the Nigerian market perfectly.",
       rating: 5,
@@ -72,7 +72,24 @@ const ClientTestimonials = () => {
 
           <div className="testimonial-author">
             <div className="author-avatar">
-              {testimonials[currentTestimonial].image}
+              <img
+                src={testimonials[currentTestimonial].image}
+                alt={testimonials[currentTestimonial].name}
+                className="author-image"
+                onError={(e) => {
+                  // Fallback in case image doesn't load
+                  e.target.style.display = "none";
+                  e.target.nextSibling.style.display = "block";
+                }}
+              />
+              {/* Fallback emoji - hidden by default */}
+              <div className="author-fallback" style={{ display: "none" }}>
+                {testimonials[currentTestimonial].name.includes("Adebayo")
+                  ? "👨🏾‍💼"
+                  : testimonials[currentTestimonial].name.includes("Chiamaka")
+                  ? "👩🏾‍💼"
+                  : "👨🏾‍🎓"}
+              </div>
             </div>
             <div className="author-info">
               <div className="author-name">
