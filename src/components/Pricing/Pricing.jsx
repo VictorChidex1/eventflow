@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Check, X, Star, Zap, Crown, CreditCard } from "lucide-react";
 import "./Pricing.css";
 import PlanCalculator from "../PlanCalculator/PlanCalculator";
+import PaymentCurrency from "../PaymentCurrency/PaymentCurrency";
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState("monthly"); // 'monthly' or 'annual'
@@ -233,6 +234,9 @@ const Pricing = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Plan Calculator */}
         <PlanCalculator />
+
+        {/* Payment & Currency Support */}
+        <PaymentCurrency />
 
         {/* Pricing Plans */}
         <div className="pricing-grid">
