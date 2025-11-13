@@ -3,6 +3,7 @@ import { Check, X, Star, Zap, Crown, CreditCard } from "lucide-react";
 import "./Pricing.css";
 import PlanCalculator from "../PlanCalculator/PlanCalculator";
 import PaymentCurrency from "../PaymentCurrency/PaymentCurrency";
+import SocialProof from "../SocialProof/SocialProof";
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState("monthly"); // 'monthly' or 'annual'
@@ -237,6 +238,9 @@ const Pricing = () => {
 
         {/* Payment & Currency Support */}
         <PaymentCurrency />
+
+        {/* Social Proof */}
+        <SocialProof />
 
         {/* Pricing Plans */}
         <div className="pricing-grid">
