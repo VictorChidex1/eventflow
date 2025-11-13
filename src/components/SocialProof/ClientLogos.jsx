@@ -1,14 +1,44 @@
 import React from "react";
 
 const ClientLogos = () => {
-  // Using placeholder Nigerian company names - replace with actual logos when available
+  // Actual client logos from public/images folder
   const clients = [
-    { name: "TechPoint Africa", logo: "🏆" },
-    { name: "Lagos Startup Week", logo: "🚀" },
-    { name: "Naija Tech Summit", logo: "💻" },
-    { name: "Abuja Business Forum", logo: "🏛️" },
-    { name: "Port Harcourt Innovate", logo: "⚡" },
-    { name: "Ibadan Tech Hub", logo: "🎯" },
+    {
+      name: "Paystack",
+      logo: "/images/Paystack-logo.png", // Update with your actual file names
+      width: 160,
+      height: 60,
+    },
+    {
+      name: "Flutterwave",
+      logo: "/images/flutterwave-logo.png",
+      width: 180,
+      height: 50,
+    },
+    {
+      name: "Moniepoint Inc",
+      logo: "/images/moniepoint-inc-logo.png",
+      width: 170,
+      height: 55,
+    },
+    {
+      name: "Mavins Record",
+      logo: "/images/mavin-records-logo.jpg",
+      width: 160,
+      height: 60,
+    },
+    {
+      name: "Livespot 360",
+      logo: "/images/livespot360.png",
+      width: 175,
+      height: 52,
+    },
+    {
+      name: "Osas Didit",
+      logo: "/images/osas-didit.png",
+      width: 165,
+      height: 58,
+    },
   ];
 
   return (
@@ -22,17 +52,21 @@ const ClientLogos = () => {
 
       <div className="logos-container">
         <div className="logos-scroll">
-          {clients.concat(clients).map(
-            (
-              client,
-              index // Duplicate for seamless loop
-            ) => (
-              <div key={index} className="logo-item">
-                <div className="logo-placeholder">{client.logo}</div>
-                <span className="logo-name">{client.name}</span>
+          {clients.concat(clients).map((client, index) => (
+            <div key={index} className="logo-item">
+              <div className="logo-image-container">
+                <img
+                  src={client.logo}
+                  alt={`${client.name} logo`}
+                  className="logo-image"
+                  width={client.width}
+                  height={client.height}
+                  loading="lazy"
+                />
               </div>
-            )
-          )}
+              <span className="logo-name">{client.name}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
