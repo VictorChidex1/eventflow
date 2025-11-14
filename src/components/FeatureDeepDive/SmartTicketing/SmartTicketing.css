@@ -200,6 +200,8 @@
   transform: translateY(-2px);
 }
 
+/* Ticket Card Selected Style */
+
 .ticket-card.selected {
   border-color: #3b82f6;
   background: #f0f7ff;
@@ -225,7 +227,6 @@
   background: #faf5ff;
 }
 
-/* NEW CATEGORY STYLES - ADDED BELOW EXISTING ONES */
 .ticket-card.orange.selected {
   border-color: #f97316;
   background: #fff7ed;

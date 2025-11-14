@@ -1,5 +1,12 @@
-import React, { useState } from "react";
-import { Search, Filter, Calendar, TrendingUp } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+  Search,
+  Filter,
+  Calendar,
+  TrendingUp,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "../../components/Events/EventCard";
 import EventDetail from "../../components/Events/EventDetail";
@@ -10,43 +17,60 @@ const Events = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("date");
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const eventsPerPage = 30;
 
   // Safe data access with fallbacks
   const safeEvents = events || [];
   const safeCategories = categories || ["All"];
 
   // SIMPLIFIED: Use the image paths as they are from events.js
-  // They should work both locally and on GitHub Pages
   const eventsWithCorrectedImages = safeEvents.map((event) => ({
     ...event,
-    // Use the image path exactly as defined in events.js
     image: event.image,
   }));
 
   // Filter and sort events
-  const filteredEvents = eventsWithCorrectedImages
-    .filter((event) => {
-      if (!event) return false;
+  const filteredEvents = useMemo(() => {
+    return eventsWithCorrectedImages
+      .filter((event) => {
+        if (!event) return false;
 
-      const matchesSearch =
-        event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "All" || event.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "date":
-          return new Date(a.date) - new Date(b.date);
-        case "price":
-          return (a.price || 0) - (b.price || 0);
-        case "name":
-          return (a.title || "").localeCompare(b.title || "");
-        default:
-          return 0;
-      }
-    });
+        const matchesSearch =
+          event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.description?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory =
+          selectedCategory === "All" || event.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "date":
+            return new Date(a.date) - new Date(b.date);
+          case "price":
+            return (a.price || 0) - (b.price || 0);
+          case "name":
+            return (a.title || "").localeCompare(b.title || "");
+          default:
+            return 0;
+        }
+      });
+  }, [eventsWithCorrectedImages, searchTerm, selectedCategory, sortBy]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+
+  // Get current events for the page
+  const currentEvents = useMemo(() => {
+    const indexOfLastEvent = currentPage * eventsPerPage;
+    const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+    return filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  }, [filteredEvents, currentPage, eventsPerPage]);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, sortBy]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -56,10 +80,36 @@ const Events = () => {
     setSelectedEvent(null);
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   // Get popular categories (top 5)
   const popularCategories = safeCategories
     .filter((cat) => cat !== "All")
     .slice(0, 5);
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    // Adjust start page if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return pageNumbers;
+  };
 
   return (
     <section
@@ -106,6 +156,7 @@ const Events = () => {
       <div className="container mx-auto px-4 -mt-8 relative z-10">
         {/* Search and Filters Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-12">
+          {/* ... (rest of your search and filters code remains the same) ... */}
           <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
             {/* Search Bar */}
             <div className="flex-1 w-full">
@@ -173,12 +224,7 @@ const Events = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="appearance-none w-full lg:w-64 px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium"
                 >
-                  <option value="date">
-                    <div className="flex items-center">
-                      <Calendar size={16} className="mr-2" />
-                      Date
-                    </div>
-                  </option>
+                  <option value="date">Date</option>
                   <option value="price">Price</option>
                   <option value="name">Name</option>
                 </select>
@@ -229,8 +275,9 @@ const Events = () => {
                 : selectedCategory + " Events"}
             </h2>
             <p className="text-gray-600 mt-2">
-              Found {filteredEvents.length} of {safeEvents.length} events
-              {searchTerm && ` for "${searchTerm}"`}
+              Showing {currentEvents.length} of {filteredEvents.length} events
+              {searchTerm && ` for "${searchTerm}"`} (Page {currentPage} of{" "}
+              {totalPages})
             </p>
           </div>
 
@@ -247,18 +294,68 @@ const Events = () => {
         </div>
 
         {/* Events Grid */}
-        {filteredEvents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
-            {filteredEvents.map((event) => (
-              <div
-                key={event.id}
-                onClick={() => handleEventClick(event)}
-                className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl"
-              >
-                <EventCard event={event} />
+        {currentEvents.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+              {currentEvents.map((event) => (
+                <div
+                  key={event.id}
+                  onClick={() => handleEventClick(event)}
+                  className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl"
+                >
+                  <EventCard event={event} />
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center space-x-2 mb-12">
+                {/* Previous Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`flex items-center px-4 py-2 rounded-lg border transition-all duration-200 ${
+                    currentPage === 1
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+                  }`}
+                >
+                  <ChevronLeft size={16} className="mr-1" />
+                  Previous
+                </button>
+
+                {/* Page Numbers */}
+                {getPageNumbers().map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    onClick={() => handlePageChange(pageNumber)}
+                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                      currentPage === pageNumber
+                        ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/25"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
+
+                {/* Next Button */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`flex items-center px-4 py-2 rounded-lg border transition-all duration-200 ${
+                    currentPage === totalPages
+                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+                  }`}
+                >
+                  Next
+                  <ChevronRight size={16} className="ml-1" />
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100 mb-12">
             <div className="text-gray-300 mb-6">

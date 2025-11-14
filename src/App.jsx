@@ -103,7 +103,7 @@ function App() {
               }
             />
 
-            {/* PROTECTED Create Event Route - THIS IS THE IMPORTANT CHANGE */}
+            {/* PROTECTED Create Event Route */}
             <Route
               path="/create-event"
               element={
@@ -128,7 +128,7 @@ function App() {
               }
             />
 
-            {/* Added Events Route - THIS IS THE IMPORTANT CHANGE */}
+            {/* Added Events Route */}
             <Route
               path="/events"
               element={
