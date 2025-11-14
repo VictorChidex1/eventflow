@@ -50,7 +50,7 @@ export const events = [
   },
   {
     id: 3,
-    title: "Calabar Carnival 2024",
+    title: "Calabar Carnival 2026",
     description:
       "Africa's biggest street party with colorful costumes, music, and cultural displays.",
     date: "2026-02-27",
@@ -107,8 +107,8 @@ export const events = [
     price: 25000,
     image: "images/afrobeats-concert.png", // Concert image
     category: "Afrobeats",
-    availableTickets: 45,
-    totalTickets: 200,
+    availableTickets: 7110,
+    totalTickets: 10000,
     about:
       "Get ready for the concert of the year! We're bringing together the biggest names in Afrobeats for an unforgettable night of music, dance, and pure energy. From Grammy winners to rising stars, this concert features the artists who are taking Nigerian music global. Don't miss your chance to see them all on one stage!",
     whatToExpect: [
@@ -299,8 +299,8 @@ export const events = [
     price: 15000,
     image: "images/jamb.png",
     category: "Education",
-    availableTickets: 45,
-    totalTickets: 60,
+    availableTickets: 100,
+    totalTickets: 1000,
     about:
       "Ace your JAMB/UTME with our intensive preparation masterclass designed by top educators and past examiners. This comprehensive program covers all four subjects with proven strategies, timed practice tests, and personalized feedback to maximize your score and secure your preferred university admission.",
     whatToExpect: [

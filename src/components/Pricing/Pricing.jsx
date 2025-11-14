@@ -10,7 +10,7 @@ import SmartTicketing from "../FeatureDeepDive/SmartTicketing/SmartTicketing";
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState("monthly");
-  const [showEnterpriseForm, setShowEnterpriseForm] = useState(false); // NEW STATE
+  const [showEnterpriseForm, setShowEnterpriseForm] = useState(false);
 
   const plans = [
     {
@@ -250,13 +250,10 @@ const Pricing = () => {
         {/* Plan Calculator */}
         <PlanCalculator />
 
-        {/* NEW: Smart Ticketing Deep Dive - ADD THIS SECTION */}
         <SmartTicketing />
 
-        {/* Payment & Currency Support */}
         <PaymentCurrency />
 
-        {/* Social Proof */}
         <SocialProof />
 
         {/* Pricing Plans */}
