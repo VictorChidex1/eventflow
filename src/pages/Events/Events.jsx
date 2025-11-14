@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Filter,
@@ -18,7 +18,8 @@ const Events = () => {
   const [sortBy, setSortBy] = useState("date");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 30;
+  const [isLoading, setIsLoading] = useState(true);
+  const eventsPerPage = 27;
 
   // Safe data access with fallbacks
   const safeEvents = events || [];
@@ -29,6 +30,15 @@ const Events = () => {
     ...event,
     image: event.image,
   }));
+
+  // Simulate loading delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1200); // 1.2 seconds to see the skeleton effect
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filter and sort events
   const filteredEvents = useMemo(() => {
@@ -111,6 +121,37 @@ const Events = () => {
     return pageNumbers;
   };
 
+  // Skeleton Loader Component
+  const EventCardSkeleton = () => (
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-pulse">
+      {/* Image skeleton */}
+      <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
+        {/* Shimmer effect */}
+        <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer"></div>
+      </div>
+
+      <div className="p-6 space-y-3">
+        {/* Title skeleton */}
+        <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+
+        {/* Category skeleton */}
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+
+        {/* Description skeletons */}
+        <div className="space-y-2">
+          <div className="h-3 bg-gray-200 rounded"></div>
+          <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+        </div>
+
+        {/* Date and price skeletons */}
+        <div className="flex justify-between items-center pt-2">
+          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <section
       id="events"
@@ -156,7 +197,6 @@ const Events = () => {
       <div className="container mx-auto px-4 -mt-8 relative z-10">
         {/* Search and Filters Card */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-12">
-          {/* ... (rest of your search and filters code remains the same) ... */}
           <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
             {/* Search Bar */}
             <div className="flex-1 w-full">
@@ -275,9 +315,9 @@ const Events = () => {
                 : selectedCategory + " Events"}
             </h2>
             <p className="text-gray-600 mt-2">
-              Showing {currentEvents.length} of {filteredEvents.length} events
-              {searchTerm && ` for "${searchTerm}"`} (Page {currentPage} of{" "}
-              {totalPages})
+              Page {currentPage}/{totalPages} • {currentEvents.length} events •{" "}
+              {filteredEvents.length} total
+              {searchTerm && ` for "${searchTerm}"`}
             </p>
           </div>
 
@@ -293,8 +333,16 @@ const Events = () => {
           )}
         </div>
 
-        {/* Events Grid */}
-        {currentEvents.length > 0 ? (
+        {/* Events Grid with Skeleton Loading */}
+        {isLoading ? (
+          // Show skeletons while loading
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+            {Array.from({ length: eventsPerPage }).map((_, index) => (
+              <EventCardSkeleton key={index} />
+            ))}
+          </div>
+        ) : currentEvents.length > 0 ? (
+          // Show actual events when loaded
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
               {currentEvents.map((event) => (
