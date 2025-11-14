@@ -5,7 +5,8 @@ import "./Pricing.css";
 import PlanCalculator from "../PlanCalculator/PlanCalculator";
 import PaymentCurrency from "../PaymentCurrency/PaymentCurrency";
 import SocialProof from "../SocialProof/SocialProof";
-import EnterpriseContactForm from "../EnterpriseContact/EnterpriseContactForm"; // NEW IMPORT
+import EnterpriseContactForm from "../EnterpriseContact/EnterpriseContactForm"; //
+import SmartTicketing from "../FeatureDeepDive/SmartTicketing/SmartTicketing";
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState("monthly");
@@ -248,6 +249,9 @@ const Pricing = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Plan Calculator */}
         <PlanCalculator />
+
+        {/* NEW: Smart Ticketing Deep Dive - ADD THIS SECTION */}
+        <SmartTicketing />
 
         {/* Payment & Currency Support */}
         <PaymentCurrency />
