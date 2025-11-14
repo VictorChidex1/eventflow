@@ -225,6 +225,52 @@
   background: #faf5ff;
 }
 
+/* NEW CATEGORY STYLES - ADDED BELOW EXISTING ONES */
+.ticket-card.orange.selected {
+  border-color: #f97316;
+  background: #fff7ed;
+}
+
+.ticket-card.teal.selected {
+  border-color: #0d9488;
+  background: #f0fdfa;
+}
+
+.ticket-card.amber.selected {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.ticket-card.pink.selected {
+  border-color: #ec4899;
+  background: #fdf2f8;
+}
+
+.ticket-card.violet.selected {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.ticket-card.cyan.selected {
+  border-color: #06b6d4;
+  background: #ecfeff;
+}
+
+.ticket-card.lime.selected {
+  border-color: #84cc16;
+  background: #f7fee7;
+}
+
+.ticket-card.rose.selected {
+  border-color: #f43f5e;
+  background: #fff1f2;
+}
+
+.ticket-card.yellow.selected {
+  border-color: #eab308;
+  background: #fefce8;
+}
+
 .ticket-header {
   display: flex;
   align-items: center;
@@ -263,6 +309,51 @@
 
 .ticket-card.purple .ticket-type-icon {
   color: #8b5cf6;
+}
+
+.ticket-card.indigo .ticket-type-icon {
+  color: #6366f1;
+}
+
+.ticket-card.red .ticket-type-icon {
+  color: #ef4444;
+}
+
+.ticket-card.pink .ticket-type-icon {
+  color: #ec4899;
+}
+
+/* NEW CATEGORY ICON COLORS - ADDED BELOW EXISTING ONES */
+.ticket-card.orange .ticket-type-icon {
+  color: #f97316;
+}
+
+.ticket-card.teal .ticket-type-icon {
+  color: #0d9488;
+}
+
+.ticket-card.amber .ticket-type-icon {
+  color: #f59e0b;
+}
+
+.ticket-card.violet .ticket-type-icon {
+  color: #7c3aed;
+}
+
+.ticket-card.cyan .ticket-type-icon {
+  color: #06b6d4;
+}
+
+.ticket-card.lime .ticket-type-icon {
+  color: #84cc16;
+}
+
+.ticket-card.rose .ticket-type-icon {
+  color: #f43f5e;
+}
+
+.ticket-card.yellow .ticket-type-icon {
+  color: #eab308;
 }
 
 .ticket-info h4 {
@@ -968,5 +1059,222 @@
 
   .mobile-ticket {
     border-width: 1px;
+  }
+}
+
+/* Dynamic logo colors based on event category */
+.event-logo.gold {
+  background: linear-gradient(135deg, #fef3c7, #f59e0b);
+  color: #92400e;
+}
+
+.event-logo.purple {
+  background: linear-gradient(135deg, #e9d5ff, #8b5cf6);
+  color: #6b21a8;
+}
+
+.event-logo.blue {
+  background: linear-gradient(135deg, #dbeafe, #3b82f6);
+  color: #1e40af;
+}
+
+.event-logo.indigo {
+  background: linear-gradient(135deg, #e0e7ff, #6366f1);
+  color: #3730a3;
+}
+
+.event-logo.green {
+  background: linear-gradient(135deg, #d1fae5, #10b981);
+  color: #047857;
+}
+
+.event-logo.red {
+  background: linear-gradient(135deg, #fee2e2, #ef4444);
+  color: #b91c1c;
+}
+
+.event-logo.pink {
+  background: linear-gradient(135deg, #fce7f3, #ec4899);
+  color: #be185d;
+}
+
+.event-logo.orange {
+  background: linear-gradient(135deg, #fed7aa, #f97316);
+  color: #9a3412;
+}
+
+.event-logo.teal {
+  background: linear-gradient(135deg, #99f6e4, #0d9488);
+  color: #115e59;
+}
+
+.event-logo.amber {
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  color: #92400e;
+}
+
+.event-logo.violet {
+  background: linear-gradient(135deg, #ddd6fe, #7c3aed);
+  color: #5b21b6;
+}
+
+.event-logo.cyan {
+  background: linear-gradient(135deg, #a5f3fc, #06b6d4);
+  color: #155e75;
+}
+
+.event-logo.lime {
+  background: linear-gradient(135deg, #ecfccb, #84cc16);
+  color: #3f6212;
+}
+
+.event-logo.rose {
+  background: linear-gradient(135deg, #ffe4e6, #f43f5e);
+  color: #be123c;
+}
+
+.event-logo.yellow {
+  background: linear-gradient(135deg, #fef9c3, #eab308);
+  color: #854d0e;
+}
+
+/* Emoji-specific styling for better appearance */
+.event-logo[data-category] {
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+/* Enhanced ticket card colors for better visual distinction */
+.ticket-card.gold.selected {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.ticket-card.purple.selected {
+  border-color: #8b5cf6;
+  background: #faf5ff;
+}
+
+.ticket-card.blue.selected {
+  border-color: #3b82f6;
+  background: #f0f7ff;
+}
+
+.ticket-card.indigo.selected {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.ticket-card.green.selected {
+  border-color: #10b981;
+  background: #ecfdf5;
+}
+
+.ticket-card.red.selected {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.ticket-card.pink.selected {
+  border-color: #ec4899;
+  background: #fdf2f8;
+}
+
+/* NEW CATEGORY CARD STYLES - ADDED BELOW EXISTING ONES */
+.ticket-card.orange.selected {
+  border-color: #f97316;
+  background: #fff7ed;
+}
+
+.ticket-card.teal.selected {
+  border-color: #0d9488;
+  background: #f0fdfa;
+}
+
+.ticket-card.amber.selected {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.ticket-card.violet.selected {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+}
+
+.ticket-card.cyan.selected {
+  border-color: #06b6d4;
+  background: #ecfeff;
+}
+
+/* Enhanced icon colors for ticket cards */
+.ticket-card.indigo .ticket-type-icon {
+  color: #6366f1;
+}
+
+.ticket-card.red .ticket-type-icon {
+  color: #ef4444;
+}
+
+.ticket-card.pink .ticket-type-icon {
+  color: #ec4899;
+}
+
+/* NEW CATEGORY ICON COLORS - ADDED BELOW EXISTING ONES */
+.ticket-card.orange .ticket-type-icon {
+  color: #f97316;
+}
+
+.ticket-card.teal .ticket-type-icon {
+  color: #0d9488;
+}
+
+.ticket-card.amber .ticket-type-icon {
+  color: #f59e0b;
+}
+
+.ticket-card.violet .ticket-type-icon {
+  color: #7c3aed;
+}
+
+.ticket-card.cyan .ticket-type-icon {
+  color: #06b6d4;
+}
+
+/* Tablet Styles (768px and up) */
+@media (min-width: 768px) {
+  .event-logo {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.5rem;
+  }
+
+  .event-logo[data-category] {
+    font-size: 1.75rem;
+  }
+}
+
+/* Desktop Styles (1024px and up) */
+@media (min-width: 1024px) {
+  .event-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+    font-size: 1.75rem;
+  }
+
+  .event-logo[data-category] {
+    font-size: 2rem;
+  }
+}
+
+/* Small Mobile Fixes (480px and below) */
+@media (max-width: 480px) {
+  .event-logo {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.125rem;
+  }
+
+  .event-logo[data-category] {
+    font-size: 1.25rem;
   }
 }

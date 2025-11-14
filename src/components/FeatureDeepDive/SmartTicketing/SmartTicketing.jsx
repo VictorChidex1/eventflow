@@ -11,6 +11,20 @@ import {
   Users,
   GraduationCap,
   Clock,
+  Music,
+  Heart,
+  Palette,
+  Code,
+  Briefcase,
+  Camera,
+  Activity,
+  Utensils,
+  Church,
+  Film,
+  Sparkles,
+  Gamepad2,
+  Mic2,
+  Coffee,
 } from "lucide-react";
 import "./SmartTicketing.css";
 import { events } from "../../../data/events.js";
@@ -108,12 +122,105 @@ const SmartTicketing = () => {
   );
 };
 
+// Centralized category configuration - EASY TO MAINTAIN AND EXTEND
+const categoryConfig = {
+  // Existing categories
+  Owambe: {
+    icon: <Star className="ticket-type-icon" />,
+    color: "gold",
+    emoji: "🎉",
+  },
+  Afrobeats: {
+    icon: <Music className="ticket-type-icon" />,
+    color: "purple",
+    emoji: "🎵",
+  },
+  Business: {
+    icon: <Briefcase className="ticket-type-icon" />,
+    color: "blue",
+    emoji: "💼",
+  },
+  Education: {
+    icon: <GraduationCap className="ticket-type-icon" />,
+    color: "indigo",
+    emoji: "📚",
+  },
+  Carnival: {
+    icon: <Users className="ticket-type-icon" />,
+    color: "green",
+    emoji: "🎭",
+  },
+  Cultural: {
+    icon: <Heart className="ticket-type-icon" />,
+    color: "red",
+    emoji: "🎪",
+  },
+  Technology: {
+    icon: <Code className="ticket-type-icon" />,
+    color: "blue",
+    emoji: "💻",
+  },
+  Art: {
+    icon: <Palette className="ticket-type-icon" />,
+    color: "purple",
+    emoji: "🎨",
+  },
+  Sports: {
+    icon: <Activity className="ticket-type-icon" />,
+    color: "orange",
+    emoji: "⚽",
+  },
+  Wellness: {
+    icon: <Sparkles className="ticket-type-icon" />,
+    color: "teal",
+    emoji: "🧘",
+  },
+  "Food & Drink": {
+    icon: <Utensils className="ticket-type-icon" />,
+    color: "amber",
+    emoji: "🍴",
+  },
+  Charity: {
+    icon: <Heart className="ticket-type-icon" />,
+    color: "pink",
+    emoji: "🤝",
+  },
+  Religious: {
+    icon: <Church className="ticket-type-icon" />,
+    color: "violet",
+    emoji: "⛪",
+  },
+  Entertainment: {
+    icon: <Film className="ticket-type-icon" />,
+    color: "cyan",
+    emoji: "🎬",
+  },
+  Comedy: {
+    icon: <Mic2 className="ticket-type-icon" />,
+    color: "yellow",
+    emoji: "😂",
+  },
+
+  // NEW CATEGORIES ADDED HERE:
+  Gaming: {
+    icon: <Gamepad2 className="ticket-type-icon" />,
+    color: "lime",
+    emoji: "🎮",
+  },
+  // Note: Dating category doesn't exist in your events.js yet, but adding for future use
+  Dating: {
+    icon: <Heart className="ticket-type-icon" />,
+    color: "rose",
+    emoji: "💑",
+  },
+};
+
 // Ticket Types Demo Component - USING REAL EVENTS DATA
 const TicketTypesDemo = () => {
-  const [selectedEvent, setSelectedEvent] = useState(events[0].id); // Start with first real event
+  const [selectedEvent, setSelectedEvent] = useState(events[0].id);
 
   // Get 4 sample events from your real data for demonstration
-  const sampleEvents = events.slice(0, 4); // Get first 4 real events
+  const sampleEvents = events.slice(0, 4);
 
   const currentEvent =
     events.find((event) => event.id === selectedEvent) || events[0];
@@ -124,48 +231,31 @@ const TicketTypesDemo = () => {
     return `₦${price.toLocaleString()}`;
   };
 
-  // Get appropriate icon based on event category
-  const getEventIcon = (category) => {
-    switch (category) {
-      case "Owambe":
-        return <Star className="ticket-type-icon" />;
-      case "Afrobeats":
-        return <Users className="ticket-type-icon" />;
-      case "Business":
-      case "Education":
-        return <GraduationCap className="ticket-type-icon" />;
-      case "Carnival":
-      case "Cultural":
-        return <Clock className="ticket-type-icon" />;
-      case "Technology":
-        return <Zap className="ticket-type-icon" />;
-      case "Art":
-        return <Ticket className="ticket-type-icon" />;
-      default:
-        return <Ticket className="ticket-type-icon" />;
-    }
+  // Get category configuration - SIMPLIFIED APPROACH
+  const getCategoryConfig = (category) => {
+    return categoryConfig[category] || categoryConfig.Business; // fallback to Business
   };
 
-  // Get color based on event category
-  const getEventColor = (category) => {
-    switch (category) {
-      case "Owambe":
-        return "gold";
-      case "Afrobeats":
-        return "purple";
-      case "Business":
-      case "Education":
-        return "blue";
-      case "Carnival":
-      case "Cultural":
-        return "green";
-      case "Technology":
-        return "blue";
-      case "Art":
-        return "purple";
-      default:
-        return "blue";
+  // Get event logo based on event title and category
+  const getEventLogo = (event) => {
+    const { title, category } = event;
+    const config = getCategoryConfig(category);
+
+    // Use emoji from config if available
+    if (config.emoji) {
+      return config.emoji;
     }
+
+    // Fallback to initials
+    const getInitials = (title) => {
+      const words = title.split(" ");
+      if (words.length >= 2) {
+        return (words[0][0] + words[1][0]).toUpperCase();
+      }
+      return title.substring(0, 2).toUpperCase();
+    };
+
+    return getInitials(title);
   };
 
   return (
@@ -179,66 +269,67 @@ const TicketTypesDemo = () => {
           </p>
 
           <div className="ticket-list">
-            {sampleEvents.map((event) => (
-              <div
-                key={event.id}
-                className={`ticket-card ${
-                  selectedEvent === event.id ? "selected" : ""
-                } ${getEventColor(event.category)}`}
-                onClick={() => setSelectedEvent(event.id)}
-              >
-                <div className="ticket-header">
-                  <div className="ticket-icon">
-                    {getEventIcon(event.category)}
-                  </div>
-                  <div className="ticket-info">
-                    <h4>{event.title}</h4>
-                    <div className="price">
-                      <span className="current">
-                        {formatPrice(event.price)}
-                      </span>
+            {sampleEvents.map((event) => {
+              const config = getCategoryConfig(event.category);
+              return (
+                <div
+                  key={event.id}
+                  className={`ticket-card ${
+                    selectedEvent === event.id ? "selected" : ""
+                  } ${config.color}`}
+                  onClick={() => setSelectedEvent(event.id)}
+                >
+                  <div className="ticket-header">
+                    <div className="ticket-icon">{config.icon}</div>
+                    <div className="ticket-info">
+                      <h4>{event.title}</h4>
+                      <div className="price">
+                        <span className="current">
+                          {formatPrice(event.price)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <p className="ticket-desc">{event.description}</p>
+                  <p className="ticket-desc">{event.description}</p>
 
-                {/* Progress Bar - Using real ticket data */}
-                <div className="progress-section">
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{
-                        width: `${
-                          ((event.totalTickets - event.availableTickets) /
-                            event.totalTickets) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
+                  {/* Progress Bar - Using real ticket data */}
+                  <div className="progress-section">
+                    <div className="progress-bar">
+                      <div
+                        className="progress-fill"
+                        style={{
+                          width: `${
+                            ((event.totalTickets - event.availableTickets) /
+                              event.totalTickets) *
+                            100
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                    <div className="progress-text">
+                      {event.totalTickets - event.availableTickets} of{" "}
+                      {event.totalTickets} sold
+                    </div>
                   </div>
-                  <div className="progress-text">
-                    {event.totalTickets - event.availableTickets} of{" "}
-                    {event.totalTickets} sold
-                  </div>
-                </div>
 
-                {/* Event Features */}
-                <div className="ticket-features">
-                  {event.whatToExpect.slice(0, 2).map((feature, index) => (
-                    <div key={index} className="feature-tag">
-                      <Check className="feature-check" />
-                      {feature}
-                    </div>
-                  ))}
-                  {event.whatToExpect.length > 2 && (
-                    <div className="feature-tag">
-                      <Check className="feature-check" />+
-                      {event.whatToExpect.length - 2} more
-                    </div>
-                  )}
+                  {/* Event Features */}
+                  <div className="ticket-features">
+                    {event.whatToExpect.slice(0, 2).map((feature, index) => (
+                      <div key={index} className="feature-tag">
+                        <Check className="feature-check" />
+                        {feature}
+                      </div>
+                    ))}
+                    {event.whatToExpect.length > 2 && (
+                      <div className="feature-tag">
+                        <Check className="feature-check" />+
+                        {event.whatToExpect.length - 2} more
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -252,7 +343,14 @@ const TicketTypesDemo = () => {
           <div className="mobile-ticket">
             <div className="ticket-top">
               <div className="event-brand">
-                <div className="event-logo">EF</div>
+                <div
+                  className={`event-logo ${
+                    getCategoryConfig(currentEvent.category).color
+                  }`}
+                  data-category={currentEvent.category}
+                >
+                  {getEventLogo(currentEvent)}
+                </div>
                 <div className="event-details">
                   <h4>{currentEvent.title}</h4>
                   <p>{currentEvent.location}</p>
@@ -262,7 +360,7 @@ const TicketTypesDemo = () => {
 
             <div className="ticket-middle">
               <div className="ticket-type-badge">
-                {getEventIcon(currentEvent.category)}
+                {getCategoryConfig(currentEvent.category).icon}
                 <span>{currentEvent.category}</span>
               </div>
 

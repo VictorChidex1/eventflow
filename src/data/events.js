@@ -651,6 +651,156 @@ export const events = [
       "Live product demonstrations and tasting sessions",
     ],
   },
+
+  {
+    id: 28,
+    title: "Nigerian Comedy Jamboree",
+    description:
+      "An evening of non-stop laughter featuring Nigeria's top comedians and rising comedy stars.",
+    date: "2026-02-05",
+    time: "7:00 PM",
+    location: "Muson Centre, Lagos",
+    price: 6000,
+    image: "images/comedy-jamboree.png",
+    category: "Comedy",
+    availableTickets: 390,
+    totalTickets: 500,
+    about:
+      "Get ready for the biggest comedy event of the year! The Nigerian Comedy Jamboree brings together legendary comedians and fresh new talents for an unforgettable night of humor, satire, and pure entertainment. From stand-up to skits, experience the unique Nigerian sense of humor that has captivated audiences worldwide.",
+    whatToExpect: [
+      "Performances by 10+ top Nigerian comedians",
+      "Stand-up comedy in English, Pidgin, and local languages",
+      "Interactive audience participation segments",
+      "Live music interludes between comedy sets",
+      "Open mic session for aspiring comedians",
+      "After-party with performers",
+    ],
+  },
+
+  {
+    id: 29,
+    title: "Naija Esports Championship",
+    description:
+      "West Africa's biggest competitive gaming tournament featuring top players and massive prize pools.",
+    date: "2026-03-08",
+    time: "9:00 AM",
+    location: "Landmark Centre, Lagos",
+    price: 3000,
+    image: "images/naija-esports-championship.png",
+    category: "Gaming",
+    availableTickets: 800,
+    totalTickets: 1000,
+    about:
+      "Witness gaming history in the making at the Naija Esports Championship! This premier tournament brings together the best gamers from across Nigeria and West Africa to compete in popular titles for glory and life-changing prize money. Whether you're a competitor or spectator, experience the thrill of professional esports in a world-class venue.",
+    whatToExpect: [
+      "Tournaments for FIFA, Call of Duty, and Valorant",
+      "₦10,000,000 total prize pool across all games",
+      "Live commentary and professional streaming setup",
+      "Gaming gear exhibition and tech demonstrations",
+      "Meet-and-greet with popular gaming streamers",
+      "Open gaming zones for casual play between matches",
+    ],
+  },
+
+  {
+    id: 30,
+    title: "Lagos Gaming Expo",
+    description:
+      "Explore the latest in gaming technology, indie games, and the future of interactive entertainment.",
+    date: "2026-04-27",
+    time: "10:00 AM",
+    location: "Eko Hotel Convention Centre, Lagos",
+    price: 1500,
+    image: "images/lagos-gaming-expo.png",
+    category: "Gaming",
+    availableTickets: 1200,
+    totalTickets: 1500,
+    about:
+      "Dive into the exciting world of gaming at the Lagos Gaming Expo! This comprehensive event showcases everything from cutting-edge gaming hardware and upcoming game releases to Nigeria's growing indie game development scene. Network with industry professionals, try new games before they launch, and discover career opportunities in the gaming industry.",
+    whatToExpect: [
+      "First-look at upcoming international game releases",
+      "Showcase of Nigerian-made indie games",
+      "VR and AR gaming experiences",
+      "Game development workshops and career talks",
+      "Gaming hardware and accessory exhibitions",
+      "Cosplay competition and gaming merchandise market",
+    ],
+  },
+
+  {
+    id: 31,
+    title: "Retro Gaming Night Lagos",
+    description:
+      "A nostalgic journey through gaming history with classic consoles, arcade machines, and retro tournaments.",
+    date: "2026-05-12",
+    time: "5:00 PM",
+    location: "The Game Hub, Ikeja, Lagos",
+    price: 2000,
+    image: "images/retro-gaming-night.png",
+    category: "Gaming",
+    availableTickets: 550,
+    totalTickets: 700,
+    about:
+      "Take a trip down memory lane at Retro Gaming Night Lagos! Relive the golden era of gaming with perfectly preserved arcade cabinets, classic consoles from the 80s and 90s, and all your favorite childhood games. Whether you're a veteran gamer or curious newcomer, experience the magic of retro gaming in a vibrant, social atmosphere.",
+    whatToExpect: [
+      "Classic arcade machines (Pac-Man, Street Fighter, etc.)",
+      "Retro console stations (NES, Sega Genesis, PS1)",
+      "Super Mario Bros and Sonic the Hedgehog tournaments",
+      "Retro gaming trivia with prizes",
+      "Vintage gaming merchandise and collectibles",
+      "80s and 90s music creating the perfect nostalgic vibe",
+    ],
+  },
+
+  {
+    id: 32,
+    title: "Lagos Speed Dating Mixer",
+    description:
+      "Meet and connect with interesting singles in a fun, structured speed dating event with a Nigerian twist.",
+    date: "2026-05-21",
+    time: "6:30 PM",
+    location: "The Social House, Victoria Island, Lagos",
+    price: 5000,
+    image: "images/lagos-speed-dating.png",
+    category: "Dating",
+    availableTickets: 60,
+    totalTickets: 80,
+    about:
+      "Looking for meaningful connections in Lagos? Our speed dating mixer offers a relaxed, sophisticated environment to meet like-minded professionals. With carefully curated matches and ice-breaking activities, you'll have the opportunity to make genuine connections while enjoying great music, drinks, and conversation in a premium venue.",
+    whatToExpect: [
+      "Structured speed dating rounds with 10+ potential matches",
+      "Ice-breaker games and conversation starters",
+      "Professional matchmaking coordination",
+      "Complimentary welcome drink and appetizers",
+      "Private matching system for discreet connections",
+      "After-event networking and socializing",
+    ],
+  },
+
+  {
+    id: 33,
+    title: "Abuja Singles Cooking Class",
+    description:
+      "Find romance while learning to cook delicious Nigerian dishes in this interactive culinary dating experience.",
+    date: "2026-04-19",
+    time: "3:00 PM",
+    location: "Culinary Academy Abuja, Wuse 2",
+    price: 8500,
+    image: "images/abuja-cooking-dating.png",
+    category: "Dating",
+    availableTickets: 40,
+    totalTickets: 50,
+    about:
+      "Spice up your love life while learning to spice up your cooking! This unique dating event pairs singles together to prepare classic Nigerian dishes under the guidance of professional chefs. The shared experience of cooking creates natural conversation and connection, making it the perfect recipe for romance.",
+    whatToExpect: [
+      "Hands-on cooking in pairs with rotating partners",
+      "Learn to prepare 3 popular Nigerian dishes",
+      "Professional chef instruction and demonstrations",
+      "Romantic dinner with your cooked creations",
+      "Wine pairing and cocktail mixing session",
+      "Recipe booklet and cooking tips to take home",
+    ],
+  },
 ];
 
 export const categories = [
@@ -669,4 +819,7 @@ export const categories = [
   "Religious",
   "Cultural",
   "Entertainment",
+  "Comedy",
+  "Gaming",
+  "Dating",
 ];
