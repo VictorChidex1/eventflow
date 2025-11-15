@@ -283,7 +283,7 @@ const EventsList = () => {
                 filtering and search options.
               </p>
               <a
-                href="/events"
+                href="#/events"
                 className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <span>View All Events</span>
