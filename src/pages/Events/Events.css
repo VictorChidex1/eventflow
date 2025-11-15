@@ -169,3 +169,44 @@
 .animate-slide-up {
   animation: slide-up 0.3s ease-out;
 }
+
+/* Mobile responsive improvements */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Better touch targets for mobile */
+  button,
+  .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improved dropdown spacing */
+  .category-dropdown {
+    max-height: 60vh;
+  }
+}
+
+/* Prevent body scroll when mobile filters are open */
+body.mobile-filters-open {
+  overflow: hidden;
+}
+
+/* Enhanced hover effects for desktop only */
+@media (hover: hover) {
+  .group:hover .event-card {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Print styles */
+@media print {
+  .category-dropdown,
+  .mobile-filters-trigger {
+    display: none !important;
+  }
+}
