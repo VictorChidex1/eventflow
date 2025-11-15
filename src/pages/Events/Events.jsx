@@ -1,5 +1,5 @@
-// Events.jsx - Updated with Multi-Select Filtering
-import React, { useState, useMemo, useEffect } from "react";
+// Events.jsx - COMPLETE REVAMP with Robust Click-Outside & Mobile Responsiveness
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
   Search,
   Filter,
@@ -9,6 +9,11 @@ import {
   ChevronRight,
   X,
   Check,
+  MapPin,
+  Wallet,
+  Clock,
+  Users,
+  SlidersHorizontal,
 } from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "../../components/Events/EventCard";
@@ -18,18 +23,129 @@ import "./Events.css";
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(["All"]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState(["All"]);
+  const [selectedLocations, setSelectedLocations] = useState(["All"]);
+  const [selectedDateRanges, setSelectedDateRanges] = useState(["All"]);
   const [sortBy, setSortBy] = useState("date");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-  const eventsPerPage = 27;
+  const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false);
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  const eventsPerPage = 9; // Reduced for better mobile experience
+
+  // Refs for click-outside detection
+  const categoryDropdownRef = useRef(null);
+  const priceDropdownRef = useRef(null);
+  const locationDropdownRef = useRef(null);
+  const dateDropdownRef = useRef(null);
+  const mobileFiltersRef = useRef(null);
+
+  // Nigerian-specific filter options
+  const priceRanges = [
+    { id: "All", label: "All Prices", min: null, max: null },
+    { id: "free", label: "Free", min: 0, max: 0 },
+    { id: "budget", label: "₦1K - ₦5K", min: 1000, max: 5000 },
+    { id: "medium", label: "₦5K - ₦20K", min: 5000, max: 20000 },
+    { id: "premium", label: "₦20K - ₦50K", min: 20000, max: 50000 },
+    { id: "vip", label: "₦50K+", min: 50000, max: null },
+  ];
+
+  const locations = [
+    { id: "All", label: "All Locations" },
+    { id: "lagos", label: "Lagos" },
+    { id: "abuja", label: "Abuja" },
+    { id: "port-harcourt", label: "Port Harcourt" },
+    { id: "ibadan", label: "Ibadan" },
+    { id: "online", label: "Online" },
+    { id: "others", label: "Other Cities" },
+  ];
+
+  const dateRanges = [
+    { id: "All", label: "Any Date" },
+    { id: "today", label: "Today" },
+    { id: "tomorrow", label: "Tomorrow" },
+    { id: "weekend", label: "This Weekend" },
+    { id: "next-week", label: "Next 7 Days" },
+    { id: "this-month", label: "This Month" },
+  ];
 
   // Safe data access with fallbacks
   const safeEvents = events || [];
   const safeCategories = categories || ["All"];
 
-  // SIMPLIFIED: Use the image paths as they are from events.js
+  // Enhanced Click Outside Handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close category dropdown
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target)
+      ) {
+        setIsCategoryDropdownOpen(false);
+      }
+
+      // Close price dropdown
+      if (
+        priceDropdownRef.current &&
+        !priceDropdownRef.current.contains(event.target)
+      ) {
+        setIsPriceDropdownOpen(false);
+      }
+
+      // Close location dropdown
+      if (
+        locationDropdownRef.current &&
+        !locationDropdownRef.current.contains(event.target)
+      ) {
+        setIsLocationDropdownOpen(false);
+      }
+
+      // Close date dropdown
+      if (
+        dateDropdownRef.current &&
+        !dateDropdownRef.current.contains(event.target)
+      ) {
+        setIsDateDropdownOpen(false);
+      }
+
+      // Close mobile filters
+      if (
+        mobileFiltersRef.current &&
+        !mobileFiltersRef.current.contains(event.target) &&
+        !event.target.closest(".mobile-filters-trigger")
+      ) {
+        setIsMobileFiltersOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside); // Mobile support
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
+
+  // Close all dropdowns function
+  const closeAllDropdowns = () => {
+    setIsCategoryDropdownOpen(false);
+    setIsPriceDropdownOpen(false);
+    setIsLocationDropdownOpen(false);
+    setIsDateDropdownOpen(false);
+  };
+
+  // Enhanced dropdown toggle with close others
+  const createDropdownToggle = (setter) => () => {
+    closeAllDropdowns();
+    setter(true);
+  };
+
   const eventsWithCorrectedImages = safeEvents.map((event) => ({
     ...event,
     image: event.image,
@@ -40,33 +156,40 @@ const Events = () => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1200);
-
     return () => clearTimeout(timer);
   }, []);
 
-  // Enhanced category selection handler
-  const handleCategoryToggle = (category) => {
-    if (category === "All") {
-      setSelectedCategories(["All"]);
-    } else {
-      setSelectedCategories((prev) => {
-        // Remove "All" if any other category is selected
-        const newCategories = prev.filter((cat) => cat !== "All");
+  // Enhanced multi-select handlers
+  const createMultiSelectHandler =
+    (setSelected, allValue = "All") =>
+    (itemId) => {
+      if (itemId === allValue) {
+        setSelected([allValue]);
+      } else {
+        setSelected((prev) => {
+          const newSelection = prev.filter((item) => item !== allValue);
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
 
-        if (newCategories.includes(category)) {
-          // Remove category if already selected
-          return newCategories.filter((cat) => cat !== category);
-        } else {
-          // Add category
-          return [...newCategories, category];
-        }
-      });
-    }
-  };
+  const handleCategoryToggle = createMultiSelectHandler(setSelectedCategories);
+  const handlePriceToggle = createMultiSelectHandler(setSelectedPriceRanges);
+  const handleLocationToggle = createMultiSelectHandler(setSelectedLocations);
+  const handleDateToggle = createMultiSelectHandler(setSelectedDateRanges);
 
-  // Clear all categories
-  const clearAllCategories = () => {
+  // Clear all filters
+  const clearAllFilters = () => {
     setSelectedCategories(["All"]);
+    setSelectedPriceRanges(["All"]);
+    setSelectedLocations(["All"]);
+    setSelectedDateRanges(["All"]);
+    setSearchTerm("");
+    closeAllDropdowns();
   };
 
   // Filter and sort events with multi-select support
@@ -75,15 +198,41 @@ const Events = () => {
       .filter((event) => {
         if (!event) return false;
 
+        // Search filter
         const matchesSearch =
+          !searchTerm ||
           event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
+        // Category filter
         const matchesCategory =
           selectedCategories.includes("All") ||
           selectedCategories.includes(event.category);
 
-        return matchesSearch && matchesCategory;
+        // Price filter
+        const matchesPrice =
+          selectedPriceRanges.includes("All") ||
+          selectedPriceRanges.some((priceRange) => {
+            const range = priceRanges.find((p) => p.id === priceRange);
+            if (!range) return false;
+            if (range.id === "free") return event.price === 0;
+            if (range.min !== null && event.price < range.min) return false;
+            if (range.max !== null && event.price > range.max) return false;
+            return true;
+          });
+
+        // Location filter
+        const matchesLocation = selectedLocations.includes("All");
+        // Date filter
+        const matchesDate = selectedDateRanges.includes("All");
+
+        return (
+          matchesSearch &&
+          matchesCategory &&
+          matchesPrice &&
+          matchesLocation &&
+          matchesDate
+        );
       })
       .sort((a, b) => {
         switch (sortBy) {
@@ -97,12 +246,36 @@ const Events = () => {
             return 0;
         }
       });
-  }, [eventsWithCorrectedImages, searchTerm, selectedCategories, sortBy]);
+  }, [
+    eventsWithCorrectedImages,
+    searchTerm,
+    selectedCategories,
+    selectedPriceRanges,
+    selectedLocations,
+    selectedDateRanges,
+    sortBy,
+  ]);
+
+  // Active filters count
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (!selectedCategories.includes("All")) count += selectedCategories.length;
+    if (!selectedPriceRanges.includes("All"))
+      count += selectedPriceRanges.length;
+    if (!selectedLocations.includes("All")) count += selectedLocations.length;
+    if (!selectedDateRanges.includes("All")) count += selectedDateRanges.length;
+    if (searchTerm) count += 1;
+    return count;
+  }, [
+    selectedCategories,
+    selectedPriceRanges,
+    selectedLocations,
+    selectedDateRanges,
+    searchTerm,
+  ]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
-
-  // Get current events for the page
   const currentEvents = useMemo(() => {
     const indexOfLastEvent = currentPage * eventsPerPage;
     const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
@@ -110,9 +283,16 @@ const Events = () => {
   }, [filteredEvents, currentPage, eventsPerPage]);
 
   // Reset to first page when filters change
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategories, sortBy]);
+  }, [
+    searchTerm,
+    selectedCategories,
+    selectedPriceRanges,
+    selectedLocations,
+    selectedDateRanges,
+    sortBy,
+  ]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -151,7 +331,107 @@ const Events = () => {
     return pageNumbers;
   };
 
-  // Skeleton Loader Component (unchanged)
+  // Reusable Multi-Select Dropdown Component with proper ref handling
+  const MultiSelectDropdown = ({
+    isOpen,
+    setIsOpen,
+    selectedItems,
+    handleToggle,
+    options,
+    label,
+    icon: Icon,
+    dropdownRef,
+  }) => (
+    <div className="w-full lg:w-64" ref={dropdownRef}>
+      <label className="block text-sm font-semibold text-gray-700 mb-3">
+        {label}
+      </label>
+      <div className="relative">
+        <button
+          onClick={createDropdownToggle(setIsOpen)}
+          className="w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
+        >
+          <span className="truncate flex items-center">
+            <Icon size={18} className="mr-2 text-gray-500 flex-shrink-0" />
+            {selectedItems.includes("All")
+              ? `All ${label}`
+              : `${selectedItems.length} selected`}
+          </span>
+          <svg
+            className={`h-5 w-5 transform transition-transform flex-shrink-0 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <div className="category-dropdown absolute z-50 w-full mt-2 bg-white/95 border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+            <div className="p-2">
+              {options.map((option) => (
+                <div
+                  key={option.id}
+                  onClick={() => handleToggle(option.id)}
+                  className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
+                    selectedItems.includes(option.id)
+                      ? "bg-blue-50 text-blue-700"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 border rounded mr-3 flex items-center justify-center flex-shrink-0 ${
+                      selectedItems.includes(option.id)
+                        ? "bg-blue-600 border-blue-600"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {selectedItems.includes(option.id) && (
+                      <Check size={14} className="text-white" />
+                    )}
+                  </div>
+                  <span className="text-sm">{option.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Filter Chips Component
+  const FilterChips = ({ selectedItems, handleToggle, getLabel }) => (
+    <div className="flex flex-wrap gap-2">
+      {selectedItems
+        .filter((item) => item !== "All")
+        .map((item) => (
+          <div
+            key={item}
+            className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
+          >
+            {getLabel(item)}
+            <button
+              onClick={() => handleToggle(item)}
+              className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+    </div>
+  );
+
+  // Skeleton Loader Component
   const EventCardSkeleton = () => (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-pulse">
       <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
@@ -172,52 +452,234 @@ const Events = () => {
     </div>
   );
 
+  // Mobile Filters Component
+  const MobileFilters = () => (
+    <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
+      <div
+        ref={mobileFiltersRef}
+        className="bg-white w-full max-h-[80vh] rounded-t-3xl overflow-y-auto animate-slide-up"
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">Filters</h3>
+            <button
+              onClick={() => setIsMobileFiltersOpen(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {/* Search Bar */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Search Events
+              </label>
+              <div className="relative">
+                <Search
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50"
+                />
+              </div>
+            </div>
+
+            {/* Mobile Filter Dropdowns */}
+            <MultiSelectDropdown
+              isOpen={isCategoryDropdownOpen}
+              setIsOpen={setIsCategoryDropdownOpen}
+              selectedItems={selectedCategories}
+              handleToggle={handleCategoryToggle}
+              options={[
+                { id: "All", label: "All Categories" },
+                ...safeCategories
+                  .filter((cat) => cat !== "All")
+                  .map((cat) => ({ id: cat, label: cat })),
+              ]}
+              label="Categories"
+              icon={Users}
+              dropdownRef={categoryDropdownRef}
+            />
+
+            <MultiSelectDropdown
+              isOpen={isPriceDropdownOpen}
+              setIsOpen={setIsPriceDropdownOpen}
+              selectedItems={selectedPriceRanges}
+              handleToggle={handlePriceToggle}
+              options={priceRanges}
+              label="Price"
+              icon={Wallet}
+              dropdownRef={priceDropdownRef}
+            />
+
+            <MultiSelectDropdown
+              isOpen={isLocationDropdownOpen}
+              setIsOpen={setIsLocationDropdownOpen}
+              selectedItems={selectedLocations}
+              handleToggle={handleLocationToggle}
+              options={locations}
+              label="Location"
+              icon={MapPin}
+              dropdownRef={locationDropdownRef}
+            />
+
+            <MultiSelectDropdown
+              isOpen={isDateDropdownOpen}
+              setIsOpen={setIsDateDropdownOpen}
+              selectedItems={selectedDateRanges}
+              handleToggle={handleDateToggle}
+              options={dateRanges}
+              label="Date"
+              icon={Calendar}
+              dropdownRef={dateDropdownRef}
+            />
+
+            {/* Sort By */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Sort By
+              </label>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 font-medium"
+                >
+                  <option value="date">Date</option>
+                  <option value="price">Price</option>
+                  <option value="name">Name</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                  <TrendingUp size={18} />
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={clearAllFilters}
+                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+              >
+                Clear All
+              </button>
+              <button
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <section
       id="events"
       className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30"
     >
       {/* Enhanced Header with Background */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-16">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-12 lg:py-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 lg:mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
               Discover Events
             </h1>
-            <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
+            <p className="text-lg lg:text-xl xl:text-2xl text-blue-100 mb-6 lg:mb-8 leading-relaxed px-4">
               Find your next unforgettable experience. From cultural festivals
               to tech conferences, we've got something for everyone.
             </p>
 
             {/* Quick Stats */}
-            <div className="flex justify-center space-x-8 text-center">
+            <div className="flex justify-center space-x-6 lg:space-x-8 text-center">
               <div>
-                <div className="text-3xl font-bold text-white">
+                <div className="text-2xl lg:text-3xl font-bold text-white">
                   {safeEvents.length}+
                 </div>
-                <div className="text-blue-200 text-sm">Total Events</div>
+                <div className="text-blue-200 text-xs lg:text-sm">
+                  Total Events
+                </div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-white">
+                <div className="text-2xl lg:text-3xl font-bold text-white">
                   {safeCategories.length - 1}
                 </div>
-                <div className="text-blue-200 text-sm">Categories</div>
+                <div className="text-blue-200 text-xs lg:text-sm">
+                  Categories
+                </div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-white">
+                <div className="text-2xl lg:text-3xl font-bold text-white">
                   {safeEvents.filter((e) => e.price === 0).length}
                 </div>
-                <div className="text-blue-200 text-sm">Free Events</div>
+                <div className="text-blue-200 text-xs lg:text-sm">
+                  Free Events
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 -mt-8 relative z-10">
-        {/* Search and Filters Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-12">
-          <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
+      <div className="container mx-auto px-4 lg:-mt-8 relative z-10">
+        {/* Mobile Filters Trigger */}
+        <div className="lg:hidden flex items-center justify-between mb-6 pt-4">
+          <button
+            onClick={() => setIsMobileFiltersOpen(true)}
+            className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium"
+          >
+            <SlidersHorizontal size={20} />
+            <span>Filters</span>
+            {activeFiltersCount > 0 && (
+              <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={clearAllFilters}
+              className="text-red-600 text-sm font-medium"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
+
+        {/* Enhanced Search and Filters Card - Desktop */}
+        <div className="hidden lg:block bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8 lg:mb-12">
+          {/* Active Filters Bar */}
+          {activeFiltersCount > 0 && (
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+              <div className="flex items-center space-x-2">
+                <Filter size={16} className="text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">
+                  {activeFiltersCount} active filter
+                  {activeFiltersCount !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <button
+                onClick={clearAllFilters}
+                className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
+              >
+                <X size={16} className="mr-1" />
+                Clear all
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
             {/* Search Bar */}
             <div className="flex-1 w-full">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -238,131 +700,64 @@ const Events = () => {
               </div>
             </div>
 
-            {/* Enhanced Multi-Select Category Filter */}
-            <div className="w-full lg:w-64">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Categories
-              </label>
-              <div className="relative">
-                <button
-                  onClick={() =>
-                    setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
-                  }
-                  className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
-                >
-                  <span className="truncate">
-                    {selectedCategories.includes("All")
-                      ? "All Categories"
-                      : `${selectedCategories.length} selected`}
-                  </span>
-                  <svg
-                    className={`h-5 w-5 transform transition-transform ${
-                      isCategoryDropdownOpen ? "rotate-180" : ""
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </button>
+            {/* Category Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isCategoryDropdownOpen}
+              setIsOpen={setIsCategoryDropdownOpen}
+              selectedItems={selectedCategories}
+              handleToggle={handleCategoryToggle}
+              options={[
+                { id: "All", label: "All Categories" },
+                ...safeCategories
+                  .filter((cat) => cat !== "All")
+                  .map((cat) => ({ id: cat, label: cat })),
+              ]}
+              label="Categories"
+              icon={Users}
+              dropdownRef={categoryDropdownRef}
+            />
 
-                {/* Dropdown Menu */}
-                {isCategoryDropdownOpen && (
-                  <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
-                    <div className="p-2">
-                      {/* Select All Option */}
-                      <div
-                        onClick={() => handleCategoryToggle("All")}
-                        className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-                          selectedCategories.includes("All")
-                            ? "bg-blue-50 text-blue-700"
-                            : "hover:bg-gray-50"
-                        }`}
-                      >
-                        <div
-                          className={`w-5 h-5 border rounded mr-3 flex items-center justify-center ${
-                            selectedCategories.includes("All")
-                              ? "bg-blue-600 border-blue-600"
-                              : "border-gray-300"
-                          }`}
-                        >
-                          {selectedCategories.includes("All") && (
-                            <Check size={14} className="text-white" />
-                          )}
-                        </div>
-                        <span className="font-medium">All Categories</span>
-                      </div>
+            {/* Price Range Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isPriceDropdownOpen}
+              setIsOpen={setIsPriceDropdownOpen}
+              selectedItems={selectedPriceRanges}
+              handleToggle={handlePriceToggle}
+              options={priceRanges}
+              label="Price"
+              icon={Wallet}
+              dropdownRef={priceDropdownRef}
+            />
+          </div>
 
-                      {/* Category Options */}
-                      {safeCategories
-                        .filter((cat) => cat !== "All")
-                        .map((category) => (
-                          <div
-                            key={category}
-                            onClick={() => handleCategoryToggle(category)}
-                            className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-                              selectedCategories.includes(category)
-                                ? "bg-blue-50 text-blue-700"
-                                : "hover:bg-gray-50"
-                            }`}
-                          >
-                            <div
-                              className={`w-5 h-5 border rounded mr-3 flex items-center justify-center ${
-                                selectedCategories.includes(category)
-                                  ? "bg-blue-600 border-blue-600"
-                                  : "border-gray-300"
-                              }`}
-                            >
-                              {selectedCategories.includes(category) && (
-                                <Check size={14} className="text-white" />
-                              )}
-                            </div>
-                            <span>{category}</span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+          {/* Second Row of Filters */}
+          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center mt-6">
+            {/* Location Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isLocationDropdownOpen}
+              setIsOpen={setIsLocationDropdownOpen}
+              selectedItems={selectedLocations}
+              handleToggle={handleLocationToggle}
+              options={locations}
+              label="Location"
+              icon={MapPin}
+              dropdownRef={locationDropdownRef}
+            />
 
-              {/* Selected Categories Chips */}
-              {!selectedCategories.includes("All") &&
-                selectedCategories.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {selectedCategories.map((category) => (
-                      <div
-                        key={category}
-                        className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
-                      >
-                        {category}
-                        <button
-                          onClick={() => handleCategoryToggle(category)}
-                          className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                    {selectedCategories.length > 1 && (
-                      <button
-                        onClick={clearAllCategories}
-                        className="text-red-600 text-sm hover:text-red-700 font-medium"
-                      >
-                        Clear all
-                      </button>
-                    )}
-                  </div>
-                )}
-            </div>
+            {/* Date Range Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isDateDropdownOpen}
+              setIsOpen={setIsDateDropdownOpen}
+              selectedItems={selectedDateRanges}
+              handleToggle={handleDateToggle}
+              options={dateRanges}
+              label="Date"
+              icon={Calendar}
+              dropdownRef={dateDropdownRef}
+            />
 
             {/* Sort By */}
-            <div className="w-full lg:w-auto">
+            <div className="w-full xl:w-64">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
                 Sort By
               </label>
@@ -370,7 +765,7 @@ const Events = () => {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none w-full lg:w-64 px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium"
+                  className="appearance-none w-full px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium"
                 >
                   <option value="date">Date</option>
                   <option value="price">Price</option>
@@ -381,6 +776,52 @@ const Events = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Filter Chips */}
+          <div className="mt-6 pt-6 border-t border-gray-100 space-y-4">
+            {!selectedCategories.includes("All") && (
+              <div>
+                <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Selected Categories:
+                </span>
+                <FilterChips
+                  selectedItems={selectedCategories}
+                  handleToggle={handleCategoryToggle}
+                  getLabel={(item) => item}
+                />
+              </div>
+            )}
+
+            {!selectedPriceRanges.includes("All") && (
+              <div>
+                <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Selected Price Ranges:
+                </span>
+                <FilterChips
+                  selectedItems={selectedPriceRanges}
+                  handleToggle={handlePriceToggle}
+                  getLabel={(item) =>
+                    priceRanges.find((p) => p.id === item)?.label || item
+                  }
+                />
+              </div>
+            )}
+
+            {!selectedLocations.includes("All") && (
+              <div>
+                <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Selected Locations:
+                </span>
+                <FilterChips
+                  selectedItems={selectedLocations}
+                  handleToggle={handleLocationToggle}
+                  getLabel={(item) =>
+                    locations.find((l) => l.id === item)?.label || item
+                  }
+                />
+              </div>
+            )}
           </div>
 
           {/* Popular Categories Quick Filter */}
@@ -402,29 +843,23 @@ const Events = () => {
                   {category}
                 </button>
               ))}
-              {!selectedCategories.includes("All") && (
-                <button
-                  onClick={clearAllCategories}
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-200"
-                >
-                  Clear All Filters
-                </button>
-              )}
             </div>
           </div>
         </div>
 
         {/* Results Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">
-              {selectedCategories.includes("All")
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              {filteredEvents.length === 0
+                ? "No Events Found"
+                : selectedCategories.includes("All")
                 ? "All Events"
                 : selectedCategories.length === 1
                 ? `${selectedCategories[0]} Events`
                 : `${selectedCategories.length} Categories`}
             </h2>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-600 mt-2 text-sm lg:text-base">
               Page {currentPage}/{totalPages} • {currentEvents.length} events •{" "}
               {filteredEvents.length} total
               {searchTerm && ` for "${searchTerm}"`}
@@ -432,10 +867,10 @@ const Events = () => {
           </div>
 
           {filteredEvents.length > 0 && (
-            <div className="mt-4 sm:mt-0 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg border border-blue-200">
+            <div className="mt-4 sm:mt-0 bg-blue-50 text-blue-700 px-3 lg:px-4 py-2 rounded-lg border border-blue-200">
               <div className="flex items-center space-x-2">
-                <Filter size={16} />
-                <span className="text-sm font-medium">
+                <Filter size={14} className="lg:size-4" />
+                <span className="text-xs lg:text-sm font-medium">
                   {filteredEvents.length} events match your criteria
                 </span>
               </div>
@@ -445,14 +880,14 @@ const Events = () => {
 
         {/* Events Grid with Skeleton Loading */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
             {Array.from({ length: eventsPerPage }).map((_, index) => (
               <EventCardSkeleton key={index} />
             ))}
           </div>
         ) : currentEvents.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
               {currentEvents.map((event) => (
                 <div
                   key={event.id}
@@ -466,11 +901,11 @@ const Events = () => {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-2 mb-12">
+              <div className="flex justify-center items-center space-x-1 lg:space-x-2 mb-12">
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`flex items-center px-4 py-2 rounded-lg border transition-all duration-200 ${
+                  className={`flex items-center px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
                     currentPage === 1
                       ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
@@ -484,7 +919,7 @@ const Events = () => {
                   <button
                     key={pageNumber}
                     onClick={() => handlePageChange(pageNumber)}
-                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                    className={`px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
                       currentPage === pageNumber
                         ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/25"
                         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
@@ -497,7 +932,7 @@ const Events = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`flex items-center px-4 py-2 rounded-lg border transition-all duration-200 ${
+                  className={`flex items-center px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
                     currentPage === totalPages
                       ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
@@ -510,24 +945,21 @@ const Events = () => {
             )}
           </>
         ) : (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100 mb-12">
+          <div className="text-center py-12 lg:py-16 bg-white rounded-2xl shadow-sm border border-gray-100 mb-12">
             <div className="text-gray-300 mb-6">
-              <Filter size={80} className="mx-auto" />
+              <Filter size={60} className="lg:size-80 mx-auto" />
             </div>
-            <h3 className="text-2xl font-semibold text-gray-600 mb-3">
+            <h3 className="text-xl lg:text-2xl font-semibold text-gray-600 mb-3">
               No events found
             </h3>
-            <p className="text-gray-500 max-w-md mx-auto mb-6">
+            <p className="text-gray-500 max-w-md mx-auto mb-6 text-sm lg:text-base">
               We couldn't find any events matching your search criteria. Try
               adjusting your filters or search terms.
             </p>
-            {(searchTerm || !selectedCategories.includes("All")) && (
+            {activeFiltersCount > 0 && (
               <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCategories(["All"]);
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
+                onClick={clearAllFilters}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base"
               >
                 Clear All Filters
               </button>
@@ -543,6 +975,9 @@ const Events = () => {
             onBack={handleCloseDetail}
           />
         )}
+
+        {/* Mobile Filters */}
+        {isMobileFiltersOpen && <MobileFilters />}
       </div>
     </section>
   );

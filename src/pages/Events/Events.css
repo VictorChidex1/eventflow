@@ -113,6 +113,18 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* Smooth dropdown animation */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Smooth dropdown animations */
 .dropdown-enter {
   opacity: 0;
@@ -142,4 +154,18 @@
 
 .category-dropdown::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Mobile animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
 }
