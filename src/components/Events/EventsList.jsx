@@ -1,5 +1,11 @@
-// EventsList.jsx - COMPLETE REVAMP with Robust Click-Outside & Mobile Responsiveness
-import React, { useState, useMemo, useEffect, useRef } from "react";
+// EventsList.jsx - REFACTORED with Professional Architecture
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from "react";
 import {
   Search,
   Filter,
@@ -18,137 +24,239 @@ import EventCard from "./EventCard";
 import EventDetail from "./EventDetail";
 import "./EventsList.css";
 
-const EventsList = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState(["All"]);
-  const [selectedPriceRanges, setSelectedPriceRanges] = useState(["All"]);
-  const [selectedLocations, setSelectedLocations] = useState(["All"]);
-  const [selectedDateRanges, setSelectedDateRanges] = useState(["All"]);
-  const [sortBy, setSortBy] = useState("date");
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-  const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false);
-  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
-  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+// Constants and configuration
+const PRICE_RANGES = [
+  { id: "All", label: "All Prices", min: null, max: null },
+  { id: "free", label: "Free", min: 0, max: 0 },
+  { id: "budget", label: "₦1K - ₦5K", min: 1000, max: 5000 },
+  { id: "medium", label: "₦5K - ₦20K", min: 5000, max: 20000 },
+  { id: "premium", label: "₦20K - ₦50K", min: 20000, max: 50000 },
+  { id: "vip", label: "₦50K+", min: 50000, max: null },
+];
 
-  // Refs for click-outside detection
-  const categoryDropdownRef = useRef(null);
-  const priceDropdownRef = useRef(null);
-  const locationDropdownRef = useRef(null);
-  const dateDropdownRef = useRef(null);
-  const mobileFiltersRef = useRef(null);
+const LOCATIONS = [
+  { id: "All", label: "All Locations" },
+  { id: "lagos", label: "Lagos" },
+  { id: "abuja", label: "Abuja" },
+  { id: "port-harcourt", label: "Port Harcourt" },
+  { id: "ibadan", label: "Ibadan" },
+  { id: "online", label: "Online" },
+  { id: "others", label: "Other Cities" },
+];
 
-  // Nigerian-specific filter options
-  const priceRanges = [
-    { id: "All", label: "All Prices", min: null, max: null },
-    { id: "free", label: "Free", min: 0, max: 0 },
-    { id: "budget", label: "₦1K - ₦5K", min: 1000, max: 5000 },
-    { id: "medium", label: "₦5K - ₦20K", min: 5000, max: 20000 },
-    { id: "premium", label: "₦20K - ₦50K", min: 20000, max: 50000 },
-    { id: "vip", label: "₦50K+", min: 50000, max: null },
-  ];
+const DATE_RANGES = [
+  { id: "All", label: "Any Date" },
+  { id: "today", label: "Today" },
+  { id: "tomorrow", label: "Tomorrow" },
+  { id: "weekend", label: "This Weekend" },
+  { id: "next-week", label: "Next 7 Days" },
+  { id: "this-month", label: "This Month" },
+];
 
-  const locations = [
-    { id: "All", label: "All Locations" },
-    { id: "lagos", label: "Lagos" },
-    { id: "abuja", label: "Abuja" },
-    { id: "port-harcourt", label: "Port Harcourt" },
-    { id: "ibadan", label: "Ibadan" },
-    { id: "online", label: "Online" },
-    { id: "others", label: "Other Cities" },
-  ];
+// Reusable Components
+const SearchInput = React.memo(
+  ({
+    value,
+    onChange,
+    placeholder = "Search events...",
+    onClear,
+    className = "",
+    autoFocus = false,
+    inputRef,
+    onKeyPress,
+  }) => (
+    <div className="relative">
+      <Search
+        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+        size={20}
+      />
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onKeyPress={onKeyPress}
+        className={`w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white transition-all duration-200 text-base ${className}`}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
+        autoFocus={autoFocus}
+      />
+      {value && (
+        <button
+          onClick={onClear}
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <X size={18} />
+        </button>
+      )}
+    </div>
+  )
+);
 
-  const dateRanges = [
-    { id: "All", label: "Any Date" },
-    { id: "today", label: "Today" },
-    { id: "tomorrow", label: "Tomorrow" },
-    { id: "weekend", label: "This Weekend" },
-    { id: "next-week", label: "Next 7 Days" },
-    { id: "this-month", label: "This Month" },
-  ];
+const MultiSelectDropdown = React.memo(
+  ({
+    isOpen,
+    setIsOpen,
+    selectedItems,
+    handleToggle,
+    options,
+    label,
+    icon: Icon,
+    dropdownRef,
+  }) => (
+    <div className="w-full lg:w-64" ref={dropdownRef}>
+      <label className="block text-sm font-semibold text-gray-700 mb-3">
+        {label}
+      </label>
+      <div className="relative">
+        <button
+          onClick={setIsOpen}
+          className="w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
+        >
+          <span className="truncate flex items-center">
+            <Icon size={18} className="mr-2 text-gray-500 flex-shrink-0" />
+            {selectedItems.includes("All")
+              ? `All ${label}`
+              : `${selectedItems.length} selected`}
+          </span>
+          <svg
+            className={`h-5 w-5 transform transition-transform flex-shrink-0 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
 
-  // LIMIT TO 17 EVENTS FOR HOMEPAGE
-  const limitedEvents = (events || []).slice(0, 17);
-  const safeCategories = categories || ["All"];
+        {isOpen && (
+          <div className="category-dropdown absolute z-50 w-full mt-2 bg-white/95 border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+            <div className="p-2">
+              {options.map((option) => (
+                <div
+                  key={option.id}
+                  onClick={() => handleToggle(option.id)}
+                  className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
+                    selectedItems.includes(option.id)
+                      ? "bg-blue-50 text-blue-700"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 border rounded mr-3 flex items-center justify-center flex-shrink-0 ${
+                      selectedItems.includes(option.id)
+                        ? "bg-blue-600 border-blue-600"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {selectedItems.includes(option.id) && (
+                      <Check size={14} className="text-white" />
+                    )}
+                  </div>
+                  <span className="text-sm">{option.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+);
 
-  // Enhanced Click Outside Handler
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Close category dropdown
-      if (
-        categoryDropdownRef.current &&
-        !categoryDropdownRef.current.contains(event.target)
-      ) {
-        setIsCategoryDropdownOpen(false);
-      }
+const FilterChips = React.memo(({ selectedItems, handleToggle, getLabel }) => (
+  <div className="flex flex-wrap gap-2">
+    {selectedItems
+      .filter((item) => item !== "All")
+      .map((item) => (
+        <div
+          key={item}
+          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
+        >
+          {getLabel(item)}
+          <button
+            onClick={() => handleToggle(item)}
+            className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      ))}
+  </div>
+));
 
-      // Close price dropdown
-      if (
-        priceDropdownRef.current &&
-        !priceDropdownRef.current.contains(event.target)
-      ) {
-        setIsPriceDropdownOpen(false);
-      }
+const MobileFiltersModal = React.memo(
+  ({
+    isOpen,
+    onClose,
+    filterState,
+    dropdownState,
+    dropdownRefs,
+    onApplyFilters,
+  }) => {
+    const {
+      mobileSearchTerm,
+      setMobileSearchTerm,
+      selectedCategories,
+      selectedPriceRanges,
+      selectedLocations,
+      selectedDateRanges,
+      sortBy,
+      setSortBy,
+    } = filterState;
 
-      // Close location dropdown
-      if (
-        locationDropdownRef.current &&
-        !locationDropdownRef.current.contains(event.target)
-      ) {
-        setIsLocationDropdownOpen(false);
-      }
+    const {
+      isCategoryDropdownOpen,
+      setIsCategoryDropdownOpen,
+      isPriceDropdownOpen,
+      setIsPriceDropdownOpen,
+      isLocationDropdownOpen,
+      setIsLocationDropdownOpen,
+      isDateDropdownOpen,
+      setIsDateDropdownOpen,
+      closeAllDropdowns,
+      createDropdownToggle,
+    } = dropdownState;
 
-      // Close date dropdown
-      if (
-        dateDropdownRef.current &&
-        !dateDropdownRef.current.contains(event.target)
-      ) {
-        setIsDateDropdownOpen(false);
-      }
+    const mobileSearchInputRef = useRef(null);
 
-      // Close mobile filters
-      if (
-        mobileFiltersRef.current &&
-        !mobileFiltersRef.current.contains(event.target) &&
-        !event.target.closest(".mobile-filters-trigger")
-      ) {
-        setIsMobileFiltersOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
-    };
-  }, []);
-
-  // Close all dropdowns function
-  const closeAllDropdowns = () => {
-    setIsCategoryDropdownOpen(false);
-    setIsPriceDropdownOpen(false);
-    setIsLocationDropdownOpen(false);
-    setIsDateDropdownOpen(false);
-  };
-
-  // Enhanced dropdown toggle with close others
-  const createDropdownToggle = (setter) => () => {
-    closeAllDropdowns();
-    setter(true);
-  };
-
-  // Enhanced multi-select handlers
-  const createMultiSelectHandler =
-    (setSelected, allValue = "All") =>
-    (itemId) => {
-      if (itemId === allValue) {
-        setSelected([allValue]);
+    useEffect(() => {
+      if (isOpen) {
+        document.body.classList.add("mobile-filters-open");
+        setTimeout(() => {
+          mobileSearchInputRef.current?.focus();
+        }, 300);
       } else {
-        setSelected((prev) => {
-          const newSelection = prev.filter((item) => item !== allValue);
+        document.body.classList.remove("mobile-filters-open");
+      }
+    }, [isOpen]);
+
+    const handleMobileSearchChange = (e) => {
+      setMobileSearchTerm(e.target.value);
+    };
+
+    const handleMobileSearchSubmit = (e) => {
+      if (e.key === "Enter") {
+        onApplyFilters();
+      }
+    };
+
+    const handleCategoryToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedCategories(["All"]);
+      } else {
+        filterState.setSelectedCategories((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
           if (newSelection.includes(itemId)) {
             return newSelection.filter((item) => item !== itemId);
           } else {
@@ -158,43 +266,564 @@ const EventsList = () => {
       }
     };
 
-  const handleCategoryToggle = createMultiSelectHandler(setSelectedCategories);
-  const handlePriceToggle = createMultiSelectHandler(setSelectedPriceRanges);
-  const handleLocationToggle = createMultiSelectHandler(setSelectedLocations);
-  const handleDateToggle = createMultiSelectHandler(setSelectedDateRanges);
+    const handlePriceToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedPriceRanges(["All"]);
+      } else {
+        filterState.setSelectedPriceRanges((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
 
-  // Clear all filters
-  const clearAllFilters = () => {
+    const handleLocationToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedLocations(["All"]);
+      } else {
+        filterState.setSelectedLocations((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
+
+    const handleDateToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedDateRanges(["All"]);
+      } else {
+        filterState.setSelectedDateRanges((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+      <div
+        className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onClose();
+          }
+        }}
+      >
+        <div
+          ref={dropdownRefs.mobileFiltersRef}
+          className="bg-white w-full max-h-[85vh] rounded-t-3xl overflow-y-auto animate-slide-up"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                Filters & Search
+              </h3>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-6" onClick={(e) => e.stopPropagation()}>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Search Events
+                </label>
+                <SearchInput
+                  value={mobileSearchTerm}
+                  onChange={handleMobileSearchChange}
+                  onKeyPress={handleMobileSearchSubmit}
+                  onClear={() => setMobileSearchTerm("")}
+                  placeholder="Type to search events..."
+                  inputRef={mobileSearchInputRef}
+                  autoFocus
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Press Enter or tap "Apply Filters" to search
+                </p>
+              </div>
+
+              <MultiSelectDropdown
+                isOpen={isCategoryDropdownOpen}
+                setIsOpen={createDropdownToggle(setIsCategoryDropdownOpen)}
+                selectedItems={selectedCategories}
+                handleToggle={handleCategoryToggle}
+                options={[
+                  { id: "All", label: "All Categories" },
+                  ...(categories || [])
+                    .filter((cat) => cat !== "All")
+                    .map((cat) => ({ id: cat, label: cat })),
+                ]}
+                label="Categories"
+                icon={Users}
+                dropdownRef={dropdownRefs.categoryDropdownRef}
+              />
+
+              <MultiSelectDropdown
+                isOpen={isPriceDropdownOpen}
+                setIsOpen={createDropdownToggle(setIsPriceDropdownOpen)}
+                selectedItems={selectedPriceRanges}
+                handleToggle={handlePriceToggle}
+                options={PRICE_RANGES}
+                label="Price"
+                icon={Wallet}
+                dropdownRef={dropdownRefs.priceDropdownRef}
+              />
+
+              <MultiSelectDropdown
+                isOpen={isLocationDropdownOpen}
+                setIsOpen={createDropdownToggle(setIsLocationDropdownOpen)}
+                selectedItems={selectedLocations}
+                handleToggle={handleLocationToggle}
+                options={LOCATIONS}
+                label="Location"
+                icon={MapPin}
+                dropdownRef={dropdownRefs.locationDropdownRef}
+              />
+
+              <MultiSelectDropdown
+                isOpen={isDateDropdownOpen}
+                setIsOpen={createDropdownToggle(setIsDateDropdownOpen)}
+                selectedItems={selectedDateRanges}
+                handleToggle={handleDateToggle}
+                options={DATE_RANGES}
+                label="Date"
+                icon={Calendar}
+                dropdownRef={dropdownRefs.dateDropdownRef}
+              />
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Sort By
+                </label>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white font-medium text-base"
+                  >
+                    <option value="date">Date</option>
+                    <option value="price">Price</option>
+                    <option value="name">Name</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                    <TrendingUp size={18} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    filterState.clearAllFilters();
+                    setMobileSearchTerm("");
+                  }}
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Clear All
+                </button>
+                <button
+                  onClick={onApplyFilters}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+
+const DesktopFilters = React.memo(
+  ({ filterState, dropdownState, dropdownRefs }) => {
+    const {
+      searchTerm,
+      setSearchTerm,
+      selectedCategories,
+      selectedPriceRanges,
+      selectedLocations,
+      selectedDateRanges,
+      sortBy,
+      setSortBy,
+      clearAllFilters,
+    } = filterState;
+
+    const {
+      isCategoryDropdownOpen,
+      setIsCategoryDropdownOpen,
+      isPriceDropdownOpen,
+      setIsPriceDropdownOpen,
+      isLocationDropdownOpen,
+      setIsLocationDropdownOpen,
+      isDateDropdownOpen,
+      setIsDateDropdownOpen,
+      createDropdownToggle,
+    } = dropdownState;
+
+    const activeFiltersCount = useMemo(() => {
+      let count = 0;
+      if (!selectedCategories.includes("All"))
+        count += selectedCategories.length;
+      if (!selectedPriceRanges.includes("All"))
+        count += selectedPriceRanges.length;
+      if (!selectedLocations.includes("All")) count += selectedLocations.length;
+      if (!selectedDateRanges.includes("All"))
+        count += selectedDateRanges.length;
+      if (searchTerm) count += 1;
+      return count;
+    }, [
+      selectedCategories,
+      selectedPriceRanges,
+      selectedLocations,
+      selectedDateRanges,
+      searchTerm,
+    ]);
+
+    const popularCategories = (categories || [])
+      .filter((cat) => cat !== "All")
+      .slice(0, 4);
+
+    const handleCategoryToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedCategories(["All"]);
+      } else {
+        filterState.setSelectedCategories((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
+
+    const handlePriceToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedPriceRanges(["All"]);
+      } else {
+        filterState.setSelectedPriceRanges((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
+
+    const handleLocationToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedLocations(["All"]);
+      } else {
+        filterState.setSelectedLocations((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
+
+    const handleDateToggle = (itemId) => {
+      if (itemId === "All") {
+        filterState.setSelectedDateRanges(["All"]);
+      } else {
+        filterState.setSelectedDateRanges((prev) => {
+          const newSelection = prev.filter((item) => item !== "All");
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
+
+    return (
+      <div className="hidden lg:block bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/60 p-6 mb-12">
+        {activeFiltersCount > 0 && (
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100/60">
+            <div className="flex items-center space-x-2">
+              <Filter size={16} className="text-gray-600" />
+              <span className="text-sm font-medium text-gray-700">
+                {activeFiltersCount} active filter
+                {activeFiltersCount !== 1 ? "s" : ""}
+              </span>
+            </div>
+            <button
+              onClick={clearAllFilters}
+              className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center transition-colors"
+            >
+              <X size={16} className="mr-1" />
+              Clear all
+            </button>
+          </div>
+        )}
+
+        <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
+          <div className="flex-1 w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Search Events
+            </label>
+            <SearchInput
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClear={() => setSearchTerm("")}
+              placeholder="Search by event name, description, or category..."
+            />
+          </div>
+
+          <MultiSelectDropdown
+            isOpen={isCategoryDropdownOpen}
+            setIsOpen={createDropdownToggle(setIsCategoryDropdownOpen)}
+            selectedItems={selectedCategories}
+            handleToggle={handleCategoryToggle}
+            options={[
+              { id: "All", label: "All Categories" },
+              ...(categories || [])
+                .filter((cat) => cat !== "All")
+                .map((cat) => ({ id: cat, label: cat })),
+            ]}
+            label="Categories"
+            icon={Users}
+            dropdownRef={dropdownRefs.categoryDropdownRef}
+          />
+
+          <MultiSelectDropdown
+            isOpen={isPriceDropdownOpen}
+            setIsOpen={createDropdownToggle(setIsPriceDropdownOpen)}
+            selectedItems={selectedPriceRanges}
+            handleToggle={handlePriceToggle}
+            options={PRICE_RANGES}
+            label="Price"
+            icon={Wallet}
+            dropdownRef={dropdownRefs.priceDropdownRef}
+          />
+        </div>
+
+        <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center mt-6">
+          <MultiSelectDropdown
+            isOpen={isLocationDropdownOpen}
+            setIsOpen={createDropdownToggle(setIsLocationDropdownOpen)}
+            selectedItems={selectedLocations}
+            handleToggle={handleLocationToggle}
+            options={LOCATIONS}
+            label="Location"
+            icon={MapPin}
+            dropdownRef={dropdownRefs.locationDropdownRef}
+          />
+
+          <MultiSelectDropdown
+            isOpen={isDateDropdownOpen}
+            setIsOpen={createDropdownToggle(setIsDateDropdownOpen)}
+            selectedItems={selectedDateRanges}
+            handleToggle={handleDateToggle}
+            options={DATE_RANGES}
+            label="Date"
+            icon={Calendar}
+            dropdownRef={dropdownRefs.dateDropdownRef}
+          />
+
+          <div className="w-full xl:w-64">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Sort By
+            </label>
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="appearance-none w-full px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium shadow-sm text-base"
+              >
+                <option value="date">Date</option>
+                <option value="price">Price</option>
+                <option value="name">Name</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                <TrendingUp size={18} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-gray-100/60">
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
+            Trending Categories
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {popularCategories.map((category) => (
+              <button
+                key={category}
+                onClick={() => handleCategoryToggle(category)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                  selectedCategories.includes(category)
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25 border-blue-600"
+                    : "bg-white/60 text-gray-700 hover:bg-white hover:shadow-md border-gray-200"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+
+// Main Component
+const EventsList = () => {
+  // State management
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState(["All"]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState(["All"]);
+  const [selectedLocations, setSelectedLocations] = useState(["All"]);
+  const [selectedDateRanges, setSelectedDateRanges] = useState(["All"]);
+  const [sortBy, setSortBy] = useState("date");
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [mobileSearchTerm, setMobileSearchTerm] = useState("");
+
+  // Dropdown states
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false);
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  // Refs
+  const categoryDropdownRef = useRef(null);
+  const priceDropdownRef = useRef(null);
+  const locationDropdownRef = useRef(null);
+  const dateDropdownRef = useRef(null);
+  const mobileFiltersRef = useRef(null);
+
+  // Data
+  const limitedEvents = useMemo(() => (events || []).slice(0, 17), []);
+  const safeCategories = categories || ["All"];
+
+  // Dropdown management
+  const closeAllDropdowns = useCallback(() => {
+    setIsCategoryDropdownOpen(false);
+    setIsPriceDropdownOpen(false);
+    setIsLocationDropdownOpen(false);
+    setIsDateDropdownOpen(false);
+  }, []);
+
+  const createDropdownToggle = useCallback(
+    (setter) => () => {
+      closeAllDropdowns();
+      setter(true);
+    },
+    [closeAllDropdowns]
+  );
+
+  // Filter handlers
+  const clearAllFilters = useCallback(() => {
     setSelectedCategories(["All"]);
     setSelectedPriceRanges(["All"]);
     setSelectedLocations(["All"]);
     setSelectedDateRanges(["All"]);
     setSearchTerm("");
+    setMobileSearchTerm("");
     closeAllDropdowns();
-  };
+  }, [closeAllDropdowns]);
 
-  // Filter and sort events with multi-select support
+  // Mobile filters
+  const applyMobileFilters = useCallback(() => {
+    setSearchTerm(mobileSearchTerm);
+    setIsMobileFiltersOpen(false);
+    document.body.classList.remove("mobile-filters-open");
+    closeAllDropdowns();
+  }, [mobileSearchTerm, closeAllDropdowns]);
+
+  const handleOpenMobileFilters = useCallback(() => {
+    setIsMobileFiltersOpen(true);
+    setMobileSearchTerm(searchTerm);
+  }, [searchTerm]);
+
+  const handleQuickSearch = useCallback((term) => {
+    setSearchTerm(term);
+    setMobileSearchTerm(term);
+  }, []);
+
+  // Event handlers
+  const handleEventClick = useCallback((event) => {
+    setSelectedEvent(event);
+  }, []);
+
+  const handleCloseDetail = useCallback(() => {
+    setSelectedEvent(null);
+  }, []);
+
+  // Click outside handler for desktop
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileFiltersOpen) return;
+
+      const refs = [
+        { ref: categoryDropdownRef, setter: setIsCategoryDropdownOpen },
+        { ref: priceDropdownRef, setter: setIsPriceDropdownOpen },
+        { ref: locationDropdownRef, setter: setIsLocationDropdownOpen },
+        { ref: dateDropdownRef, setter: setIsDateDropdownOpen },
+      ];
+
+      refs.forEach(({ ref, setter }) => {
+        if (ref.current && !ref.current.contains(event.target)) {
+          setter(false);
+        }
+      });
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isMobileFiltersOpen]);
+
+  // Filter and sort events
   const filteredEvents = useMemo(() => {
     return limitedEvents
       .filter((event) => {
         if (!event) return false;
 
-        // Search filter
         const matchesSearch =
           !searchTerm ||
           event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // Category filter
         const matchesCategory =
           selectedCategories.includes("All") ||
           selectedCategories.includes(event.category);
 
-        // Price filter
         const matchesPrice =
           selectedPriceRanges.includes("All") ||
           selectedPriceRanges.some((priceRange) => {
-            const range = priceRanges.find((p) => p.id === priceRange);
+            const range = PRICE_RANGES.find((p) => p.id === priceRange);
             if (!range) return false;
             if (range.id === "free") return event.price === 0;
             if (range.min !== null && event.price < range.min) return false;
@@ -202,9 +831,7 @@ const EventsList = () => {
             return true;
           });
 
-        // Location filter
         const matchesLocation = selectedLocations.includes("All");
-        // Date filter
         const matchesDate = selectedDateRanges.includes("All");
 
         return (
@@ -255,249 +882,51 @@ const EventsList = () => {
     searchTerm,
   ]);
 
-  const handleEventClick = (event) => {
-    setSelectedEvent(event);
-  };
-
-  const handleCloseDetail = () => {
-    setSelectedEvent(null);
-  };
-
-  // Get popular categories (top 4)
   const popularCategories = safeCategories
     .filter((cat) => cat !== "All")
     .slice(0, 4);
 
-  // Reusable Multi-Select Dropdown Component
-  const MultiSelectDropdown = ({
-    isOpen,
-    setIsOpen,
-    selectedItems,
-    handleToggle,
-    options,
-    label,
-    icon: Icon,
-    dropdownRef,
-  }) => (
-    <div className="w-full lg:w-64" ref={dropdownRef}>
-      <label className="block text-sm font-semibold text-gray-700 mb-3">
-        {label}
-      </label>
-      <div className="relative">
-        <button
-          onClick={createDropdownToggle(setIsOpen)}
-          className="w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
-        >
-          <span className="truncate flex items-center">
-            <Icon size={18} className="mr-2 text-gray-500 flex-shrink-0" />
-            {selectedItems.includes("All")
-              ? `All ${label}`
-              : `${selectedItems.length} selected`}
-          </span>
-          <svg
-            className={`h-5 w-5 transform transition-transform flex-shrink-0 ${
-              isOpen ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
+  // Prepare state objects for child components
+  const filterState = {
+    searchTerm,
+    setSearchTerm,
+    selectedCategories,
+    setSelectedCategories,
+    selectedPriceRanges,
+    setSelectedPriceRanges,
+    selectedLocations,
+    setSelectedLocations,
+    selectedDateRanges,
+    setSelectedDateRanges,
+    sortBy,
+    setSortBy,
+    mobileSearchTerm,
+    setMobileSearchTerm,
+    clearAllFilters,
+  };
 
-        {/* Dropdown Menu */}
-        {isOpen && (
-          <div className="category-dropdown absolute z-50 w-full mt-2 bg-white/95 border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
-            <div className="p-2">
-              {options.map((option) => (
-                <div
-                  key={option.id}
-                  onClick={() => handleToggle(option.id)}
-                  className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedItems.includes(option.id)
-                      ? "bg-blue-50 text-blue-700"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className={`w-5 h-5 border rounded mr-3 flex items-center justify-center flex-shrink-0 ${
-                      selectedItems.includes(option.id)
-                        ? "bg-blue-600 border-blue-600"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {selectedItems.includes(option.id) && (
-                      <Check size={14} className="text-white" />
-                    )}
-                  </div>
-                  <span className="text-sm">{option.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  const dropdownState = {
+    isCategoryDropdownOpen,
+    setIsCategoryDropdownOpen,
+    isPriceDropdownOpen,
+    setIsPriceDropdownOpen,
+    isLocationDropdownOpen,
+    setIsLocationDropdownOpen,
+    isDateDropdownOpen,
+    setIsDateDropdownOpen,
+    isMobileFiltersOpen,
+    setIsMobileFiltersOpen,
+    closeAllDropdowns,
+    createDropdownToggle,
+  };
 
-  // Filter Chips Component
-  const FilterChips = ({ selectedItems, handleToggle, getLabel }) => (
-    <div className="flex flex-wrap gap-2">
-      {selectedItems
-        .filter((item) => item !== "All")
-        .map((item) => (
-          <div
-            key={item}
-            className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
-          >
-            {getLabel(item)}
-            <button
-              onClick={() => handleToggle(item)}
-              className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        ))}
-    </div>
-  );
-
-  // Mobile Filters Component
-  const MobileFilters = () => (
-    <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
-      <div
-        ref={mobileFiltersRef}
-        className="bg-white w-full max-h-[80vh] rounded-t-3xl overflow-y-auto animate-slide-up"
-      >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900">Filters</h3>
-            <button
-              onClick={() => setIsMobileFiltersOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="space-y-6">
-            {/* Search Bar */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Search Events
-              </label>
-              <div className="relative">
-                <Search
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  placeholder="Search events..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50"
-                />
-              </div>
-            </div>
-
-            {/* Mobile Filter Dropdowns */}
-            <MultiSelectDropdown
-              isOpen={isCategoryDropdownOpen}
-              setIsOpen={setIsCategoryDropdownOpen}
-              selectedItems={selectedCategories}
-              handleToggle={handleCategoryToggle}
-              options={[
-                { id: "All", label: "All Categories" },
-                ...safeCategories
-                  .filter((cat) => cat !== "All")
-                  .map((cat) => ({ id: cat, label: cat })),
-              ]}
-              label="Categories"
-              icon={Users}
-              dropdownRef={categoryDropdownRef}
-            />
-
-            <MultiSelectDropdown
-              isOpen={isPriceDropdownOpen}
-              setIsOpen={setIsPriceDropdownOpen}
-              selectedItems={selectedPriceRanges}
-              handleToggle={handlePriceToggle}
-              options={priceRanges}
-              label="Price"
-              icon={Wallet}
-              dropdownRef={priceDropdownRef}
-            />
-
-            <MultiSelectDropdown
-              isOpen={isLocationDropdownOpen}
-              setIsOpen={setIsLocationDropdownOpen}
-              selectedItems={selectedLocations}
-              handleToggle={handleLocationToggle}
-              options={locations}
-              label="Location"
-              icon={MapPin}
-              dropdownRef={locationDropdownRef}
-            />
-
-            <MultiSelectDropdown
-              isOpen={isDateDropdownOpen}
-              setIsOpen={setIsDateDropdownOpen}
-              selectedItems={selectedDateRanges}
-              handleToggle={handleDateToggle}
-              options={dateRanges}
-              label="Date"
-              icon={Calendar}
-              dropdownRef={dateDropdownRef}
-            />
-
-            {/* Sort By */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Sort By
-              </label>
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 font-medium"
-                >
-                  <option value="date">Date</option>
-                  <option value="price">Price</option>
-                  <option value="name">Name</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <TrendingUp size={18} />
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3 pt-4 border-t border-gray-200">
-              <button
-                onClick={clearAllFilters}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-              >
-                Clear All
-              </button>
-              <button
-                onClick={() => setIsMobileFiltersOpen(false)}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const dropdownRefs = {
+    categoryDropdownRef,
+    priceDropdownRef,
+    locationDropdownRef,
+    dateDropdownRef,
+    mobileFiltersRef,
+  };
 
   return (
     <section
@@ -510,7 +939,7 @@ const EventsList = () => {
       <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-100 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Enhanced Header */}
+        {/* Header Section */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-blue-200">
             <Sparkles size={16} />
@@ -552,220 +981,62 @@ const EventsList = () => {
           </div>
         </div>
 
-        {/* Mobile Filters Trigger */}
-        <div className="lg:hidden flex items-center justify-between mb-6">
-          <button
-            onClick={() => setIsMobileFiltersOpen(true)}
-            className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium"
-          >
-            <SlidersHorizontal size={20} />
-            <span>Filters</span>
-            {activeFiltersCount > 0 && (
-              <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {activeFiltersCount}
-              </span>
-            )}
-          </button>
+        {/* Mobile Search & Filters */}
+        <div className="lg:hidden space-y-4 mb-6">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4">
+            <SearchInput
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClear={() => setSearchTerm("")}
+              placeholder="Search events..."
+            />
+          </div>
 
-          {activeFiltersCount > 0 && (
+          <div className="flex items-center justify-between">
             <button
-              onClick={clearAllFilters}
-              className="text-red-600 text-sm font-medium"
+              onClick={handleOpenMobileFilters}
+              className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium flex-1 mr-3"
             >
-              Clear All
-            </button>
-          )}
-        </div>
-
-        {/* Enhanced Search and Filters Card - Desktop */}
-        <div className="hidden lg:block bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/60 p-6 mb-12">
-          {/* Active Filters Bar */}
-          {activeFiltersCount > 0 && (
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100/60">
-              <div className="flex items-center space-x-2">
-                <Filter size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">
-                  {activeFiltersCount} active filter
-                  {activeFiltersCount !== 1 ? "s" : ""}
+              <SlidersHorizontal size={20} />
+              <span>Advanced Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {activeFiltersCount}
                 </span>
-              </div>
+              )}
+            </button>
+
+            {activeFiltersCount > 0 && (
               <button
                 onClick={clearAllFilters}
-                className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
+                className="text-red-600 text-sm font-medium px-3 py-2 hover:bg-red-50 rounded-lg transition-colors"
               >
-                <X size={16} className="mr-1" />
-                Clear all
+                Clear
               </button>
-            </div>
-          )}
-
-          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
-            {/* Search Bar */}
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Search Events
-              </label>
-              <div className="relative">
-                <Search
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  placeholder="Search by event name, description, or category..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 shadow-sm"
-                />
-              </div>
-            </div>
-
-            {/* Category Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isCategoryDropdownOpen}
-              setIsOpen={setIsCategoryDropdownOpen}
-              selectedItems={selectedCategories}
-              handleToggle={handleCategoryToggle}
-              options={[
-                { id: "All", label: "All Categories" },
-                ...safeCategories
-                  .filter((cat) => cat !== "All")
-                  .map((cat) => ({ id: cat, label: cat })),
-              ]}
-              label="Categories"
-              icon={Users}
-              dropdownRef={categoryDropdownRef}
-            />
-
-            {/* Price Range Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isPriceDropdownOpen}
-              setIsOpen={setIsPriceDropdownOpen}
-              selectedItems={selectedPriceRanges}
-              handleToggle={handlePriceToggle}
-              options={priceRanges}
-              label="Price"
-              icon={Wallet}
-              dropdownRef={priceDropdownRef}
-            />
-          </div>
-
-          {/* Second Row of Filters */}
-          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center mt-6">
-            {/* Location Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isLocationDropdownOpen}
-              setIsOpen={setIsLocationDropdownOpen}
-              selectedItems={selectedLocations}
-              handleToggle={handleLocationToggle}
-              options={locations}
-              label="Location"
-              icon={MapPin}
-              dropdownRef={locationDropdownRef}
-            />
-
-            {/* Date Range Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isDateDropdownOpen}
-              setIsOpen={setIsDateDropdownOpen}
-              selectedItems={selectedDateRanges}
-              handleToggle={handleDateToggle}
-              options={dateRanges}
-              label="Date"
-              icon={Calendar}
-              dropdownRef={dateDropdownRef}
-            />
-
-            {/* Sort By */}
-            <div className="w-full xl:w-64">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Sort By
-              </label>
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none w-full px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium shadow-sm"
-                >
-                  <option value="date">Date</option>
-                  <option value="price">Price</option>
-                  <option value="name">Name</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <TrendingUp size={18} />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Filter Chips */}
-          <div className="mt-6 pt-6 border-t border-gray-100/60 space-y-4">
-            {!selectedCategories.includes("All") && (
-              <div>
-                <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Selected Categories:
-                </span>
-                <FilterChips
-                  selectedItems={selectedCategories}
-                  handleToggle={handleCategoryToggle}
-                  getLabel={(item) => item}
-                />
-              </div>
-            )}
-
-            {!selectedPriceRanges.includes("All") && (
-              <div>
-                <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Selected Price Ranges:
-                </span>
-                <FilterChips
-                  selectedItems={selectedPriceRanges}
-                  handleToggle={handlePriceToggle}
-                  getLabel={(item) =>
-                    priceRanges.find((p) => p.id === item)?.label || item
-                  }
-                />
-              </div>
-            )}
-
-            {!selectedLocations.includes("All") && (
-              <div>
-                <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Selected Locations:
-                </span>
-                <FilterChips
-                  selectedItems={selectedLocations}
-                  handleToggle={handleLocationToggle}
-                  getLabel={(item) =>
-                    locations.find((l) => l.id === item)?.label || item
-                  }
-                />
-              </div>
             )}
           </div>
 
-          {/* Popular Categories Quick Filter */}
-          <div className="mt-6 pt-6 border-t border-gray-100/60">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Trending Categories
-            </label>
+          {!searchTerm && (
             <div className="flex flex-wrap gap-2">
-              {popularCategories.map((category) => (
+              {popularCategories.slice(0, 3).map((category) => (
                 <button
                   key={category}
-                  onClick={() => handleCategoryToggle(category)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
-                    selectedCategories.includes(category)
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25 border-blue-600"
-                      : "bg-white/60 text-gray-700 hover:bg-white hover:shadow-md border-gray-200"
-                  }`}
+                  onClick={() => handleQuickSearch(category)}
+                  className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors"
                 >
                   {category}
                 </button>
               ))}
             </div>
-          </div>
+          )}
         </div>
+
+        {/* Desktop Filters */}
+        <DesktopFilters
+          filterState={filterState}
+          dropdownState={dropdownState}
+          dropdownRefs={dropdownRefs}
+        />
 
         {/* Results Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
@@ -817,7 +1088,9 @@ const EventsList = () => {
               No events found
             </h3>
             <p className="text-gray-500 max-w-md mx-auto mb-6">
-              We couldn't find any events matching your search criteria.
+              {searchTerm
+                ? `No events found for "${searchTerm}". Try adjusting your search or filters.`
+                : "We couldn't find any events matching your search criteria."}
             </p>
             {activeFiltersCount > 0 && (
               <button
@@ -883,8 +1156,15 @@ const EventsList = () => {
           />
         )}
 
-        {/* Mobile Filters */}
-        {isMobileFiltersOpen && <MobileFilters />}
+        {/* Mobile Filters Modal */}
+        <MobileFiltersModal
+          isOpen={isMobileFiltersOpen}
+          onClose={() => setIsMobileFiltersOpen(false)}
+          filterState={filterState}
+          dropdownState={dropdownState}
+          dropdownRefs={dropdownRefs}
+          onApplyFilters={applyMobileFilters}
+        />
       </div>
     </section>
   );

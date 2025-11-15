@@ -1,5 +1,7 @@
-// Events.jsx - COMPLETE REVAMP with Robust Click-Outside & Mobile Responsiveness
-import React, { useState, useMemo, useEffect, useRef } from "react";
+// Events.jsx – Redesigned with Top Card Filters Layout
+// MOBILE SEARCH FIX APPLIED - Modal stays open while typing
+
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Search,
   Filter,
@@ -11,9 +13,12 @@ import {
   Check,
   MapPin,
   Wallet,
-  Clock,
   Users,
   SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
+  Tag,
+  Clock,
 } from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "../../components/Events/EventCard";
@@ -21,6 +26,7 @@ import EventDetail from "../../components/Events/EventDetail";
 import "./Events.css";
 
 const Events = () => {
+  // State
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(["All"]);
   const [selectedPriceRanges, setSelectedPriceRanges] = useState(["All"]);
@@ -30,22 +36,28 @@ const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-  const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false);
-  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
-  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+
+  // Dropdown states
+  const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
+  const [showPriceDropdown, setShowPriceDropdown] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  const eventsPerPage = 9; // Reduced for better mobile experience
+  const eventsPerPage = 9;
 
-  // Refs for click-outside detection
-  const categoryDropdownRef = useRef(null);
-  const priceDropdownRef = useRef(null);
-  const locationDropdownRef = useRef(null);
-  const dateDropdownRef = useRef(null);
+  // Refs
+  const categoriesRef = useRef(null);
+  const priceRef = useRef(null);
+  const locationRef = useRef(null);
+  const dateRef = useRef(null);
+  const sortRef = useRef(null);
   const mobileFiltersRef = useRef(null);
+  const mobileSearchInputRef = useRef(null);
+  const containerRef = useRef(null);
 
-  // Nigerian-specific filter options
+  // Filter options
   const priceRanges = [
     { id: "All", label: "All Prices", min: null, max: null },
     { id: "free", label: "Free", min: 0, max: 0 },
@@ -74,157 +86,148 @@ const Events = () => {
     { id: "this-month", label: "This Month" },
   ];
 
-  // Safe data access with fallbacks
   const safeEvents = events || [];
   const safeCategories = categories || ["All"];
 
-  // Enhanced Click Outside Handler
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 700);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Click outside handler for desktop dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Close category dropdown
       if (
-        categoryDropdownRef.current &&
-        !categoryDropdownRef.current.contains(event.target)
+        categoriesRef.current &&
+        !categoriesRef.current.contains(event.target)
       ) {
-        setIsCategoryDropdownOpen(false);
+        setShowCategoriesDropdown(false);
       }
-
-      // Close price dropdown
-      if (
-        priceDropdownRef.current &&
-        !priceDropdownRef.current.contains(event.target)
-      ) {
-        setIsPriceDropdownOpen(false);
+      if (priceRef.current && !priceRef.current.contains(event.target)) {
+        setShowPriceDropdown(false);
       }
-
-      // Close location dropdown
-      if (
-        locationDropdownRef.current &&
-        !locationDropdownRef.current.contains(event.target)
-      ) {
-        setIsLocationDropdownOpen(false);
+      if (locationRef.current && !locationRef.current.contains(event.target)) {
+        setShowLocationDropdown(false);
       }
-
-      // Close date dropdown
-      if (
-        dateDropdownRef.current &&
-        !dateDropdownRef.current.contains(event.target)
-      ) {
-        setIsDateDropdownOpen(false);
+      if (dateRef.current && !dateRef.current.contains(event.target)) {
+        setShowDateDropdown(false);
       }
-
-      // Close mobile filters
-      if (
-        mobileFiltersRef.current &&
-        !mobileFiltersRef.current.contains(event.target) &&
-        !event.target.closest(".mobile-filters-trigger")
-      ) {
-        setIsMobileFiltersOpen(false);
+      if (sortRef.current && !sortRef.current.contains(event.target)) {
+        setShowSortDropdown(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("touchstart", handleClickOutside); // Mobile support
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ========== MOBILE SEARCH FIX: Click-outside handler ==========
+  useEffect(() => {
+    if (!isMobileFiltersOpen) return;
+
+    const handler = (event) => {
+      const target = event.target;
+
+      if (
+        mobileFiltersRef.current &&
+        mobileFiltersRef.current.contains(target)
+      ) {
+        return;
+      }
+
+      if (target.closest(".mobile-filters-trigger")) {
+        return;
+      }
+
+      setIsMobileFiltersOpen(false);
+    };
+
+    document.addEventListener("mousedown", handler, true);
+    document.addEventListener("touchstart", handler, true);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("mousedown", handler, true);
+      document.removeEventListener("touchstart", handler, true);
     };
-  }, []);
+  }, [isMobileFiltersOpen]);
+  // ========== END MOBILE SEARCH FIX ==========
 
-  // Close all dropdowns function
-  const closeAllDropdowns = () => {
-    setIsCategoryDropdownOpen(false);
-    setIsPriceDropdownOpen(false);
-    setIsLocationDropdownOpen(false);
-    setIsDateDropdownOpen(false);
+  // Utility toggles
+  const toggleOnly = (setter, id) => {
+    if (id === "All") return setter(["All"]);
+    setter((prev) => {
+      const withoutAll = prev.filter((p) => p !== "All");
+      if (withoutAll.includes(id)) return withoutAll.filter((p) => p !== id);
+      return [...withoutAll, id];
+    });
   };
 
-  // Enhanced dropdown toggle with close others
-  const createDropdownToggle = (setter) => () => {
-    closeAllDropdowns();
-    setter(true);
-  };
+  const handleCategoryToggle = (id) => toggleOnly(setSelectedCategories, id);
+  const handlePriceToggle = (id) => toggleOnly(setSelectedPriceRanges, id);
+  const handleLocationToggle = (id) => toggleOnly(setSelectedLocations, id);
+  const handleDateToggle = (id) => toggleOnly(setSelectedDateRanges, id);
 
-  const eventsWithCorrectedImages = safeEvents.map((event) => ({
-    ...event,
-    image: event.image,
-  }));
-
-  // Simulate loading delay
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Enhanced multi-select handlers
-  const createMultiSelectHandler =
-    (setSelected, allValue = "All") =>
-    (itemId) => {
-      if (itemId === allValue) {
-        setSelected([allValue]);
-      } else {
-        setSelected((prev) => {
-          const newSelection = prev.filter((item) => item !== allValue);
-          if (newSelection.includes(itemId)) {
-            return newSelection.filter((item) => item !== itemId);
-          } else {
-            return [...newSelection, itemId];
-          }
-        });
-      }
-    };
-
-  const handleCategoryToggle = createMultiSelectHandler(setSelectedCategories);
-  const handlePriceToggle = createMultiSelectHandler(setSelectedPriceRanges);
-  const handleLocationToggle = createMultiSelectHandler(setSelectedLocations);
-  const handleDateToggle = createMultiSelectHandler(setSelectedDateRanges);
-
-  // Clear all filters
   const clearAllFilters = () => {
     setSelectedCategories(["All"]);
     setSelectedPriceRanges(["All"]);
     setSelectedLocations(["All"]);
     setSelectedDateRanges(["All"]);
     setSearchTerm("");
-    closeAllDropdowns();
+    setShowCategoriesDropdown(false);
+    setShowPriceDropdown(false);
+    setShowLocationDropdown(false);
+    setShowDateDropdown(false);
+    setShowSortDropdown(false);
   };
 
-  // Filter and sort events with multi-select support
+  // Mobile filters
+  const openMobileFilters = () => {
+    setIsMobileFiltersOpen(true);
+    setTimeout(
+      () =>
+        mobileSearchInputRef.current && mobileSearchInputRef.current.focus(),
+      100
+    );
+  };
+  const closeMobileFilters = () => setIsMobileFiltersOpen(false);
+
+  // Search handler
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+
+  // Filtering & sorting
   const filteredEvents = useMemo(() => {
-    return eventsWithCorrectedImages
-      .filter((event) => {
-        if (!event) return false;
-
-        // Search filter
+    const q = (searchTerm || "").trim().toLowerCase();
+    return safeEvents
+      .filter((ev) => {
+        if (!ev) return false;
         const matchesSearch =
-          !searchTerm ||
-          event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          event.description?.toLowerCase().includes(searchTerm.toLowerCase());
+          !q ||
+          (ev.title && ev.title.toLowerCase().includes(q)) ||
+          (ev.description && ev.description.toLowerCase().includes(q)) ||
+          (ev.category && ev.category.toLowerCase().includes(q));
 
-        // Category filter
         const matchesCategory =
           selectedCategories.includes("All") ||
-          selectedCategories.includes(event.category);
+          selectedCategories.includes(ev.category);
 
-        // Price filter
         const matchesPrice =
           selectedPriceRanges.includes("All") ||
-          selectedPriceRanges.some((priceRange) => {
-            const range = priceRanges.find((p) => p.id === priceRange);
+          selectedPriceRanges.some((pr) => {
+            const range = priceRanges.find((p) => p.id === pr);
             if (!range) return false;
-            if (range.id === "free") return event.price === 0;
-            if (range.min !== null && event.price < range.min) return false;
-            if (range.max !== null && event.price > range.max) return false;
+            if (range.id === "free") return ev.price === 0;
+            if (range.min !== null && ev.price < range.min) return false;
+            if (range.max !== null && ev.price > range.max) return false;
             return true;
           });
 
-        // Location filter
-        const matchesLocation = selectedLocations.includes("All");
-        // Date filter
-        const matchesDate = selectedDateRanges.includes("All");
+        const matchesLocation =
+          selectedLocations.includes("All") ||
+          selectedLocations.includes(ev.location);
+
+        const matchesDate =
+          selectedDateRanges.includes("All") ||
+          selectedDateRanges.includes(ev.dateRange || "All");
 
         return (
           matchesSearch &&
@@ -247,7 +250,7 @@ const Events = () => {
         }
       });
   }, [
-    eventsWithCorrectedImages,
+    safeEvents,
     searchTerm,
     selectedCategories,
     selectedPriceRanges,
@@ -256,182 +259,64 @@ const Events = () => {
     sortBy,
   ]);
 
-  // Active filters count
-  const activeFiltersCount = useMemo(() => {
-    let count = 0;
-    if (!selectedCategories.includes("All")) count += selectedCategories.length;
-    if (!selectedPriceRanges.includes("All"))
-      count += selectedPriceRanges.length;
-    if (!selectedLocations.includes("All")) count += selectedLocations.length;
-    if (!selectedDateRanges.includes("All")) count += selectedDateRanges.length;
-    if (searchTerm) count += 1;
-    return count;
-  }, [
-    selectedCategories,
-    selectedPriceRanges,
-    selectedLocations,
-    selectedDateRanges,
-    searchTerm,
-  ]);
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+  // Pagination
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredEvents.length / eventsPerPage)
+  );
   const currentEvents = useMemo(() => {
-    const indexOfLastEvent = currentPage * eventsPerPage;
-    const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-    return filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
-  }, [filteredEvents, currentPage, eventsPerPage]);
+    const last = currentPage * eventsPerPage;
+    const first = last - eventsPerPage;
+    return filteredEvents.slice(first, last);
+  }, [filteredEvents, currentPage]);
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
+  useEffect(
+    () => setCurrentPage(1),
+    [
+      searchTerm,
+      selectedCategories,
+      selectedPriceRanges,
+      selectedLocations,
+      selectedDateRanges,
+      sortBy,
+    ]
+  );
+
+  const activeFiltersCount = useMemo(() => {
+    let c = 0;
+    if (!selectedCategories.includes("All")) c += selectedCategories.length;
+    if (!selectedPriceRanges.includes("All")) c += selectedPriceRanges.length;
+    if (!selectedLocations.includes("All")) c += selectedLocations.length;
+    if (!selectedDateRanges.includes("All")) c += selectedDateRanges.length;
+    if (searchTerm) c += 1;
+    return c;
   }, [
-    searchTerm,
     selectedCategories,
     selectedPriceRanges,
     selectedLocations,
     selectedDateRanges,
-    sortBy,
+    searchTerm,
   ]);
 
-  const handleEventClick = (event) => {
-    setSelectedEvent(event);
-  };
-
-  const handleCloseDetail = () => {
-    setSelectedEvent(null);
-  };
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // Get popular categories (top 5)
-  const popularCategories = safeCategories
-    .filter((cat) => cat !== "All")
-    .slice(0, 5);
-
-  // Generate page numbers for pagination
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxVisiblePages = 5;
-
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
-    }
-
-    return pageNumbers;
-  };
-
-  // Reusable Multi-Select Dropdown Component with proper ref handling
-  const MultiSelectDropdown = ({
-    isOpen,
-    setIsOpen,
-    selectedItems,
-    handleToggle,
-    options,
-    label,
-    icon: Icon,
-    dropdownRef,
-  }) => (
-    <div className="w-full lg:w-64" ref={dropdownRef}>
-      <label className="block text-sm font-semibold text-gray-700 mb-3">
-        {label}
-      </label>
-      <div className="relative">
-        <button
-          onClick={createDropdownToggle(setIsOpen)}
-          className="w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
-        >
-          <span className="truncate flex items-center">
-            <Icon size={18} className="mr-2 text-gray-500 flex-shrink-0" />
-            {selectedItems.includes("All")
-              ? `All ${label}`
-              : `${selectedItems.length} selected`}
-          </span>
-          <svg
-            className={`h-5 w-5 transform transition-transform flex-shrink-0 ${
-              isOpen ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-
-        {/* Dropdown Menu */}
-        {isOpen && (
-          <div className="category-dropdown absolute z-50 w-full mt-2 bg-white/95 border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
-            <div className="p-2">
-              {options.map((option) => (
-                <div
-                  key={option.id}
-                  onClick={() => handleToggle(option.id)}
-                  className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedItems.includes(option.id)
-                      ? "bg-blue-50 text-blue-700"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className={`w-5 h-5 border rounded mr-3 flex items-center justify-center flex-shrink-0 ${
-                      selectedItems.includes(option.id)
-                        ? "bg-blue-600 border-blue-600"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {selectedItems.includes(option.id) && (
-                      <Check size={14} className="text-white" />
-                    )}
-                  </div>
-                  <span className="text-sm">{option.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+  // UI components
+  const FilterItem = ({ checked, onClick, label }) => (
+    <div
+      onClick={onClick}
+      className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
+        checked ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50"
+      }`}
+    >
+      <div
+        className={`w-5 h-5 border rounded mr-3 flex items-center justify-center ${
+          checked ? "bg-blue-600 border-blue-600" : "border-gray-300"
+        }`}
+      >
+        {checked && <Check size={14} className="text-white" />}
       </div>
+      <div className="text-sm">{label}</div>
     </div>
   );
 
-  // Filter Chips Component
-  const FilterChips = ({ selectedItems, handleToggle, getLabel }) => (
-    <div className="flex flex-wrap gap-2">
-      {selectedItems
-        .filter((item) => item !== "All")
-        .map((item) => (
-          <div
-            key={item}
-            className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
-          >
-            {getLabel(item)}
-            <button
-              onClick={() => handleToggle(item)}
-              className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        ))}
-    </div>
-  );
-
-  // Skeleton Loader Component
   const EventCardSkeleton = () => (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-pulse">
       <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
@@ -444,151 +329,38 @@ const Events = () => {
           <div className="h-3 bg-gray-200 rounded"></div>
           <div className="h-3 bg-gray-200 rounded w-5/6"></div>
         </div>
-        <div className="flex justify-between items-center pt-2">
-          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-        </div>
       </div>
     </div>
   );
 
-  // Mobile Filters Component
-  const MobileFilters = () => (
-    <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
-      <div
-        ref={mobileFiltersRef}
-        className="bg-white w-full max-h-[80vh] rounded-t-3xl overflow-y-auto animate-slide-up"
-      >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900">Filters</h3>
-            <button
-              onClick={() => setIsMobileFiltersOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded-lg"
-            >
-              <X size={20} />
-            </button>
-          </div>
+  // Pagination helpers
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-          <div className="space-y-6">
-            {/* Search Bar */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Search Events
-              </label>
-              <div className="relative">
-                <Search
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  placeholder="Search events..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50"
-                />
-              </div>
-            </div>
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    if (endPage - startPage + 1 < maxVisiblePages)
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    for (let i = startPage; i <= endPage; i++) pageNumbers.push(i);
+    return pageNumbers;
+  };
 
-            {/* Mobile Filter Dropdowns */}
-            <MultiSelectDropdown
-              isOpen={isCategoryDropdownOpen}
-              setIsOpen={setIsCategoryDropdownOpen}
-              selectedItems={selectedCategories}
-              handleToggle={handleCategoryToggle}
-              options={[
-                { id: "All", label: "All Categories" },
-                ...safeCategories
-                  .filter((cat) => cat !== "All")
-                  .map((cat) => ({ id: cat, label: cat })),
-              ]}
-              label="Categories"
-              icon={Users}
-              dropdownRef={categoryDropdownRef}
-            />
-
-            <MultiSelectDropdown
-              isOpen={isPriceDropdownOpen}
-              setIsOpen={setIsPriceDropdownOpen}
-              selectedItems={selectedPriceRanges}
-              handleToggle={handlePriceToggle}
-              options={priceRanges}
-              label="Price"
-              icon={Wallet}
-              dropdownRef={priceDropdownRef}
-            />
-
-            <MultiSelectDropdown
-              isOpen={isLocationDropdownOpen}
-              setIsOpen={setIsLocationDropdownOpen}
-              selectedItems={selectedLocations}
-              handleToggle={handleLocationToggle}
-              options={locations}
-              label="Location"
-              icon={MapPin}
-              dropdownRef={locationDropdownRef}
-            />
-
-            <MultiSelectDropdown
-              isOpen={isDateDropdownOpen}
-              setIsOpen={setIsDateDropdownOpen}
-              selectedItems={selectedDateRanges}
-              handleToggle={handleDateToggle}
-              options={dateRanges}
-              label="Date"
-              icon={Calendar}
-              dropdownRef={dateDropdownRef}
-            />
-
-            {/* Sort By */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Sort By
-              </label>
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 font-medium"
-                >
-                  <option value="date">Date</option>
-                  <option value="price">Price</option>
-                  <option value="name">Name</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <TrendingUp size={18} />
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex space-x-3 pt-4 border-t border-gray-200">
-              <button
-                onClick={clearAllFilters}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-              >
-                Clear All
-              </button>
-              <button
-                onClick={() => setIsMobileFiltersOpen(false)}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  // Popular categories
+  const popularCategories = safeCategories
+    .filter((c) => c !== "All")
+    .slice(0, 6);
 
   return (
     <section
       id="events"
       className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30"
     >
-      {/* Enhanced Header with Background */}
+      {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-12 lg:py-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
@@ -599,8 +371,6 @@ const Events = () => {
               Find your next unforgettable experience. From cultural festivals
               to tech conferences, we've got something for everyone.
             </p>
-
-            {/* Quick Stats */}
             <div className="flex justify-center space-x-6 lg:space-x-8 text-center">
               <div>
                 <div className="text-2xl lg:text-3xl font-bold text-white">
@@ -612,7 +382,7 @@ const Events = () => {
               </div>
               <div>
                 <div className="text-2xl lg:text-3xl font-bold text-white">
-                  {safeCategories.length - 1}
+                  {Math.max(0, safeCategories.length - 1)}
                 </div>
                 <div className="text-blue-200 text-xs lg:text-sm">
                   Categories
@@ -631,11 +401,15 @@ const Events = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 lg:-mt-8 relative z-10">
-        {/* Mobile Filters Trigger */}
+      {/* Main */}
+      <div
+        className="container mx-auto px-4 lg:-mt-8 relative z-10"
+        ref={containerRef}
+      >
+        {/* Mobile filter trigger */}
         <div className="lg:hidden flex items-center justify-between mb-6 pt-4">
           <button
-            onClick={() => setIsMobileFiltersOpen(true)}
+            onClick={openMobileFilters}
             className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium"
           >
             <SlidersHorizontal size={20} />
@@ -646,7 +420,6 @@ const Events = () => {
               </span>
             )}
           </button>
-
           {activeFiltersCount > 0 && (
             <button
               onClick={clearAllFilters}
@@ -657,11 +430,258 @@ const Events = () => {
           )}
         </div>
 
-        {/* Enhanced Search and Filters Card - Desktop */}
-        <div className="hidden lg:block bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-8 lg:mb-12">
-          {/* Active Filters Bar */}
+        {/* Desktop: Top Card Filters */}
+        <div className="hidden lg:block mb-8">
+          <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+            {/* Search Row */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Search Events
+              </label>
+              <div className="relative">
+                <Search
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  placeholder="Search by event name, description, or category..."
+                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                />
+              </div>
+            </div>
+
+            {/* Filters Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+              {/* Categories */}
+              <div className="relative" ref={categoriesRef}>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Categories
+                </label>
+                <button
+                  onClick={() =>
+                    setShowCategoriesDropdown(!showCategoriesDropdown)
+                  }
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Tag size={18} className="text-gray-500" />
+                    <span className="text-gray-700">
+                      {selectedCategories.includes("All")
+                        ? "All Categories"
+                        : `${selectedCategories.length} selected`}
+                    </span>
+                  </div>
+                  <ChevronDown size={18} className="text-gray-500" />
+                </button>
+                {showCategoriesDropdown && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                    <div className="p-2">
+                      {[
+                        { id: "All", label: "All Categories" },
+                        ...safeCategories
+                          .filter((c) => c !== "All")
+                          .map((c) => ({ id: c, label: c })),
+                      ].map((opt) => (
+                        <FilterItem
+                          key={opt.id}
+                          checked={selectedCategories.includes(opt.id)}
+                          onClick={() => handleCategoryToggle(opt.id)}
+                          label={opt.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Price */}
+              <div className="relative" ref={priceRef}>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Price
+                </label>
+                <button
+                  onClick={() => setShowPriceDropdown(!showPriceDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Wallet size={18} className="text-gray-500" />
+                    <span className="text-gray-700">
+                      {selectedPriceRanges.includes("All")
+                        ? "All Price"
+                        : `${selectedPriceRanges.length} selected`}
+                    </span>
+                  </div>
+                  <ChevronDown size={18} className="text-gray-500" />
+                </button>
+                {showPriceDropdown && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                    <div className="p-2">
+                      {priceRanges.map((opt) => (
+                        <FilterItem
+                          key={opt.id}
+                          checked={selectedPriceRanges.includes(opt.id)}
+                          onClick={() => handlePriceToggle(opt.id)}
+                          label={opt.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Location */}
+              <div className="relative" ref={locationRef}>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Location
+                </label>
+                <button
+                  onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                >
+                  <div className="flex items-center space-x-2">
+                    <MapPin size={18} className="text-gray-500" />
+                    <span className="text-gray-700">
+                      {selectedLocations.includes("All")
+                        ? "All Location"
+                        : `${selectedLocations.length} selected`}
+                    </span>
+                  </div>
+                  <ChevronDown size={18} className="text-gray-500" />
+                </button>
+                {showLocationDropdown && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                    <div className="p-2">
+                      {locations.map((opt) => (
+                        <FilterItem
+                          key={opt.id}
+                          checked={selectedLocations.includes(opt.id)}
+                          onClick={() => handleLocationToggle(opt.id)}
+                          label={opt.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Date */}
+              <div className="relative" ref={dateRef}>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Date
+                </label>
+                <button
+                  onClick={() => setShowDateDropdown(!showDateDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Calendar size={18} className="text-gray-500" />
+                    <span className="text-gray-700">
+                      {selectedDateRanges.includes("All")
+                        ? "All Date"
+                        : `${selectedDateRanges.length} selected`}
+                    </span>
+                  </div>
+                  <ChevronDown size={18} className="text-gray-500" />
+                </button>
+                {showDateDropdown && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                    <div className="p-2">
+                      {dateRanges.map((opt) => (
+                        <FilterItem
+                          key={opt.id}
+                          checked={selectedDateRanges.includes(opt.id)}
+                          onClick={() => handleDateToggle(opt.id)}
+                          label={opt.label}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Sort By Row */}
+            <div className="flex items-end justify-between">
+              <div className="flex-1 max-w-xs relative" ref={sortRef}>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Sort By
+                </label>
+                <button
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                >
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp size={18} className="text-gray-500" />
+                    <span className="text-gray-700 capitalize">{sortBy}</span>
+                  </div>
+                  <ChevronDown size={18} className="text-gray-500" />
+                </button>
+                {showSortDropdown && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl">
+                    <div className="p-2">
+                      {["date", "price", "name"].map((option) => (
+                        <div
+                          key={option}
+                          onClick={() => {
+                            setSortBy(option);
+                            setShowSortDropdown(false);
+                          }}
+                          className={`px-4 py-3 rounded-lg cursor-pointer transition-colors capitalize ${
+                            sortBy === option
+                              ? "bg-blue-50 text-blue-700"
+                              : "hover:bg-gray-50"
+                          }`}
+                        >
+                          {option}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearAllFilters}
+                  className="px-6 py-3 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors border border-red-200"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+
+            {/* Popular Categories */}
+            {popularCategories.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Popular Categories
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {popularCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setSelectedCategories([cat]);
+                      }}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors text-sm font-medium"
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Results Section */}
+        <div className="mb-12">
+          {/* Active filters bar */}
           {activeFiltersCount > 0 && (
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+            <div className="hidden lg:flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
               <div className="flex items-center space-x-2">
                 <Filter size={16} className="text-gray-600" />
                 <span className="text-sm font-medium text-gray-700">
@@ -673,311 +693,435 @@ const Events = () => {
                 onClick={clearAllFilters}
                 className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
               >
-                <X size={16} className="mr-1" />
-                Clear all
+                <X size={16} className="mr-1" /> Clear all
               </button>
             </div>
           )}
 
-          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
-            {/* Search Bar */}
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Search Events
-              </label>
-              <div className="relative">
-                <Search
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  size={20}
-                />
-                <input
-                  type="text"
-                  placeholder="Search by event name, description, or category..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200"
-                />
-              </div>
+          {/* Header + summary */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-8">
+            <div>
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                {filteredEvents.length === 0
+                  ? "No Events Found"
+                  : selectedCategories.includes("All")
+                  ? "All Events"
+                  : selectedCategories.length === 1
+                  ? `${selectedCategories[0]} Events`
+                  : `${selectedCategories.length} Categories`}
+              </h2>
+              <p className="text-gray-600 mt-2 text-sm lg:text-base">
+                Page {currentPage}/{totalPages} • {currentEvents.length} events
+                • {filteredEvents.length} total
+                {searchTerm && ` for "${searchTerm}"`}
+              </p>
             </div>
 
-            {/* Category Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isCategoryDropdownOpen}
-              setIsOpen={setIsCategoryDropdownOpen}
-              selectedItems={selectedCategories}
-              handleToggle={handleCategoryToggle}
-              options={[
-                { id: "All", label: "All Categories" },
-                ...safeCategories
-                  .filter((cat) => cat !== "All")
-                  .map((cat) => ({ id: cat, label: cat })),
-              ]}
-              label="Categories"
-              icon={Users}
-              dropdownRef={categoryDropdownRef}
-            />
-
-            {/* Price Range Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isPriceDropdownOpen}
-              setIsOpen={setIsPriceDropdownOpen}
-              selectedItems={selectedPriceRanges}
-              handleToggle={handlePriceToggle}
-              options={priceRanges}
-              label="Price"
-              icon={Wallet}
-              dropdownRef={priceDropdownRef}
-            />
-          </div>
-
-          {/* Second Row of Filters */}
-          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center mt-6">
-            {/* Location Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isLocationDropdownOpen}
-              setIsOpen={setIsLocationDropdownOpen}
-              selectedItems={selectedLocations}
-              handleToggle={handleLocationToggle}
-              options={locations}
-              label="Location"
-              icon={MapPin}
-              dropdownRef={locationDropdownRef}
-            />
-
-            {/* Date Range Multi-Select */}
-            <MultiSelectDropdown
-              isOpen={isDateDropdownOpen}
-              setIsOpen={setIsDateDropdownOpen}
-              selectedItems={selectedDateRanges}
-              handleToggle={handleDateToggle}
-              options={dateRanges}
-              label="Date"
-              icon={Calendar}
-              dropdownRef={dateDropdownRef}
-            />
-
-            {/* Sort By */}
-            <div className="w-full xl:w-64">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Sort By
-              </label>
-              <div className="relative">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none w-full px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium"
-                >
-                  <option value="date">Date</option>
-                  <option value="price">Price</option>
-                  <option value="name">Name</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <TrendingUp size={18} />
+            {filteredEvents.length > 0 && (
+              <div className="mt-4 sm:mt-0 bg-blue-50 text-blue-700 px-3 lg:px-4 py-2 rounded-lg border border-blue-200">
+                <div className="flex items-center space-x-2">
+                  <Filter size={14} />
+                  <span className="text-xs lg:text-sm font-medium">
+                    {filteredEvents.length} events match your criteria
+                  </span>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Filter Chips */}
-          <div className="mt-6 pt-6 border-t border-gray-100 space-y-4">
-            {!selectedCategories.includes("All") && (
-              <div>
-                <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Selected Categories:
-                </span>
-                <FilterChips
-                  selectedItems={selectedCategories}
-                  handleToggle={handleCategoryToggle}
-                  getLabel={(item) => item}
-                />
-              </div>
-            )}
-
-            {!selectedPriceRanges.includes("All") && (
-              <div>
-                <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Selected Price Ranges:
-                </span>
-                <FilterChips
-                  selectedItems={selectedPriceRanges}
-                  handleToggle={handlePriceToggle}
-                  getLabel={(item) =>
-                    priceRanges.find((p) => p.id === item)?.label || item
-                  }
-                />
-              </div>
-            )}
-
-            {!selectedLocations.includes("All") && (
-              <div>
-                <span className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Selected Locations:
-                </span>
-                <FilterChips
-                  selectedItems={selectedLocations}
-                  handleToggle={handleLocationToggle}
-                  getLabel={(item) =>
-                    locations.find((l) => l.id === item)?.label || item
-                  }
-                />
-              </div>
             )}
           </div>
 
-          {/* Popular Categories Quick Filter */}
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Popular Categories
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {popularCategories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => handleCategoryToggle(category)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    selectedCategories.includes(category)
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
-                  }`}
-                >
-                  {category}
-                </button>
+          {/* Grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
+              {Array.from({ length: eventsPerPage }).map((_, i) => (
+                <EventCardSkeleton key={i} />
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Results Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-8">
-          <div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              {filteredEvents.length === 0
-                ? "No Events Found"
-                : selectedCategories.includes("All")
-                ? "All Events"
-                : selectedCategories.length === 1
-                ? `${selectedCategories[0]} Events`
-                : `${selectedCategories.length} Categories`}
-            </h2>
-            <p className="text-gray-600 mt-2 text-sm lg:text-base">
-              Page {currentPage}/{totalPages} • {currentEvents.length} events •{" "}
-              {filteredEvents.length} total
-              {searchTerm && ` for "${searchTerm}"`}
-            </p>
-          </div>
-
-          {filteredEvents.length > 0 && (
-            <div className="mt-4 sm:mt-0 bg-blue-50 text-blue-700 px-3 lg:px-4 py-2 rounded-lg border border-blue-200">
-              <div className="flex items-center space-x-2">
-                <Filter size={14} className="lg:size-4" />
-                <span className="text-xs lg:text-sm font-medium">
-                  {filteredEvents.length} events match your criteria
-                </span>
+          ) : currentEvents.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
+                {currentEvents.map((ev) => (
+                  <div
+                    key={ev.id}
+                    onClick={() => setSelectedEvent(ev)}
+                    className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl"
+                  >
+                    <EventCard event={ev} />
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* Events Grid with Skeleton Loading */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
-            {Array.from({ length: eventsPerPage }).map((_, index) => (
-              <EventCardSkeleton key={index} />
-            ))}
-          </div>
-        ) : currentEvents.length > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
-              {currentEvents.map((event) => (
-                <div
-                  key={event.id}
-                  onClick={() => handleEventClick(event)}
-                  className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl"
-                >
-                  <EventCard event={event} />
-                </div>
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center space-x-1 lg:space-x-2 mb-12">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`flex items-center px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
-                    currentPage === 1
-                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
-                  }`}
-                >
-                  <ChevronLeft size={16} className="mr-1" />
-                  Previous
-                </button>
-
-                {getPageNumbers().map((pageNumber) => (
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center space-x-1 lg:space-x-2 mb-12">
                   <button
-                    key={pageNumber}
-                    onClick={() => handlePageChange(pageNumber)}
-                    className={`px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
-                      currentPage === pageNumber
-                        ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/25"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`flex items-center px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
+                      currentPage === 1
+                        ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
                         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
                     }`}
                   >
-                    {pageNumber}
+                    <ChevronLeft size={16} className="mr-1" /> Previous
                   </button>
-                ))}
 
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className={`flex items-center px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
-                    currentPage === totalPages
-                      ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
-                  }`}
-                >
-                  Next
-                  <ChevronRight size={16} className="ml-1" />
-                </button>
+                  {getPageNumbers().map((pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      onClick={() => handlePageChange(pageNumber)}
+                      className={`px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
+                        currentPage === pageNumber
+                          ? "bg-blue-600 text-white border-blue-600 shadow-lg"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`flex items-center px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${
+                      currentPage === totalPages
+                        ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+                    }`}
+                  >
+                    Next <ChevronRight size={16} className="ml-1" />
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12 lg:py-16 bg-white rounded-2xl shadow-sm border border-gray-100 mb-12">
+              <div className="text-gray-300 mb-6">
+                <Filter size={60} className="lg:size-80 mx-auto" />
               </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-12 lg:py-16 bg-white rounded-2xl shadow-sm border border-gray-100 mb-12">
-            <div className="text-gray-300 mb-6">
-              <Filter size={60} className="lg:size-80 mx-auto" />
+              <h3 className="text-xl lg:text-2xl font-semibold text-gray-600 mb-3">
+                No events found
+              </h3>
+              <p className="text-gray-500 max-w-md mx-auto mb-6 text-sm lg:text-base">
+                We couldn't find any events matching your search criteria. Try
+                adjusting your filters or search terms.
+              </p>
+              {activeFiltersCount > 0 && (
+                <button
+                  onClick={clearAllFilters}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base"
+                >
+                  Clear All Filters
+                </button>
+              )}
             </div>
-            <h3 className="text-xl lg:text-2xl font-semibold text-gray-600 mb-3">
-              No events found
-            </h3>
-            <p className="text-gray-500 max-w-md mx-auto mb-6 text-sm lg:text-base">
-              We couldn't find any events matching your search criteria. Try
-              adjusting your filters or search terms.
-            </p>
-            {activeFiltersCount > 0 && (
-              <button
-                onClick={clearAllFilters}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base"
-              >
-                Clear All Filters
-              </button>
-            )}
+          )}
+        </div>
+
+        {/* Mobile: Filters Modal */}
+        {isMobileFiltersOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
+            <div
+              ref={mobileFiltersRef}
+              className="bg-white w-full max-h-[80vh] rounded-t-3xl overflow-y-auto animate-slide-up"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-gray-900">Filters</h3>
+                  <button
+                    onClick={closeMobileFilters}
+                    className="p-2 hover:bg-gray-100 rounded-lg"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Mobile Search */}
+                  <div>
+                    <details open className="group">
+                      <summary className="flex items-center justify-between px-3 py-3 bg-white border border-gray-200 rounded-md cursor-pointer">
+                        <div className="flex items-center space-x-2">
+                          <Search size={18} className="text-gray-500" />
+                          <div className="text-sm font-semibold text-gray-700">
+                            Search
+                          </div>
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {searchTerm ? `for "${searchTerm}"` : ""}
+                        </div>
+                      </summary>
+                      <div className="mt-3">
+                        <div className="relative">
+                          <Search
+                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            size={20}
+                          />
+                          <input
+                            ref={mobileSearchInputRef}
+                            type="text"
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            placeholder="Search events..."
+                            className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Mobile Categories */}
+                  <div>
+                    <details className="group">
+                      <summary className="flex items-center justify-between px-3 py-3 bg-white border border-gray-200 rounded-md cursor-pointer">
+                        <div className="flex items-center space-x-2">
+                          <Tag size={18} className="text-gray-500" />
+                          <div className="text-sm font-semibold text-gray-700">
+                            Categories
+                          </div>
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {selectedCategories.includes("All")
+                            ? "All"
+                            : `${selectedCategories.length} selected`}
+                        </div>
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        {[
+                          { id: "All", label: "All Categories" },
+                          ...safeCategories
+                            .filter((c) => c !== "All")
+                            .map((c) => ({ id: c, label: c })),
+                        ].map((opt) => (
+                          <FilterItem
+                            key={opt.id}
+                            checked={selectedCategories.includes(opt.id)}
+                            onClick={() => handleCategoryToggle(opt.id)}
+                            label={opt.label}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Mobile Price */}
+                  <div>
+                    <details className="group">
+                      <summary className="flex items-center justify-between px-3 py-3 bg-white border border-gray-200 rounded-md cursor-pointer">
+                        <div className="flex items-center space-x-2">
+                          <Wallet size={18} className="text-gray-500" />
+                          <div className="text-sm font-semibold text-gray-700">
+                            Price
+                          </div>
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {selectedPriceRanges.includes("All")
+                            ? "All"
+                            : `${selectedPriceRanges.length} selected`}
+                        </div>
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        {priceRanges.map((opt) => (
+                          <FilterItem
+                            key={opt.id}
+                            checked={selectedPriceRanges.includes(opt.id)}
+                            onClick={() => handlePriceToggle(opt.id)}
+                            label={opt.label}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Mobile Location */}
+                  <div>
+                    <details className="group">
+                      <summary className="flex items-center justify-between px-3 py-3 bg-white border border-gray-200 rounded-md cursor-pointer">
+                        <div className="flex items-center space-x-2">
+                          <MapPin size={18} className="text-gray-500" />
+                          <div className="text-sm font-semibold text-gray-700">
+                            Location
+                          </div>
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {selectedLocations.includes("All")
+                            ? "All"
+                            : `${selectedLocations.length} selected`}
+                        </div>
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        {locations.map((opt) => (
+                          <FilterItem
+                            key={opt.id}
+                            checked={selectedLocations.includes(opt.id)}
+                            onClick={() => handleLocationToggle(opt.id)}
+                            label={opt.label}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Mobile Date */}
+                  <div>
+                    <details className="group">
+                      <summary className="flex items-center justify-between px-3 py-3 bg-white border border-gray-200 rounded-md cursor-pointer">
+                        <div className="flex items-center space-x-2">
+                          <Calendar size={18} className="text-gray-500" />
+                          <div className="text-sm font-semibold text-gray-700">
+                            Date
+                          </div>
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {selectedDateRanges.includes("All")
+                            ? "Any"
+                            : `${selectedDateRanges.length} selected`}
+                        </div>
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        {dateRanges.map((opt) => (
+                          <FilterItem
+                            key={opt.id}
+                            checked={selectedDateRanges.includes(opt.id)}
+                            onClick={() => handleDateToggle(opt.id)}
+                            label={opt.label}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Mobile Sort By */}
+                  <div>
+                    <details className="group">
+                      <summary className="flex items-center justify-between px-3 py-3 bg-white border border-gray-200 rounded-md cursor-pointer">
+                        <div className="flex items-center space-x-2">
+                          <TrendingUp size={18} className="text-gray-500" />
+                          <div className="text-sm font-semibold text-gray-700">
+                            Sort By
+                          </div>
+                        </div>
+                        <div className="text-gray-500 text-xs capitalize">
+                          {sortBy}
+                        </div>
+                      </summary>
+                      <div className="mt-3">
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-md bg-white focus:outline-none"
+                        >
+                          <option value="date">Date</option>
+                          <option value="price">Price</option>
+                          <option value="name">Name</option>
+                        </select>
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Mobile Action Buttons */}
+                  <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                    <button
+                      onClick={clearAllFilters}
+                      className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                    <button
+                      onClick={closeMobileFilters}
+                      className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
+
+        {/* Mobile Results Display */}
+        <div className="lg:hidden mt-2">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {filteredEvents.length === 0 ? "No Events Found" : "Events"}
+              </h2>
+              <p className="text-xs text-gray-500">
+                {filteredEvents.length} results
+                {searchTerm && ` for "${searchTerm}"`}
+              </p>
+            </div>
+            {activeFiltersCount > 0 && (
+              <div className="text-sm text-blue-600">
+                {activeFiltersCount} filters
+              </div>
+            )}
+          </div>
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <EventCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : currentEvents.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              {currentEvents.map((ev) => (
+                <div
+                  key={ev.id}
+                  onClick={() => setSelectedEvent(ev)}
+                  className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl"
+                >
+                  <EventCard event={ev} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 bg-white rounded-md shadow-sm">
+              No events match your criteria.
+            </div>
+          )}
+
+          {/* Mobile Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center space-x-2 mb-8">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-2 border rounded-md"
+              >
+                Prev
+              </button>
+              {getPageNumbers().map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handlePageChange(p)}
+                  className={`px-3 py-2 border rounded-md ${
+                    p === currentPage ? "bg-blue-600 text-white" : ""
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 border rounded-md"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Event Detail Modal */}
         {selectedEvent && (
           <EventDetail
             event={selectedEvent}
-            onClose={handleCloseDetail}
-            onBack={handleCloseDetail}
+            onClose={() => setSelectedEvent(null)}
+            onBack={() => setSelectedEvent(null)}
           />
         )}
-
-        {/* Mobile Filters */}
-        {isMobileFiltersOpen && <MobileFilters />}
       </div>
     </section>
   );
