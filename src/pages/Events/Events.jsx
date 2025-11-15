@@ -1,3 +1,4 @@
+// Events.jsx - Updated with Multi-Select Filtering
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
@@ -6,6 +7,8 @@ import {
   TrendingUp,
   ChevronLeft,
   ChevronRight,
+  X,
+  Check,
 } from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "../../components/Events/EventCard";
@@ -14,11 +17,12 @@ import "./Events.css";
 
 const Events = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategories, setSelectedCategories] = useState(["All"]);
   const [sortBy, setSortBy] = useState("date");
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const eventsPerPage = 27;
 
   // Safe data access with fallbacks
@@ -35,12 +39,37 @@ const Events = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1200); // 1.2 seconds to see the skeleton effect
+    }, 1200);
 
     return () => clearTimeout(timer);
   }, []);
 
-  // Filter and sort events
+  // Enhanced category selection handler
+  const handleCategoryToggle = (category) => {
+    if (category === "All") {
+      setSelectedCategories(["All"]);
+    } else {
+      setSelectedCategories((prev) => {
+        // Remove "All" if any other category is selected
+        const newCategories = prev.filter((cat) => cat !== "All");
+
+        if (newCategories.includes(category)) {
+          // Remove category if already selected
+          return newCategories.filter((cat) => cat !== category);
+        } else {
+          // Add category
+          return [...newCategories, category];
+        }
+      });
+    }
+  };
+
+  // Clear all categories
+  const clearAllCategories = () => {
+    setSelectedCategories(["All"]);
+  };
+
+  // Filter and sort events with multi-select support
   const filteredEvents = useMemo(() => {
     return eventsWithCorrectedImages
       .filter((event) => {
@@ -49,8 +78,11 @@ const Events = () => {
         const matchesSearch =
           event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           event.description?.toLowerCase().includes(searchTerm.toLowerCase());
+
         const matchesCategory =
-          selectedCategory === "All" || event.category === selectedCategory;
+          selectedCategories.includes("All") ||
+          selectedCategories.includes(event.category);
+
         return matchesSearch && matchesCategory;
       })
       .sort((a, b) => {
@@ -65,7 +97,7 @@ const Events = () => {
             return 0;
         }
       });
-  }, [eventsWithCorrectedImages, searchTerm, selectedCategory, sortBy]);
+  }, [eventsWithCorrectedImages, searchTerm, selectedCategories, sortBy]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
@@ -80,7 +112,7 @@ const Events = () => {
   // Reset to first page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [searchTerm, selectedCategories, sortBy]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -92,7 +124,6 @@ const Events = () => {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-    // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -109,7 +140,6 @@ const Events = () => {
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-    // Adjust start page if we're near the end
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -121,29 +151,19 @@ const Events = () => {
     return pageNumbers;
   };
 
-  // Skeleton Loader Component
+  // Skeleton Loader Component (unchanged)
   const EventCardSkeleton = () => (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-pulse">
-      {/* Image skeleton */}
       <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
-        {/* Shimmer effect */}
         <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shimmer"></div>
       </div>
-
       <div className="p-6 space-y-3">
-        {/* Title skeleton */}
         <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-
-        {/* Category skeleton */}
         <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-
-        {/* Description skeletons */}
         <div className="space-y-2">
           <div className="h-3 bg-gray-200 rounded"></div>
           <div className="h-3 bg-gray-200 rounded w-5/6"></div>
         </div>
-
-        {/* Date and price skeletons */}
         <div className="flex justify-between items-center pt-2">
           <div className="h-4 bg-gray-200 rounded w-1/3"></div>
           <div className="h-6 bg-gray-200 rounded w-1/4"></div>
@@ -218,26 +238,27 @@ const Events = () => {
               </div>
             </div>
 
-            {/* Category Filter */}
-            <div className="w-full lg:w-auto">
+            {/* Enhanced Multi-Select Category Filter */}
+            <div className="w-full lg:w-64">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Category
+                Categories
               </label>
               <div className="relative">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="appearance-none w-full lg:w-64 px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium"
+                <button
+                  onClick={() =>
+                    setIsCategoryDropdownOpen(!isCategoryDropdownOpen)
+                  }
+                  className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-gray-50/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
                 >
-                  {safeCategories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                  <span className="truncate">
+                    {selectedCategories.includes("All")
+                      ? "All Categories"
+                      : `${selectedCategories.length} selected`}
+                  </span>
                   <svg
-                    className="h-5 w-5"
+                    className={`h-5 w-5 transform transition-transform ${
+                      isCategoryDropdownOpen ? "rotate-180" : ""
+                    }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -249,8 +270,95 @@ const Events = () => {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                </div>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isCategoryDropdownOpen && (
+                  <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+                    <div className="p-2">
+                      {/* Select All Option */}
+                      <div
+                        onClick={() => handleCategoryToggle("All")}
+                        className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                          selectedCategories.includes("All")
+                            ? "bg-blue-50 text-blue-700"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <div
+                          className={`w-5 h-5 border rounded mr-3 flex items-center justify-center ${
+                            selectedCategories.includes("All")
+                              ? "bg-blue-600 border-blue-600"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {selectedCategories.includes("All") && (
+                            <Check size={14} className="text-white" />
+                          )}
+                        </div>
+                        <span className="font-medium">All Categories</span>
+                      </div>
+
+                      {/* Category Options */}
+                      {safeCategories
+                        .filter((cat) => cat !== "All")
+                        .map((category) => (
+                          <div
+                            key={category}
+                            onClick={() => handleCategoryToggle(category)}
+                            className={`flex items-center px-3 py-2 rounded-lg cursor-pointer transition-colors ${
+                              selectedCategories.includes(category)
+                                ? "bg-blue-50 text-blue-700"
+                                : "hover:bg-gray-50"
+                            }`}
+                          >
+                            <div
+                              className={`w-5 h-5 border rounded mr-3 flex items-center justify-center ${
+                                selectedCategories.includes(category)
+                                  ? "bg-blue-600 border-blue-600"
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {selectedCategories.includes(category) && (
+                                <Check size={14} className="text-white" />
+                              )}
+                            </div>
+                            <span>{category}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Selected Categories Chips */}
+              {!selectedCategories.includes("All") &&
+                selectedCategories.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {selectedCategories.map((category) => (
+                      <div
+                        key={category}
+                        className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
+                      >
+                        {category}
+                        <button
+                          onClick={() => handleCategoryToggle(category)}
+                          className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    {selectedCategories.length > 1 && (
+                      <button
+                        onClick={clearAllCategories}
+                        className="text-red-600 text-sm hover:text-red-700 font-medium"
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
+                )}
             </div>
 
             {/* Sort By */}
@@ -284,9 +392,9 @@ const Events = () => {
               {popularCategories.map((category) => (
                 <button
                   key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => handleCategoryToggle(category)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    selectedCategory === category
+                    selectedCategories.includes(category)
                       ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md"
                   }`}
@@ -294,12 +402,12 @@ const Events = () => {
                   {category}
                 </button>
               ))}
-              {selectedCategory !== "All" && (
+              {!selectedCategories.includes("All") && (
                 <button
-                  onClick={() => setSelectedCategory("All")}
+                  onClick={clearAllCategories}
                   className="px-4 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-all duration-200"
                 >
-                  Clear Filter
+                  Clear All Filters
                 </button>
               )}
             </div>
@@ -310,9 +418,11 @@ const Events = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
             <h2 className="text-3xl font-bold text-gray-900">
-              {selectedCategory === "All"
+              {selectedCategories.includes("All")
                 ? "All Events"
-                : selectedCategory + " Events"}
+                : selectedCategories.length === 1
+                ? `${selectedCategories[0]} Events`
+                : `${selectedCategories.length} Categories`}
             </h2>
             <p className="text-gray-600 mt-2">
               Page {currentPage}/{totalPages} • {currentEvents.length} events •{" "}
@@ -335,14 +445,12 @@ const Events = () => {
 
         {/* Events Grid with Skeleton Loading */}
         {isLoading ? (
-          // Show skeletons while loading
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
             {Array.from({ length: eventsPerPage }).map((_, index) => (
               <EventCardSkeleton key={index} />
             ))}
           </div>
         ) : currentEvents.length > 0 ? (
-          // Show actual events when loaded
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
               {currentEvents.map((event) => (
@@ -359,7 +467,6 @@ const Events = () => {
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex justify-center items-center space-x-2 mb-12">
-                {/* Previous Button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
@@ -373,7 +480,6 @@ const Events = () => {
                   Previous
                 </button>
 
-                {/* Page Numbers */}
                 {getPageNumbers().map((pageNumber) => (
                   <button
                     key={pageNumber}
@@ -388,7 +494,6 @@ const Events = () => {
                   </button>
                 ))}
 
-                {/* Next Button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
@@ -416,11 +521,11 @@ const Events = () => {
               We couldn't find any events matching your search criteria. Try
               adjusting your filters or search terms.
             </p>
-            {(searchTerm || selectedCategory !== "All") && (
+            {(searchTerm || !selectedCategories.includes("All")) && (
               <button
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedCategory("All");
+                  setSelectedCategories(["All"]);
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200"
               >

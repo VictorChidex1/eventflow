@@ -106,3 +106,40 @@
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
+
+/* Enhanced Multi-Select Styles */
+.category-dropdown {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Smooth dropdown animations */
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Custom scrollbar for dropdown */
+.category-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.category-dropdown::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.category-dropdown::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.category-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

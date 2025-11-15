@@ -291,7 +291,9 @@ const Pricing = () => {
     <div className="pricing-header animate-pulse">
       <div className="max-w-4xl mx-auto text-center">
         {/* Icon Skeleton */}
-        <div className="h-10 w-10 bg-white/30 rounded-lg mx-auto mb-4"></div>
+        <div className="h-10 w-10 bg-white bg-opacity-30 rounded-lg mx-auto mb-4"></div>
+        <div className="h-12 bg-white bg-opacity-30 rounded w-3/4 mx-auto mb-4"></div>
+        <div className="h-6 bg-white bg-opacity-30 rounded w-1/2 mx-auto mb-6"></div>
 
         {/* Title Skeleton */}
         <div className="h-12 bg-white/30 rounded w-3/4 mx-auto mb-4"></div>

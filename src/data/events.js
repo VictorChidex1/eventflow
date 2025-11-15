@@ -389,7 +389,7 @@ export const events = [
     title: "Public Speaking Masterclass",
     description:
       "Transform your public speaking skills with expert coaches and practical exercises.",
-    date: "2025-06-29",
+    date: "2026-02-29",
     time: "10:00 AM",
     location: "Muson Center, Lagos",
     price: 20000, // ₦20,000
@@ -557,7 +557,7 @@ export const events = [
     title: "Afro Jazz & Soul Experience",
     description:
       "An intimate evening of smooth Afro Jazz and Soul music featuring top Nigerian instrumentalists and vocalists.",
-    date: "2024-10-28",
+    date: "2026-05-28",
     time: "07:00 PM",
     location: "Jazzhole, Lagos",
     price: 12000,
