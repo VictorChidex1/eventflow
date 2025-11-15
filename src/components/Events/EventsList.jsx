@@ -1,5 +1,18 @@
-import React, { useState } from "react";
-import { Search, Filter, Calendar, TrendingUp, Sparkles } from "lucide-react";
+// EventsList.jsx - COMPLETE REVAMP with Robust Click-Outside & Mobile Responsiveness
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import {
+  Search,
+  Filter,
+  Calendar,
+  TrendingUp,
+  Sparkles,
+  X,
+  Check,
+  MapPin,
+  Wallet,
+  Users,
+  SlidersHorizontal,
+} from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "./EventCard";
 import EventDetail from "./EventDetail";
@@ -7,35 +20,240 @@ import "./EventsList.css";
 
 const EventsList = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategories, setSelectedCategories] = useState(["All"]);
+  const [selectedPriceRanges, setSelectedPriceRanges] = useState(["All"]);
+  const [selectedLocations, setSelectedLocations] = useState(["All"]);
+  const [selectedDateRanges, setSelectedDateRanges] = useState(["All"]);
   const [sortBy, setSortBy] = useState("date");
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isPriceDropdownOpen, setIsPriceDropdownOpen] = useState(false);
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  // LIMIT TO 17 EVENTS FOR HOMEPAGE - ONLY CHANGE MADE
-  const limitedEvents = events.slice(0, 17);
+  // Refs for click-outside detection
+  const categoryDropdownRef = useRef(null);
+  const priceDropdownRef = useRef(null);
+  const locationDropdownRef = useRef(null);
+  const dateDropdownRef = useRef(null);
+  const mobileFiltersRef = useRef(null);
 
-  // Filter and sort events (using limitedEvents instead of events)
-  const filteredEvents = limitedEvents
-    .filter((event) => {
-      const matchesSearch =
-        event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "All" || event.category === selectedCategory;
-      return matchesSearch && matchesCategory;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "date":
-          return new Date(a.date) - new Date(b.date);
-        case "price":
-          return a.price - b.price;
-        case "name":
-          return a.title.localeCompare(b.title);
-        default:
-          return 0;
+  // Nigerian-specific filter options
+  const priceRanges = [
+    { id: "All", label: "All Prices", min: null, max: null },
+    { id: "free", label: "Free", min: 0, max: 0 },
+    { id: "budget", label: "₦1K - ₦5K", min: 1000, max: 5000 },
+    { id: "medium", label: "₦5K - ₦20K", min: 5000, max: 20000 },
+    { id: "premium", label: "₦20K - ₦50K", min: 20000, max: 50000 },
+    { id: "vip", label: "₦50K+", min: 50000, max: null },
+  ];
+
+  const locations = [
+    { id: "All", label: "All Locations" },
+    { id: "lagos", label: "Lagos" },
+    { id: "abuja", label: "Abuja" },
+    { id: "port-harcourt", label: "Port Harcourt" },
+    { id: "ibadan", label: "Ibadan" },
+    { id: "online", label: "Online" },
+    { id: "others", label: "Other Cities" },
+  ];
+
+  const dateRanges = [
+    { id: "All", label: "Any Date" },
+    { id: "today", label: "Today" },
+    { id: "tomorrow", label: "Tomorrow" },
+    { id: "weekend", label: "This Weekend" },
+    { id: "next-week", label: "Next 7 Days" },
+    { id: "this-month", label: "This Month" },
+  ];
+
+  // LIMIT TO 17 EVENTS FOR HOMEPAGE
+  const limitedEvents = (events || []).slice(0, 17);
+  const safeCategories = categories || ["All"];
+
+  // Enhanced Click Outside Handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Close category dropdown
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target)
+      ) {
+        setIsCategoryDropdownOpen(false);
       }
-    });
+
+      // Close price dropdown
+      if (
+        priceDropdownRef.current &&
+        !priceDropdownRef.current.contains(event.target)
+      ) {
+        setIsPriceDropdownOpen(false);
+      }
+
+      // Close location dropdown
+      if (
+        locationDropdownRef.current &&
+        !locationDropdownRef.current.contains(event.target)
+      ) {
+        setIsLocationDropdownOpen(false);
+      }
+
+      // Close date dropdown
+      if (
+        dateDropdownRef.current &&
+        !dateDropdownRef.current.contains(event.target)
+      ) {
+        setIsDateDropdownOpen(false);
+      }
+
+      // Close mobile filters
+      if (
+        mobileFiltersRef.current &&
+        !mobileFiltersRef.current.contains(event.target) &&
+        !event.target.closest(".mobile-filters-trigger")
+      ) {
+        setIsMobileFiltersOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, []);
+
+  // Close all dropdowns function
+  const closeAllDropdowns = () => {
+    setIsCategoryDropdownOpen(false);
+    setIsPriceDropdownOpen(false);
+    setIsLocationDropdownOpen(false);
+    setIsDateDropdownOpen(false);
+  };
+
+  // Enhanced dropdown toggle with close others
+  const createDropdownToggle = (setter) => () => {
+    closeAllDropdowns();
+    setter(true);
+  };
+
+  // Enhanced multi-select handlers
+  const createMultiSelectHandler =
+    (setSelected, allValue = "All") =>
+    (itemId) => {
+      if (itemId === allValue) {
+        setSelected([allValue]);
+      } else {
+        setSelected((prev) => {
+          const newSelection = prev.filter((item) => item !== allValue);
+          if (newSelection.includes(itemId)) {
+            return newSelection.filter((item) => item !== itemId);
+          } else {
+            return [...newSelection, itemId];
+          }
+        });
+      }
+    };
+
+  const handleCategoryToggle = createMultiSelectHandler(setSelectedCategories);
+  const handlePriceToggle = createMultiSelectHandler(setSelectedPriceRanges);
+  const handleLocationToggle = createMultiSelectHandler(setSelectedLocations);
+  const handleDateToggle = createMultiSelectHandler(setSelectedDateRanges);
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCategories(["All"]);
+    setSelectedPriceRanges(["All"]);
+    setSelectedLocations(["All"]);
+    setSelectedDateRanges(["All"]);
+    setSearchTerm("");
+    closeAllDropdowns();
+  };
+
+  // Filter and sort events with multi-select support
+  const filteredEvents = useMemo(() => {
+    return limitedEvents
+      .filter((event) => {
+        if (!event) return false;
+
+        // Search filter
+        const matchesSearch =
+          !searchTerm ||
+          event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.description?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Category filter
+        const matchesCategory =
+          selectedCategories.includes("All") ||
+          selectedCategories.includes(event.category);
+
+        // Price filter
+        const matchesPrice =
+          selectedPriceRanges.includes("All") ||
+          selectedPriceRanges.some((priceRange) => {
+            const range = priceRanges.find((p) => p.id === priceRange);
+            if (!range) return false;
+            if (range.id === "free") return event.price === 0;
+            if (range.min !== null && event.price < range.min) return false;
+            if (range.max !== null && event.price > range.max) return false;
+            return true;
+          });
+
+        // Location filter
+        const matchesLocation = selectedLocations.includes("All");
+        // Date filter
+        const matchesDate = selectedDateRanges.includes("All");
+
+        return (
+          matchesSearch &&
+          matchesCategory &&
+          matchesPrice &&
+          matchesLocation &&
+          matchesDate
+        );
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "date":
+            return new Date(a.date) - new Date(b.date);
+          case "price":
+            return (a.price || 0) - (b.price || 0);
+          case "name":
+            return (a.title || "").localeCompare(b.title || "");
+          default:
+            return 0;
+        }
+      });
+  }, [
+    limitedEvents,
+    searchTerm,
+    selectedCategories,
+    selectedPriceRanges,
+    selectedLocations,
+    selectedDateRanges,
+    sortBy,
+  ]);
+
+  // Active filters count
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (!selectedCategories.includes("All")) count += selectedCategories.length;
+    if (!selectedPriceRanges.includes("All"))
+      count += selectedPriceRanges.length;
+    if (!selectedLocations.includes("All")) count += selectedLocations.length;
+    if (!selectedDateRanges.includes("All")) count += selectedDateRanges.length;
+    if (searchTerm) count += 1;
+    return count;
+  }, [
+    selectedCategories,
+    selectedPriceRanges,
+    selectedLocations,
+    selectedDateRanges,
+    searchTerm,
+  ]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -45,10 +263,241 @@ const EventsList = () => {
     setSelectedEvent(null);
   };
 
-  // Get popular categories for quick filters
-  const popularCategories = categories
+  // Get popular categories (top 4)
+  const popularCategories = safeCategories
     .filter((cat) => cat !== "All")
     .slice(0, 4);
+
+  // Reusable Multi-Select Dropdown Component
+  const MultiSelectDropdown = ({
+    isOpen,
+    setIsOpen,
+    selectedItems,
+    handleToggle,
+    options,
+    label,
+    icon: Icon,
+    dropdownRef,
+  }) => (
+    <div className="w-full lg:w-64" ref={dropdownRef}>
+      <label className="block text-sm font-semibold text-gray-700 mb-3">
+        {label}
+      </label>
+      <div className="relative">
+        <button
+          onClick={createDropdownToggle(setIsOpen)}
+          className="w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
+        >
+          <span className="truncate flex items-center">
+            <Icon size={18} className="mr-2 text-gray-500 flex-shrink-0" />
+            {selectedItems.includes("All")
+              ? `All ${label}`
+              : `${selectedItems.length} selected`}
+          </span>
+          <svg
+            className={`h-5 w-5 transform transition-transform flex-shrink-0 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+
+        {/* Dropdown Menu */}
+        {isOpen && (
+          <div className="category-dropdown absolute z-50 w-full mt-2 bg-white/95 border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+            <div className="p-2">
+              {options.map((option) => (
+                <div
+                  key={option.id}
+                  onClick={() => handleToggle(option.id)}
+                  className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
+                    selectedItems.includes(option.id)
+                      ? "bg-blue-50 text-blue-700"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 border rounded mr-3 flex items-center justify-center flex-shrink-0 ${
+                      selectedItems.includes(option.id)
+                        ? "bg-blue-600 border-blue-600"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {selectedItems.includes(option.id) && (
+                      <Check size={14} className="text-white" />
+                    )}
+                  </div>
+                  <span className="text-sm">{option.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // Filter Chips Component
+  const FilterChips = ({ selectedItems, handleToggle, getLabel }) => (
+    <div className="flex flex-wrap gap-2">
+      {selectedItems
+        .filter((item) => item !== "All")
+        .map((item) => (
+          <div
+            key={item}
+            className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
+          >
+            {getLabel(item)}
+            <button
+              onClick={() => handleToggle(item)}
+              className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+    </div>
+  );
+
+  // Mobile Filters Component
+  const MobileFilters = () => (
+    <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
+      <div
+        ref={mobileFiltersRef}
+        className="bg-white w-full max-h-[80vh] rounded-t-3xl overflow-y-auto animate-slide-up"
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-gray-900">Filters</h3>
+            <button
+              onClick={() => setIsMobileFiltersOpen(false)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {/* Search Bar */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Search Events
+              </label>
+              <div className="relative">
+                <Search
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50"
+                />
+              </div>
+            </div>
+
+            {/* Mobile Filter Dropdowns */}
+            <MultiSelectDropdown
+              isOpen={isCategoryDropdownOpen}
+              setIsOpen={setIsCategoryDropdownOpen}
+              selectedItems={selectedCategories}
+              handleToggle={handleCategoryToggle}
+              options={[
+                { id: "All", label: "All Categories" },
+                ...safeCategories
+                  .filter((cat) => cat !== "All")
+                  .map((cat) => ({ id: cat, label: cat })),
+              ]}
+              label="Categories"
+              icon={Users}
+              dropdownRef={categoryDropdownRef}
+            />
+
+            <MultiSelectDropdown
+              isOpen={isPriceDropdownOpen}
+              setIsOpen={setIsPriceDropdownOpen}
+              selectedItems={selectedPriceRanges}
+              handleToggle={handlePriceToggle}
+              options={priceRanges}
+              label="Price"
+              icon={Wallet}
+              dropdownRef={priceDropdownRef}
+            />
+
+            <MultiSelectDropdown
+              isOpen={isLocationDropdownOpen}
+              setIsOpen={setIsLocationDropdownOpen}
+              selectedItems={selectedLocations}
+              handleToggle={handleLocationToggle}
+              options={locations}
+              label="Location"
+              icon={MapPin}
+              dropdownRef={locationDropdownRef}
+            />
+
+            <MultiSelectDropdown
+              isOpen={isDateDropdownOpen}
+              setIsOpen={setIsDateDropdownOpen}
+              selectedItems={selectedDateRanges}
+              handleToggle={handleDateToggle}
+              options={dateRanges}
+              label="Date"
+              icon={Calendar}
+              dropdownRef={dateDropdownRef}
+            />
+
+            {/* Sort By */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Sort By
+              </label>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 font-medium"
+                >
+                  <option value="date">Date</option>
+                  <option value="price">Price</option>
+                  <option value="name">Name</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                  <TrendingUp size={18} />
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={clearAllFilters}
+                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+              >
+                Clear All
+              </button>
+              <button
+                onClick={() => setIsMobileFiltersOpen(false)}
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <section
@@ -90,7 +539,7 @@ const EventsList = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {categories.length - 1}
+                {safeCategories.length - 1}
               </div>
               <div className="text-gray-500 text-sm">Categories</div>
             </div>
@@ -103,11 +552,59 @@ const EventsList = () => {
           </div>
         </div>
 
-        {/* Enhanced Search and Filters Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/60 p-6 mb-12">
-          <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
+        {/* Mobile Filters Trigger */}
+        <div className="lg:hidden flex items-center justify-between mb-6">
+          <button
+            onClick={() => setIsMobileFiltersOpen(true)}
+            className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium"
+          >
+            <SlidersHorizontal size={20} />
+            <span>Filters</span>
+            {activeFiltersCount > 0 && (
+              <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
+
+          {activeFiltersCount > 0 && (
+            <button
+              onClick={clearAllFilters}
+              className="text-red-600 text-sm font-medium"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
+
+        {/* Enhanced Search and Filters Card - Desktop */}
+        <div className="hidden lg:block bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/60 p-6 mb-12">
+          {/* Active Filters Bar */}
+          {activeFiltersCount > 0 && (
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100/60">
+              <div className="flex items-center space-x-2">
+                <Filter size={16} className="text-gray-600" />
+                <span className="text-sm font-medium text-gray-700">
+                  {activeFiltersCount} active filter
+                  {activeFiltersCount !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <button
+                onClick={clearAllFilters}
+                className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
+              >
+                <X size={16} className="mr-1" />
+                Clear all
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center">
             {/* Search Bar */}
             <div className="flex-1 w-full">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Search Events
+              </label>
               <div className="relative">
                 <Search
                   className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -115,7 +612,7 @@ const EventsList = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Search events by name, description, or category..."
+                  placeholder="Search by event name, description, or category..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 shadow-sm"
@@ -123,49 +620,76 @@ const EventsList = () => {
               </div>
             </div>
 
-            {/* Category Filter */}
-            <div className="w-full lg:w-auto">
-              <div className="relative">
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="appearance-none w-full lg:w-48 px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium shadow-sm"
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
+            {/* Category Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isCategoryDropdownOpen}
+              setIsOpen={setIsCategoryDropdownOpen}
+              selectedItems={selectedCategories}
+              handleToggle={handleCategoryToggle}
+              options={[
+                { id: "All", label: "All Categories" },
+                ...safeCategories
+                  .filter((cat) => cat !== "All")
+                  .map((cat) => ({ id: cat, label: cat })),
+              ]}
+              label="Categories"
+              icon={Users}
+              dropdownRef={categoryDropdownRef}
+            />
+
+            {/* Price Range Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isPriceDropdownOpen}
+              setIsOpen={setIsPriceDropdownOpen}
+              selectedItems={selectedPriceRanges}
+              handleToggle={handlePriceToggle}
+              options={priceRanges}
+              label="Price"
+              icon={Wallet}
+              dropdownRef={priceDropdownRef}
+            />
+          </div>
+
+          {/* Second Row of Filters */}
+          <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-center mt-6">
+            {/* Location Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isLocationDropdownOpen}
+              setIsOpen={setIsLocationDropdownOpen}
+              selectedItems={selectedLocations}
+              handleToggle={handleLocationToggle}
+              options={locations}
+              label="Location"
+              icon={MapPin}
+              dropdownRef={locationDropdownRef}
+            />
+
+            {/* Date Range Multi-Select */}
+            <MultiSelectDropdown
+              isOpen={isDateDropdownOpen}
+              setIsOpen={setIsDateDropdownOpen}
+              selectedItems={selectedDateRanges}
+              handleToggle={handleDateToggle}
+              options={dateRanges}
+              label="Date"
+              icon={Calendar}
+              dropdownRef={dateDropdownRef}
+            />
 
             {/* Sort By */}
-            <div className="w-full lg:w-auto">
+            <div className="w-full xl:w-64">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Sort By
+              </label>
               <div className="relative">
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none w-full lg:w-48 px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium shadow-sm"
+                  className="appearance-none w-full px-4 py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium shadow-sm"
                 >
-                  <option value="date">Sort by Date</option>
-                  <option value="price">Sort by Price</option>
-                  <option value="name">Sort by Name</option>
+                  <option value="date">Date</option>
+                  <option value="price">Price</option>
+                  <option value="name">Name</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
                   <TrendingUp size={18} />
@@ -174,20 +698,64 @@ const EventsList = () => {
             </div>
           </div>
 
+          {/* Filter Chips */}
+          <div className="mt-6 pt-6 border-t border-gray-100/60 space-y-4">
+            {!selectedCategories.includes("All") && (
+              <div>
+                <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Selected Categories:
+                </span>
+                <FilterChips
+                  selectedItems={selectedCategories}
+                  handleToggle={handleCategoryToggle}
+                  getLabel={(item) => item}
+                />
+              </div>
+            )}
+
+            {!selectedPriceRanges.includes("All") && (
+              <div>
+                <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Selected Price Ranges:
+                </span>
+                <FilterChips
+                  selectedItems={selectedPriceRanges}
+                  handleToggle={handlePriceToggle}
+                  getLabel={(item) =>
+                    priceRanges.find((p) => p.id === item)?.label || item
+                  }
+                />
+              </div>
+            )}
+
+            {!selectedLocations.includes("All") && (
+              <div>
+                <span className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Selected Locations:
+                </span>
+                <FilterChips
+                  selectedItems={selectedLocations}
+                  handleToggle={handleLocationToggle}
+                  getLabel={(item) =>
+                    locations.find((l) => l.id === item)?.label || item
+                  }
+                />
+              </div>
+            )}
+          </div>
+
           {/* Popular Categories Quick Filter */}
           <div className="mt-6 pt-6 border-t border-gray-100/60">
-            <div className="flex items-center space-x-3 mb-3">
-              <span className="text-sm font-semibold text-gray-700">
-                Trending Categories:
-              </span>
-            </div>
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Trending Categories
+            </label>
             <div className="flex flex-wrap gap-2">
               {popularCategories.map((category) => (
                 <button
                   key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => handleCategoryToggle(category)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
-                    selectedCategory === category
+                    selectedCategories.includes(category)
                       ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25 border-blue-600"
                       : "bg-white/60 text-gray-700 hover:bg-white hover:shadow-md border-gray-200"
                   }`}
@@ -195,14 +763,6 @@ const EventsList = () => {
                   {category}
                 </button>
               ))}
-              {selectedCategory !== "All" && (
-                <button
-                  onClick={() => setSelectedCategory("All")}
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-red-50 text-red-700 hover:bg-red-100 transition-all duration-200 border border-red-200"
-                >
-                  Clear Filter
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -211,9 +771,11 @@ const EventsList = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
             <h3 className="text-2xl font-bold text-gray-900">
-              {selectedCategory === "All"
+              {selectedCategories.includes("All")
                 ? "Featured Events"
-                : selectedCategory + " Events"}
+                : selectedCategories.length === 1
+                ? `${selectedCategories[0]} Events`
+                : `${selectedCategories.length} Categories`}
             </h3>
             <p className="text-gray-600 mt-2">
               {filteredEvents.length} of {limitedEvents.length} events
@@ -257,12 +819,9 @@ const EventsList = () => {
             <p className="text-gray-500 max-w-md mx-auto mb-6">
               We couldn't find any events matching your search criteria.
             </p>
-            {(searchTerm || selectedCategory !== "All") && (
+            {activeFiltersCount > 0 && (
               <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCategory("All");
-                }}
+                onClick={clearAllFilters}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl"
               >
                 Clear All Filters
@@ -323,6 +882,9 @@ const EventsList = () => {
             onBack={handleCloseDetail}
           />
         )}
+
+        {/* Mobile Filters */}
+        {isMobileFiltersOpen && <MobileFilters />}
       </div>
     </section>
   );
