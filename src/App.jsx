@@ -13,8 +13,9 @@ import TermsOfService from "./components/TermsofService/TermsofService";
 import Features from "./components/Features/Features";
 import Pricing from "./components/Pricing/Pricing";
 import CreateEvent from "./components/CreateEvent/CreateEvent";
-import Login from "./pages/Login"; // ← WE'LL CREATE THIS NEXT
-import Signup from "./pages/Signup"; // ← WE'LL CREATE THIS NEXT
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile/Profile";
 import Events from "./pages/Events/Events";
 import "./index.css";
@@ -42,6 +43,7 @@ function App() {
             {/* ADD LOGIN AND SIGNUP ROUTES */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Help Center Route */}
             <Route

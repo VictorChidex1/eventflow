@@ -1,4 +1,3 @@
-// EventsList.jsx - REFACTORED with Professional Architecture
 import React, {
   useState,
   useMemo,
@@ -24,7 +23,6 @@ import EventCard from "./EventCard";
 import EventDetail from "./EventDetail";
 import "./EventsList.css";
 
-// Constants and configuration
 const PRICE_RANGES = [
   { id: "All", label: "All Prices", min: null, max: null },
   { id: "free", label: "Free", min: 0, max: 0 },
