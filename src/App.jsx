@@ -1,7 +1,7 @@
 import React from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext"; // ← ADD THIS IMPORT
-import ProtectedRoute from "./components/ProtectedRoute"; // ← ADD THIS IMPORT
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Header from "./components/Header/Header";
 import Hero from "./components/Hero/Hero";
 import EventsList from "./components/Events/EventsList";
@@ -18,128 +18,75 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import Profile from "./pages/Profile/Profile";
 import Events from "./pages/Events/Events";
+import EnvironmentBanner from './components/App/EnvironmentBanner';
+import PaymentVerification from './components/Payment/PaymentVerification';
 import "./index.css";
 
 function App() {
   return (
     <AuthProvider>
-      {" "}
-      {/* ← WRAP EVERYTHING WITH AuthProvider */}
       <Router>
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white flex flex-col">
+          <EnvironmentBanner />
           <Header />
-          <Routes>
-            {/* Home Page Route */}
-            <Route
-              path="/"
-              element={
-                <main>
-                  <Hero />
-                  <EventsList />
-                </main>
-              }
-            />
+          <main className="flex-grow">
+            <Routes>
+              {/* Home Page Route */}
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Hero />
+                    <EventsList />
+                  </>
+                }
+              />
 
-            {/* ADD LOGIN AND SIGNUP ROUTES */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+              {/* Auth Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            {/* Help Center Route */}
-            <Route
-              path="/help-center"
-              element={
-                <main>
-                  <HelpCenter />
-                </main>
-              }
-            />
+              {/* Public Routes */}
+              <Route path="/help-center" element={<HelpCenter />} />
+              <Route path="/contact-us" element={<ContactUs />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/events" element={<Events />} />
 
-            {/* Contact Us Route */}
-            <Route
-              path="/contact-us"
-              element={
-                <main>
-                  <ContactUs />
-                </main>
-              }
-            />
+              {/* Payment Verification Route */}
+              <Route path="/payment-verify" element={<PaymentVerification />} />
 
-            {/* Privacy Policy Route */}
-            <Route
-              path="/privacy-policy"
-              element={
-                <main>
-                  <PrivacyPolicy />
-                </main>
-              }
-            />
-
-            {/* Terms of Service Route */}
-            <Route
-              path="/terms-of-service"
-              element={
-                <main>
-                  <TermsOfService />
-                </main>
-              }
-            />
-
-            {/* Features Route */}
-            <Route
-              path="/features"
-              element={
-                <main>
-                  <Features />
-                </main>
-              }
-            />
-
-            {/* Pricing Route */}
-            <Route
-              path="/pricing"
-              element={
-                <main>
-                  <Pricing />
-                </main>
-              }
-            />
-
-            {/* PROTECTED Create Event Route */}
-            <Route
-              path="/create-event"
-              element={
-                <ProtectedRoute>
-                  {" "}
-                  {/* ← WRAP WITH ProtectedRoute */}
-                  <main>
+              {/* Protected Routes */}
+              <Route
+                path="/create-event"
+                element={
+                  <ProtectedRoute>
                     <CreateEvent />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <main>
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
                     <Profile />
-                  </main>
-                </ProtectedRoute>
-              }
-            />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Added Events Route */}
-            <Route
-              path="/events"
-              element={
-                <main>
-                  <Events />
-                </main>
-              }
-            />
-          </Routes>
+              {/* Add a catch-all route for 404 pages */}
+              <Route path="*" element={
+                <div className="container mx-auto px-4 py-16 text-center">
+                  <h1 className="text-4xl font-bold text-gray-800 mb-4">404 - Page Not Found</h1>
+                  <p className="text-gray-600">The page you're looking for doesn't exist.</p>
+                </div>
+              } />
+            </Routes>
+          </main>
           <Footer />
         </div>
       </Router>
