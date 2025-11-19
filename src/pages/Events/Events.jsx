@@ -1,5 +1,4 @@
-// Events.jsx – Redesigned with Top Card Filters Layout
-// MOBILE SEARCH FIX APPLIED - Modal stays open while typing
+// Events.jsx – Refactored with duplicate mobile pagination removed
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
@@ -121,7 +120,7 @@ const Events = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ========== MOBILE SEARCH FIX: Click-outside handler ==========
+  // Mobile filters click-outside handler
   useEffect(() => {
     if (!isMobileFiltersOpen) return;
 
@@ -150,7 +149,6 @@ const Events = () => {
       document.removeEventListener("touchstart", handler, true);
     };
   }, [isMobileFiltersOpen]);
-  // ========== END MOBILE SEARCH FIX ==========
 
   // Utility toggles
   const toggleOnly = (setter, id) => {
@@ -750,7 +748,7 @@ const Events = () => {
                 ))}
               </div>
 
-              {/* Pagination */}
+              {/* Single Pagination Component - Works for both desktop and mobile */}
               {totalPages > 1 && (
                 <div className="flex justify-center items-center space-x-1 lg:space-x-2 mb-12">
                   <button
@@ -1038,81 +1036,6 @@ const Events = () => {
             </div>
           </div>
         )}
-
-        {/* Mobile Results Display */}
-        <div className="lg:hidden mt-2">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                {filteredEvents.length === 0 ? "No Events Found" : "Events"}
-              </h2>
-              <p className="text-xs text-gray-500">
-                {filteredEvents.length} results
-                {searchTerm && ` for "${searchTerm}"`}
-              </p>
-            </div>
-            {activeFiltersCount > 0 && (
-              <div className="text-sm text-blue-600">
-                {activeFiltersCount} filters
-              </div>
-            )}
-          </div>
-
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <EventCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : currentEvents.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              {currentEvents.map((ev) => (
-                <div
-                  key={ev.id}
-                  onClick={() => setSelectedEvent(ev)}
-                  className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl"
-                >
-                  <EventCard event={ev} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 bg-white rounded-md shadow-sm">
-              No events match your criteria.
-            </div>
-          )}
-
-          {/* Mobile Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 mb-8">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-3 py-2 border rounded-md"
-              >
-                Prev
-              </button>
-              {getPageNumbers().map((p) => (
-                <button
-                  key={p}
-                  onClick={() => handlePageChange(p)}
-                  className={`px-3 py-2 border rounded-md ${
-                    p === currentPage ? "bg-blue-600 text-white" : ""
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-3 py-2 border rounded-md"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
 
         {/* Event Detail Modal */}
         {selectedEvent && (
