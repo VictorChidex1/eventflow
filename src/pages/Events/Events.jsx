@@ -356,40 +356,218 @@ const Events = () => {
       id="events"
       className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30"
     >
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 text-white py-12 lg:py-16">
-        <div className="container mx-auto px-4">
+      {/* Header - UPDATED to "Midnight Professional" Theme */}
+      <div className="relative bg-slate-900 pt-20 pb-32 lg:pt-24 lg:pb-40 overflow-hidden">
+        {/* Decorative Background Effects */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[120px]"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 lg:mb-6 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-              Discover Events
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 text-blue-100 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+               <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+               <span>Live Events Happening Now</span>
+            </div>
+            
+            <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white tracking-tight">
+              Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Trending Events</span>
             </h1>
-            <p className="text-lg lg:text-xl xl:text-2xl text-blue-100 mb-6 lg:mb-8 leading-relaxed px-4">
-              Find your next unforgettable experience. From cultural festivals
-              to tech conferences, we've got something for everyone.
+            
+            <p className="text-lg lg:text-xl text-slate-300 mb-8 leading-relaxed px-4 max-w-2xl mx-auto">
+              Find your next unforgettable experience. From intimate workshops to massive music festivals, it's all happening on EventFlow.
             </p>
-            <div className="flex justify-center space-x-6 lg:space-x-8 text-center">
+            
+            {/* Stats Row */}
+            <div className="flex justify-center items-center gap-8 lg:gap-12 pt-4 border-t border-white/10 max-w-lg mx-auto">
               <div>
                 <div className="text-2xl lg:text-3xl font-bold text-white">
                   {safeEvents.length}+
                 </div>
-                <div className="text-blue-200 text-xs lg:text-sm">
-                  Total Events
+                <div className="text-slate-400 text-xs lg:text-sm font-medium uppercase tracking-wide">
+                  Events
                 </div>
               </div>
+              <div className="w-px h-10 bg-white/10"></div>
               <div>
                 <div className="text-2xl lg:text-3xl font-bold text-white">
                   {Math.max(0, safeCategories.length - 1)}
                 </div>
-                <div className="text-blue-200 text-xs lg:text-sm">
+                <div className="text-slate-400 text-xs lg:text-sm font-medium uppercase tracking-wide">
                   Categories
                 </div>
               </div>
+              <div className="w-px h-10 bg-white/10"></div>
               <div>
                 <div className="text-2xl lg:text-3xl font-bold text-white">
                   {safeEvents.filter((e) => e.price === 0).length}
                 </div>
-                <div className="text-blue-200 text-xs lg:text-sm">
-                  Free Events
+                <div className="text-slate-400 text-xs lg:text-sm font-medium uppercase tracking-wide">
+                  Free Entry
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- NEW STICKY GLASS FILTER BAR --- */}
+      <div className="sticky top-0 z-40 glass-panel shadow-sm transition-all duration-300">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+            
+            {/* 1. Compact Search Input */}
+            <div className="relative w-full lg:w-96 group">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+              <input 
+                type="text" 
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Search events..." 
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-sm"
+              />
+            </div>
+
+            {/* 2. Horizontal Filter Pills (Scrollable) */}
+            <div className="flex items-center gap-2 w-full lg:w-auto overflow-x-auto scrollbar-hide pb-1 lg:pb-0">
+              
+              {/* Mobile Trigger (Visible only on mobile) */}
+              <button
+                onClick={openMobileFilters}
+                className="lg:hidden flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap"
+              >
+                <SlidersHorizontal size={16} />
+                <span>Filters</span>
+                {activeFiltersCount > 0 && (
+                  <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-1">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Desktop Dropdowns (Converted to Pills) */}
+              <div className="hidden lg:flex items-center gap-2">
+                {/* Categories Pill */}
+                <div className="relative" ref={categoriesRef}>
+                  <button
+                    onClick={() => setShowCategoriesDropdown(!showCategoriesDropdown)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                      selectedCategories.includes("All") 
+                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
+                        : "bg-blue-50 border-blue-200 text-blue-700"
+                    }`}
+                  >
+                    <span>Category</span>
+                    <ChevronDown size={14} />
+                  </button>
+                  {showCategoriesDropdown && (
+                    <div className="absolute top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="max-h-64 overflow-y-auto">
+                        {[{ id: "All", label: "All Categories" }, ...safeCategories.map(c => ({ id: c, label: c }))].map(opt => (
+                          <FilterItem key={opt.id} checked={selectedCategories.includes(opt.id)} onClick={() => handleCategoryToggle(opt.id)} label={opt.label} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Price Pill */}
+                <div className="relative" ref={priceRef}>
+                  <button
+                    onClick={() => setShowPriceDropdown(!showPriceDropdown)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                      selectedPriceRanges.includes("All") 
+                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
+                        : "bg-blue-50 border-blue-200 text-blue-700"
+                    }`}
+                  >
+                    <span>Price</span>
+                    <ChevronDown size={14} />
+                  </button>
+                  {showPriceDropdown && (
+                    <div className="absolute top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
+                      {priceRanges.map(opt => (
+                        <FilterItem key={opt.id} checked={selectedPriceRanges.includes(opt.id)} onClick={() => handlePriceToggle(opt.id)} label={opt.label} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Location Pill */}
+                <div className="relative" ref={locationRef}>
+                  <button
+                    onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                      selectedLocations.includes("All") 
+                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
+                        : "bg-blue-50 border-blue-200 text-blue-700"
+                    }`}
+                  >
+                    <span>Location</span>
+                    <ChevronDown size={14} />
+                  </button>
+                  {showLocationDropdown && (
+                    <div className="absolute top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
+                      {locations.map(opt => (
+                        <FilterItem key={opt.id} checked={selectedLocations.includes(opt.id)} onClick={() => handleLocationToggle(opt.id)} label={opt.label} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Date Pill */}
+                <div className="relative" ref={dateRef}>
+                  <button
+                    onClick={() => setShowDateDropdown(!showDateDropdown)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                      selectedDateRanges.includes("All") 
+                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
+                        : "bg-blue-50 border-blue-200 text-blue-700"
+                    }`}
+                  >
+                    <span>Date</span>
+                    <ChevronDown size={14} />
+                  </button>
+                  {showDateDropdown && (
+                    <div className="absolute top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
+                      {dateRanges.map(opt => (
+                        <FilterItem key={opt.id} checked={selectedDateRanges.includes(opt.id)} onClick={() => handleDateToggle(opt.id)} label={opt.label} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              
+                <div className="w-px h-6 bg-gray-300 mx-2"></div>
+
+                {/* Sort Dropdown (Text only) */}
+                <div className="relative" ref={sortRef}>
+                   <button 
+                      onClick={() => setShowSortDropdown(!showSortDropdown)}
+                      className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
+                   >
+                      <TrendingUp size={16} />
+                      <span className="capitalize">{sortBy}</span>
+                      <ChevronDown size={12} />
+                   </button>
+                   {showSortDropdown && (
+                    <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
+                      {["date", "price", "name"].map((option) => (
+                        <div
+                          key={option}
+                          onClick={() => { setSortBy(option); setShowSortDropdown(false); }}
+                          className={`px-3 py-2 rounded-lg cursor-pointer text-sm capitalize transition-colors ${
+                            sortBy === option ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50"
+                          }`}
+                        >
+                          {option}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -402,29 +580,7 @@ const Events = () => {
         className="container mx-auto px-4 lg:-mt-8 relative z-10"
         ref={containerRef}
       >
-        {/* Mobile filter trigger */}
-        <div className="lg:hidden flex items-center justify-between mb-6 pt-4">
-          <button
-            onClick={openMobileFilters}
-            className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium"
-          >
-            <SlidersHorizontal size={20} />
-            <span>Filters</span>
-            {activeFiltersCount > 0 && (
-              <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {activeFiltersCount}
-              </span>
-            )}
-          </button>
-          {activeFiltersCount > 0 && (
-            <button
-              onClick={clearAllFilters}
-              className="text-red-600 text-sm font-medium"
-            >
-              Clear All
-            </button>
-          )}
-        </div>
+
 
         {/* Desktop: Top Card Filters */}
         <div className="hidden lg:block mb-8">
