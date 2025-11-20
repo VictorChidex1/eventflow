@@ -1,4 +1,6 @@
+// src/components/Events/EventDetail.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Calendar,
   MapPin,
@@ -16,6 +18,7 @@ import {
   Zap,
   Crown
 } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 import PaymentModal from "../Payment/PaymentModal";
 import "./EventDetail.css";
 
@@ -23,6 +26,8 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
   const [showTicketPurchase, setShowTicketPurchase] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedTicketType, setSelectedTicketType] = useState('general');
+  const { user: authUser } = useAuth();
+  const navigate = useNavigate();
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -160,14 +165,21 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
   const finalTotal = totalAmount + serviceFee;
 
   const handleGetTickets = () => {
+    // Check if user is authenticated
+    if (!authUser) {
+      // Redirect to login page with return URL
+      navigate('/login', { 
+        state: { from: `/event/${event.id}` } 
+      });
+      return;
+    }
+    
+    // User is authenticated, show payment modal
     setShowTicketPurchase(true);
   };
 
-  // Default user data - will be replaced with actual user from auth context
-  const currentUser = user || {
-    email: "user@example.com",
-    name: "Eventflow User"
-  };
+  // Use authenticated user or fallback to prop
+  const currentUser = authUser || user;
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -455,7 +467,7 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                     className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg"
                   >
                     <Ticket size={20} className="mr-2" />
-                    {event.availableTickets === 0 ? 'Sold Out' : 'Get Tickets Now'}
+                    {!authUser ? 'Login to Buy Tickets' : event.availableTickets === 0 ? 'Sold Out' : 'Get Tickets Now'}
                   </button>
 
                   <button className="w-full border border-primary-600 text-primary-600 py-3 px-6 rounded-lg font-semibold hover:bg-primary-50 transition-colors flex items-center justify-center">
@@ -496,8 +508,8 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
         </div>
       </div>
 
-      {/* Ticket Purchase & Payment Flow */}
-      {showTicketPurchase && selectedTicket && (
+      {/* Ticket Purchase & Payment Flow - Only show if user is authenticated */}
+      {showTicketPurchase && selectedTicket && authUser && (
         <PaymentModal
           isOpen={showTicketPurchase}
           onClose={() => setShowTicketPurchase(false)}

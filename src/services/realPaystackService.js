@@ -1,3 +1,4 @@
+// src/services/realPaystackService.js
 import axios from 'axios';
 
 class RealPaystackService {
@@ -11,6 +12,11 @@ class RealPaystackService {
     try {
       console.log('🔄 Initializing real Paystack payment...', paymentData);
       
+      // Construct HashRouter-friendly Callback URL
+      const rootUrl = window.location.href.split('#')[0];
+      const cleanRoot = rootUrl.endsWith('/') ? rootUrl.slice(0, -1) : rootUrl;
+      const callbackUrl = `${cleanRoot}/#/payment-verify`;
+
       const response = await axios.post(
         `${this.baseUrl}/transaction/initialize`,
         {
@@ -18,7 +24,7 @@ class RealPaystackService {
           amount: paymentData.amount * 100, // Convert to kobo
           currency: 'NGN',
           reference: paymentData.reference,
-          callback_url: `${window.location.origin}/payment-verify`,
+          callback_url: callbackUrl, // Updated URL
           metadata: {
             event_id: paymentData.eventId,
             ticket_id: paymentData.ticketId,
@@ -26,7 +32,7 @@ class RealPaystackService {
             customer_name: paymentData.customerName,
             event_title: paymentData.eventTitle
           },
-          channels: ['card', 'bank', 'ussd'] // Enable multiple payment channels
+          channels: ['card', 'bank', 'ussd']
         },
         {
           headers: {
@@ -58,30 +64,11 @@ class RealPaystackService {
         }
       );
 
-      console.log('✅ Paystack verification result:', response.data);
       return response.data;
 
     } catch (error) {
       console.error('❌ Paystack verification failed:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Payment verification failed');
-    }
-  }
-
-  // Get list of banks for transfer
-  async getBanks() {
-    try {
-      const response = await axios.get(
-        `${this.baseUrl}/bank`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.secretKey}`
-          }
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error('Failed to fetch banks:', error);
-      throw error;
     }
   }
 }

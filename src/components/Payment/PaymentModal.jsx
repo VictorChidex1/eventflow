@@ -34,6 +34,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
         quantity: quantity,
         customerName: user.name || 'Eventflow Customer',
         eventTitle: event.title
+        
       };
 
       console.log('🚀 Starting Paystack payment...', paymentData);

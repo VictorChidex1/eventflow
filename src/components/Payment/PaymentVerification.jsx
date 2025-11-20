@@ -1,55 +1,76 @@
+// src/components/Payment/PaymentVerification.jsx
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import paymentService from '../../services/paymentService';
+import { paymentTracker } from '../../utils/paymentTracker';
 
 const PaymentVerification = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [verificationStatus, setVerificationStatus] = useState('verifying');
   const [message, setMessage] = useState('');
-  const [paymentData, setPaymentData] = useState(null);
+  
+  // REMOVED: const [paymentData, setPaymentData] = useState(null); <--- This was the cause
 
   useEffect(() => {
     const verifyPayment = async () => {
-      const reference = searchParams.get('reference');
-      const trxref = searchParams.get('trxref');
+      // 1. Try getting reference from React Router params
+      let reference = searchParams.get('reference');
+      let trxref = searchParams.get('trxref');
 
+      // 2. FALLBACK: Manually parse URL if React Router misses it
       if (!reference && !trxref) {
-        setVerificationStatus('error');
-        setMessage('No payment reference found. Please check your email for confirmation.');
-        return;
+        const url = window.location.href;
+        if (url.includes('reference=')) {
+          reference = url.split('reference=')[1].split('&')[0];
+        }
       }
 
       const paymentReference = reference || trxref;
 
+      if (!paymentReference) {
+        setVerificationStatus('error');
+        setMessage('No payment reference found.');
+        return;
+      }
+
       try {
-        console.log('🔍 Verifying payment with reference:', paymentReference);
         const response = await paymentService.verifyPaystackPayment(paymentReference);
         
         if (response.data.status === 'success') {
+          const successfulPayment = {
+            eventId: response.data.metadata?.event_id || 'unknown',
+            eventTitle: response.data.metadata?.event_title || 'Unknown Event',
+            amount: response.data.amount / 100,
+            reference: response.data.reference,
+            tickets: response.data.metadata?.quantity || 1,
+            customerEmail: response.data.customer?.email || 'unknown@example.com',
+            customerName: response.data.metadata?.customer_name || 'Customer',
+            paymentDate: response.data.paid_at || new Date().toISOString(),
+            transactionId: response.data.id,
+            currency: response.data.currency,
+            paymentMethod: response.data.channel,
+            status: response.data.status
+          };
+
+          paymentTracker.savePayment(successfulPayment);
+          
           setVerificationStatus('success');
           setMessage('Payment completed successfully! Your tickets have been booked.');
-          setPaymentData(response.data);
           
-          // Here you would typically:
-          // 1. Update ticket inventory in your database
-          // 2. Generate and send tickets via email
-          // 3. Update order status
-          
-          console.log('✅ Payment successful:', response.data);
-          
-          // Redirect to tickets page after 5 seconds
+          // REMOVED: setPaymentData(response.data); <--- usage removed here
+
           setTimeout(() => {
             navigate('/my-tickets');
-          }, 5000);
+          }, 3000);
         } else {
           setVerificationStatus('error');
-          setMessage('Payment verification failed. Please contact support with your reference: ' + paymentReference);
+          setMessage('Payment verification failed.');
         }
       } catch (error) {
         console.error('❌ Verification error:', error);
         setVerificationStatus('error');
-        setMessage('Error verifying payment. Please check your email for confirmation or contact support.');
+        setMessage('Error verifying payment. Please try again.');
       }
     };
 
@@ -82,19 +103,15 @@ const PaymentVerification = () => {
               Payment Successful!
             </h2>
             <p className="text-gray-600 mb-4">{message}</p>
-            
-            {paymentData && (
-              <div className="bg-gray-50 rounded-lg p-4 mt-4 text-left">
-                <h4 className="font-semibold mb-2">Payment Details:</h4>
-                <p className="text-sm"><strong>Amount:</strong> ₦{(paymentData.amount / 100).toLocaleString()}</p>
-                <p className="text-sm"><strong>Reference:</strong> {paymentData.reference}</p>
-                <p className="text-sm"><strong>Date:</strong> {new Date(paymentData.paid_at).toLocaleString()}</p>
-              </div>
-            )}
-            
             <div className="text-sm text-gray-500 mt-4">
-              Redirecting to your tickets...
+              Redirecting to tickets...
             </div>
+            <button
+              onClick={() => navigate('/my-tickets')}
+              className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              View My Tickets
+            </button>
           </>
         )}
 
@@ -111,7 +128,7 @@ const PaymentVerification = () => {
             <p className="text-gray-600 mb-4">{message}</p>
             <button
               onClick={() => navigate('/events')}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               Back to Events
             </button>
