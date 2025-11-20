@@ -9,7 +9,7 @@ export const events = [
     time: "04:00 PM",
     location: "Ikeja City Mall, Lagos",
     price: 10000,
-    image: "images/owambe.png", // Party image
+    image: "images/owambe.png",
     category: "Owambe",
     availableTickets: 150,
     totalTickets: 300,
@@ -33,7 +33,7 @@ export const events = [
     time: "10:00 AM",
     location: "Event Center, Ibadan",
     price: 5000,
-    image: "images/traditional-wedding.png", // Wedding image
+    image: "images/traditional-wedding.png",
     category: "Owambe",
     availableTickets: 200,
     totalTickets: 250,
@@ -57,7 +57,7 @@ export const events = [
     time: "08:00 AM",
     location: "Calabar, Cross River",
     price: 5000,
-    image: "images/calabar-carnival.png", // Carnival image
+    image: "images/calabar-carnival.png", 
     category: "Carnival",
     availableTickets: 500,
     totalTickets: 1000,
@@ -105,7 +105,7 @@ export const events = [
     time: "06:00 PM",
     location: "Eko Hotels, Lagos",
     price: 25000,
-    image: "images/afrobeats-concert.png", // Concert image
+    image: "images/afrobeats-concert.png", 
     category: "Afrobeats",
     availableTickets: 7110,
     totalTickets: 10000,
@@ -392,7 +392,7 @@ export const events = [
     date: "2026-02-29",
     time: "10:00 AM",
     location: "Muson Center, Lagos",
-    price: 20000, // ₦20,000
+    price: 20000, 
     image: "images/public-speaking.png",
     category: "Education",
     availableTickets: 28,

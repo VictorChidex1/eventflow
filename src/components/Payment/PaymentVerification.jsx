@@ -7,6 +7,7 @@ const PaymentVerification = () => {
   const navigate = useNavigate();
   const [verificationStatus, setVerificationStatus] = useState('verifying');
   const [message, setMessage] = useState('');
+  const [paymentData, setPaymentData] = useState(null);
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -15,36 +16,40 @@ const PaymentVerification = () => {
 
       if (!reference && !trxref) {
         setVerificationStatus('error');
-        setMessage('No payment reference found');
+        setMessage('No payment reference found. Please check your email for confirmation.');
         return;
       }
 
       const paymentReference = reference || trxref;
 
       try {
+        console.log('🔍 Verifying payment with reference:', paymentReference);
         const response = await paymentService.verifyPaystackPayment(paymentReference);
         
         if (response.data.status === 'success') {
           setVerificationStatus('success');
           setMessage('Payment completed successfully! Your tickets have been booked.');
+          setPaymentData(response.data);
           
           // Here you would typically:
-          // 1. Update ticket inventory
-          // 2. Generate and send tickets
-          // 3. Update order status in your database
+          // 1. Update ticket inventory in your database
+          // 2. Generate and send tickets via email
+          // 3. Update order status
           
-          // Redirect to tickets page after 3 seconds
+          console.log('✅ Payment successful:', response.data);
+          
+          // Redirect to tickets page after 5 seconds
           setTimeout(() => {
-            navigate("/my-tickets");
-          }, 3000);
+            navigate('/my-tickets');
+          }, 5000);
         } else {
           setVerificationStatus('error');
-          setMessage('Payment verification failed. Please contact support.');
+          setMessage('Payment verification failed. Please contact support with your reference: ' + paymentReference);
         }
       } catch (error) {
-        console.error('Payment verification error:', error);
+        console.error('❌ Verification error:', error);
         setVerificationStatus('error');
-        setMessage('Error verifying payment. Please check your email for confirmation.');
+        setMessage('Error verifying payment. Please check your email for confirmation or contact support.');
       }
     };
 
@@ -77,7 +82,17 @@ const PaymentVerification = () => {
               Payment Successful!
             </h2>
             <p className="text-gray-600 mb-4">{message}</p>
-            <div className="text-sm text-gray-500">
+            
+            {paymentData && (
+              <div className="bg-gray-50 rounded-lg p-4 mt-4 text-left">
+                <h4 className="font-semibold mb-2">Payment Details:</h4>
+                <p className="text-sm"><strong>Amount:</strong> ₦{(paymentData.amount / 100).toLocaleString()}</p>
+                <p className="text-sm"><strong>Reference:</strong> {paymentData.reference}</p>
+                <p className="text-sm"><strong>Date:</strong> {new Date(paymentData.paid_at).toLocaleString()}</p>
+              </div>
+            )}
+            
+            <div className="text-sm text-gray-500 mt-4">
               Redirecting to your tickets...
             </div>
           </>
@@ -91,7 +106,7 @@ const PaymentVerification = () => {
               </svg>
             </div>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              Payment Failed
+              Payment Issue
             </h2>
             <p className="text-gray-600 mb-4">{message}</p>
             <button
