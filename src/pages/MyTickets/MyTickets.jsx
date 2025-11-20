@@ -3,9 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { Ticket, Calendar, Download, ArrowRight } from 'lucide-react';
 import { paymentTracker } from '../../utils/paymentTracker';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth to get user name
+import { generateReceipt } from '../../utils/pdfGenerator'; // Import the generator
 
 const MyTickets = () => {
-  // Use state to ensure we get the latest data on render
+  const { user } = useAuth(); // Get current user
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
@@ -58,7 +60,6 @@ const MyTickets = () => {
                     <div className="flex items-center space-x-6 text-sm text-gray-600">
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-2 text-blue-600" />
-                        {/* Fixed: using 'trackedAt' instead of 'timestamp' */}
                         {new Date(payment.trackedAt).toLocaleDateString()}
                       </div>
                       <div className="flex items-center">
@@ -67,9 +68,13 @@ const MyTickets = () => {
                       </div>
                     </div>
                     
-                    <button className="flex items-center space-x-2 text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm">
+                    {/* UPDATED BUTTON */}
+                    <button 
+                      onClick={() => generateReceipt(payment, user)}
+                      className="flex items-center space-x-2 text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors font-medium text-sm"
+                    >
                       <Download className="w-4 h-4" />
-                      <span>Download PDF</span>
+                      <span>Download Receipt</span>
                     </button>
                   </div>
                 </div>

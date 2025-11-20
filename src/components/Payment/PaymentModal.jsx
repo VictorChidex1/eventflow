@@ -1,6 +1,10 @@
+// src/components/Payment/PaymentModal.jsx
 import { useState } from 'react';
 import paymentService from '../../services/paymentService';
-import { currencyConfig } from '../../config/payments';
+import { env } from '../../config/environment';
+
+// Get currency symbol based on active gateway (defaulting to Naira for now)
+const currencySymbol = '₦'; 
 
 const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
   const [selectedGateway, setSelectedGateway] = useState('paystack');
@@ -27,14 +31,13 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
     try {
       const paymentData = {
         email: user.email,
-        amount: totalAmount,
+        amount: totalAmount, // Service expects standard units (Naira)
         reference: generateReference(),
         eventId: event.id,
         ticketId: ticket.id,
         quantity: quantity,
         customerName: user.name || 'Eventflow Customer',
         eventTitle: event.title
-        
       };
 
       console.log('🚀 Starting Paystack payment...', paymentData);
@@ -42,7 +45,6 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
       const response = await paymentService.initializePaystackPayment(paymentData);
       
       if (response.status && response.data.authorization_url) {
-        // Redirect to Paystack payment page
         console.log('🔗 Redirecting to Paystack...', response.data.authorization_url);
         window.location.href = response.data.authorization_url;
       } else {
@@ -69,90 +71,124 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-md w-full p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Complete Payment</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gray-900">Complete Payment</h2>
+          <button 
+            onClick={onClose} 
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            ✕
+          </button>
         </div>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <strong>Payment Error:</strong> {error}
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4 flex items-start">
+            <span className="mr-2">⚠️</span>
+            {error}
           </div>
         )}
 
         {/* Payment Summary */}
-        <div className="border rounded-lg p-4 mb-4">
-          <h3 className="font-semibold text-lg mb-2">{event?.title}</h3>
-          <p className="text-gray-600 mb-2">{ticket?.name} × {quantity}</p>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-700">Total Amount:</span>
-            <span className="text-xl font-bold text-green-600">
-              {currencyConfig.symbol}{totalAmount.toLocaleString()}
+        <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100">
+          <h3 className="font-semibold text-gray-900 mb-1">{event?.title}</h3>
+          <div className="flex justify-between text-sm text-gray-600 mb-3">
+            <span>{ticket?.name} × {quantity}</span>
+          </div>
+          <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
+            <span className="font-medium text-gray-700">Total Amount:</span>
+            <span className="text-xl font-bold text-blue-600">
+              {currencySymbol}{totalAmount.toLocaleString()}
             </span>
           </div>
         </div>
 
         {/* Payment Method */}
-        <div className="space-y-2 mb-6">
+        <div className="space-y-3 mb-8">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Select Payment Method
           </label>
           
-          <div className="space-y-2">
-            <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+          <div className="space-y-3">
+            {/* Paystack Option */}
+            <label className={`relative flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${selectedGateway === 'paystack' ? 'border-blue-500 ring-1 ring-blue-500 bg-blue-50/30' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}>
               <input
                 type="radio"
                 name="paymentGateway"
                 value="paystack"
                 checked={selectedGateway === 'paystack'}
                 onChange={(e) => setSelectedGateway(e.target.value)}
-                className="text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
               />
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
-                </div>
+              <div className="ml-3 flex items-center w-full">
+                {/* OFFICIAL LOGO HERE */}
+                <img 
+                  src="/images/paystack-logo.png" 
+                  alt="Paystack" 
+                  className="h-8 w-8 object-contain rounded-md mr-3"
+                />
                 <div>
-                  <span className="text-gray-700 font-medium">Paystack</span>
-                  <p className="text-sm text-gray-500">Cards, Bank Transfer, USSD</p>
+                  <span className="block text-sm font-medium text-gray-900">Paystack</span>
+                  <span className="block text-xs text-gray-500">Cards, Bank Transfer, USSD</span>
                 </div>
               </div>
             </label>
+
+            {/* Stripe Option (Placeholder for future) */}
+            {env.stripePublicKey && (
+               <label className={`relative flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${selectedGateway === 'stripe' ? 'border-blue-500 ring-1 ring-blue-500 bg-blue-50/30' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}>
+               <input
+                 type="radio"
+                 name="paymentGateway"
+                 value="stripe"
+                 checked={selectedGateway === 'stripe'}
+                 onChange={(e) => setSelectedGateway(e.target.value)}
+                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+               />
+               <div className="ml-3 flex items-center w-full">
+                 <div className="h-8 w-8 bg-[#635BFF] rounded-md flex items-center justify-center mr-3 text-white font-bold text-xs">S</div>
+                 <div>
+                   <span className="block text-sm font-medium text-gray-900">Stripe</span>
+                   <span className="block text-xs text-gray-500">International Cards</span>
+                 </div>
+               </div>
+             </label>
+            )}
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex space-x-3">
+        <div className="flex gap-3">
           <button
             onClick={onClose}
             disabled={isProcessing}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handlePayment}
             disabled={isProcessing || totalAmount === 0}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all flex items-center justify-center"
           >
             {isProcessing ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
                 Processing...
               </>
             ) : (
-              `Pay ${currencyConfig.symbol}${totalAmount.toLocaleString()}`
+              `Pay ${currencySymbol}${totalAmount.toLocaleString()}`
             )}
           </button>
         </div>
 
         {/* Security Notice */}
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
-            🔒 Secure payment · Your data is protected
-          </p>
+        <div className="mt-6 flex items-center justify-center text-xs text-gray-500">
+          <span className="mr-1">🔒</span> Secure payment · Your data is protected
         </div>
       </div>
     </div>
