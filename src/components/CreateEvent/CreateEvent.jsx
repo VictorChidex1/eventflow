@@ -1,802 +1,627 @@
-import React, { useState } from "react";
+import React, { useState,} from "react";
 import {
-  Calendar,
-  MapPin,
-  Clock,
-  Users,
-  DollarSign,
-  Image,
-  Tag,
-  Video,
-  Upload,
-  Plus,
-  X,
-  Save,
-  Eye,
+  Calendar, MapPin, Clock, Users, Image as ImageIcon,
+  Tag, Upload, Plus, X, Save, Eye, ChevronRight,
+  ChevronLeft, CheckCircle2, AlertCircle, Globe, Ticket,
+  Sparkles
 } from "lucide-react";
 import "./CreateEvent.css";
+
+// --- Constants & Data ---
+const STEPS = [
+  { number: 1, title: "Event Details", subtitle: "Title, category & description" },
+  { number: 2, title: "Date & Time", subtitle: "When is it happening?" },
+  { number: 3, title: "Location", subtitle: "Physical or Online" },
+  { number: 4, title: "Tickets", subtitle: "Pricing & Quantity" },
+  { number: 5, title: "Media", subtitle: "Cover & Gallery" },
+];
+
+const CATEGORIES = [
+  "Owambe", "Carnival", "Afrobeats", "Business", "Wellness",
+  "Food & Drink", "Charity", "Art", "Sports", "Technology",
+  "Education", "Religious", "Cultural", "Entertainment",
+  "Comedy", "Gaming", "Dating",
+];
+
+// --- Sub-Components ---
+
+const FormSection = ({ title, description, children }) => (
+  <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 fade-in">
+    <div className="mb-6 border-b border-gray-100 pb-4">
+      <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+      <p className="text-gray-500 mt-1">{description}</p>
+    </div>
+    <div className="space-y-6">{children}</div>
+  </div>
+);
+
+const InputGroup = ({ label, required, error, children }) => (
+  <div className="flex flex-col gap-2">
+    <label className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+      {label}
+      {required && <span className="text-red-500">*</span>}
+    </label>
+    {children}
+    {error && <span className="text-xs text-red-500 flex items-center gap-1"><AlertCircle size={12} /> {error}</span>}
+  </div>
+);
+
+const LivePreview = ({ formData }) => {
+  const minPrice = formData.tickets.length > 0 
+    ? Math.min(...formData.tickets.map(t => Number(t.price))) 
+    : 0;
+
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden shadow-lg border border-gray-200 sticky top-8">
+      <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center gap-2">
+        <Eye size={16} className="text-gray-500" />
+        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Live Preview</span>
+      </div>
+      
+      {/* Cover Image */}
+      <div className="relative h-48 w-full bg-gray-100 overflow-hidden group">
+        {formData.coverImage ? (
+          <img src={formData.coverImage} alt="Cover" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 bg-gray-50">
+            <ImageIcon size={32} className="mb-2 opacity-50" />
+            <span className="text-sm">Cover Image</span>
+          </div>
+        )}
+        <div className="absolute top-4 left-4">
+           <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-blue-700 shadow-sm">
+             {formData.eventCategory || "Category"}
+           </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-5 space-y-4">
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 leading-tight mb-2 line-clamp-2">
+            {formData.eventTitle || "Untitled Event"}
+          </h3>
+          <div className="flex items-center text-sm text-gray-500 gap-4">
+            <div className="flex items-center gap-1.5">
+              <Calendar size={14} />
+              <span>{formData.startDate || "Date"}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Clock size={14} />
+              <span>{formData.startTime || "Time"}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-dashed border-gray-200">
+          <div className="flex items-start gap-2 text-sm text-gray-600">
+            <MapPin size={16} className="mt-0.5 shrink-0 text-gray-400" />
+            <span className="line-clamp-2">
+              {formData.eventType === 'online' 
+                ? "Online Event" 
+                : (formData.venueName || formData.address ? `${formData.venueName}, ${formData.city}` : "Location TBD")}
+            </span>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-bold">Starting From</p>
+            <p className="text-lg font-bold text-blue-600">
+              {minPrice === 0 ? "Free" : `₦${minPrice.toLocaleString()}`}
+            </p>
+          </div>
+          <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed">
+            Get Tickets
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- Main Component ---
 
 const CreateEvent = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    // Basic Information
     eventTitle: "",
     eventDescription: "",
     eventCategory: "",
     eventType: "physical",
-
-    // Date & Time
     startDate: "",
     endDate: "",
     startTime: "",
     endTime: "",
     timezone: "WAT",
-
-    // Location
     venueName: "",
     address: "",
     city: "",
     state: "",
-    zipCode: "",
     onlineLink: "",
-
-    // Tickets
-    tickets: [
-      {
-        id: 1,
-        name: "General Admission",
-        price: "0",
-        quantity: "100",
-        description: "Standard entry ticket",
-      },
-    ],
-
-    // Media
+    tickets: [{ id: 1, name: "General Admission", price: "0", quantity: "100", description: "" }],
     coverImage: null,
     galleryImages: [],
-
-    // Settings
     isPublic: true,
     allowRegistration: true,
     maxAttendees: "100",
   });
 
-  const eventCategories = [
-    "Owambe",
-    "Carnival",
-    "Afrobeats",
-    "Business",
-    "Wellness",
-    "Food & Drink",
-    "Charity",
-    "Art",
-    "Sports",
-    "Technology",
-    "Education",
-    "Religious",
-    "Cultural",
-    "Entertainment",
-     "Comedy",
-  "Gaming",
-  "Dating",
-  ];
+  // --- Handlers ---
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const handleFileChange = (e, type) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      if (type === "cover") {
+        setFormData(prev => ({ ...prev, coverImage: url }));
+      } else {
+        setFormData(prev => ({ ...prev, galleryImages: [...prev.galleryImages, url] }));
+      }
+    }
   };
 
   const handleTicketChange = (index, field, value) => {
     const updatedTickets = formData.tickets.map((ticket, i) =>
       i === index ? { ...ticket, [field]: value } : ticket
     );
-    setFormData((prev) => ({ ...prev, tickets: updatedTickets }));
+    setFormData(prev => ({ ...prev, tickets: updatedTickets }));
   };
 
   const addTicket = () => {
-    const newTicket = {
-      id: formData.tickets.length + 1,
-      name: "",
-      price: "0",
-      quantity: "100",
-      description: "",
-    };
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      tickets: [...prev.tickets, newTicket],
+      tickets: [...prev.tickets, { id: Date.now(), name: "", price: "0", quantity: "100", description: "" }]
     }));
   };
 
   const removeTicket = (index) => {
     if (formData.tickets.length > 1) {
-      const updatedTickets = formData.tickets.filter((_, i) => i !== index);
-      setFormData((prev) => ({ ...prev, tickets: updatedTickets }));
+      setFormData(prev => ({
+        ...prev,
+        tickets: prev.tickets.filter((_, i) => i !== index)
+      }));
     }
   };
 
-  const handleImageUpload = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (type === "cover") {
-        setFormData((prev) => ({
-          ...prev,
-          coverImage: URL.createObjectURL(file),
-        }));
-      } else {
-        setFormData((prev) => ({
-          ...prev,
-          galleryImages: [...prev.galleryImages, URL.createObjectURL(file)],
-        }));
-      }
-    }
-  };
-
-  const removeGalleryImage = (index) => {
-    const updatedImages = formData.galleryImages.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, galleryImages: updatedImages }));
-  };
+  const scrollToTop = () => window.scrollTo({ top: 400, behavior: 'smooth' });
 
   const nextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, 5));
+    setCurrentStep(prev => Math.min(prev + 1, 5));
+    scrollToTop();
   };
 
   const prevStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    scrollToTop();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log("Event created:", formData);
-    alert("Event created successfully!");
-  };
+  // --- Step Renders ---
 
-  const steps = [
-    { number: 1, title: "Basic Info", icon: <Calendar className="w-4 h-4" /> },
-    { number: 2, title: "Date & Time", icon: <Clock className="w-4 h-4" /> },
-    { number: 3, title: "Location", icon: <MapPin className="w-4 h-4" /> },
-    {
-      number: 4,
-      title: "Tickets",
-      icon: (
-        <span className="w-4 h-4 flex items-center justify-center font-bold">
-          ₦
-        </span>
-      ),
-    },
-    { number: 5, title: "Media", icon: <Image className="w-4 h-4" /> },
-  ];
+  const renderStep1 = () => (
+    <FormSection title="Event Basics" description="Let's start with the core details of your event.">
+      <InputGroup label="Event Title" required>
+        <input
+          type="text"
+          name="eventTitle"
+          value={formData.eventTitle}
+          onChange={handleInputChange}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+          placeholder="e.g., Tech Summit Lagos 2025"
+        />
+      </InputGroup>
 
-  return (
-    <section className="create-event-container">
-      {/* Header Section */}
-      <div className="create-event-header">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex justify-center mb-4">
-            <Calendar className="w-12 h-12 text-white" />
-          </div>
-          <h1 className="create-event-title">Create Your Event</h1>
-          <p className="create-event-subtitle">
-            Fill in the details below to create an amazing event that stands out
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Progress Steps */}
-        <div className="progress-steps-container">
-          <div className="progress-steps">
-            {steps.map((step, index) => (
-              <div key={step.number} className="step-item">
-                <div
-                  className={`step-number ${
-                    currentStep > step.number
-                      ? "completed"
-                      : currentStep === step.number
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  {step.icon}
-                </div>
-                <span
-                  className={`step-title ${
-                    currentStep >= step.number ? "active" : ""
-                  }`}
-                >
-                  {step.title}
-                </span>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`step-connector ${
-                      currentStep > step.number ? "completed" : ""
-                    }`}
-                  />
-                )}
-              </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <InputGroup label="Category" required>
+          <select
+            name="eventCategory"
+            value={formData.eventCategory}
+            onChange={handleInputChange}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          >
+            <option value="">Select Category</option>
+            {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
+        </InputGroup>
+        
+        <InputGroup label="Event Type" required>
+          <div className="flex bg-gray-100 p-1 rounded-xl">
+            {['physical', 'online', 'hybrid'].map(type => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, eventType: type }))}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg capitalize transition-all ${
+                  formData.eventType === type ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {type}
+              </button>
             ))}
           </div>
-        </div>
+        </InputGroup>
+      </div>
 
-        <div className="create-event-content">
-          <form onSubmit={handleSubmit} className="event-form">
-            {/* Step 1: Basic Information */}
-            {currentStep === 1 && (
-              <div className="form-step">
-                <h2 className="step-title">Basic Information</h2>
-                <p className="step-description">Tell us about your event</p>
+      <InputGroup label="Description" required>
+        <textarea
+          name="eventDescription"
+          value={formData.eventDescription}
+          onChange={handleInputChange}
+          rows={6}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Tell people what makes your event special..."
+        />
+      </InputGroup>
+    </FormSection>
+  );
 
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">
-                      <Calendar className="w-4 h-4" />
-                      Event Title *
-                    </label>
-                    <input
-                      type="text"
-                      name="eventTitle"
-                      value={formData.eventTitle}
-                      onChange={handleInputChange}
-                      required
-                      className="form-input"
-                      placeholder="Enter event title"
-                    />
-                  </div>
+  const renderStep2 = () => (
+    <FormSection title="Date & Time" description="When should guests mark their calendars?">
+      <div className="grid md:grid-cols-2 gap-6">
+        <InputGroup label="Start Date" required>
+          <div className="relative">
+            <Calendar className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </InputGroup>
+        <InputGroup label="Start Time" required>
+          <div className="relative">
+            <Clock className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input
+              type="time"
+              name="startTime"
+              value={formData.startTime}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </InputGroup>
+        <InputGroup label="End Date" required>
+          <div className="relative">
+            <Calendar className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input
+              type="date"
+              name="endDate"
+              value={formData.endDate}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </InputGroup>
+        <InputGroup label="End Time" required>
+          <div className="relative">
+            <Clock className="absolute left-3 top-3 text-gray-400" size={20} />
+            <input
+              type="time"
+              name="endTime"
+              value={formData.endTime}
+              onChange={handleInputChange}
+              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </InputGroup>
+      </div>
+      <InputGroup label="Timezone">
+        <select
+          name="timezone"
+          value={formData.timezone}
+          onChange={handleInputChange}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white"
+        >
+          <option value="WAT">West Africa Time (WAT)</option>
+          <option value="GMT">Greenwich Mean Time (GMT)</option>
+        </select>
+      </InputGroup>
+    </FormSection>
+  );
 
-                  <div className="form-group">
-                    <label className="form-label">
-                      <Tag className="w-4 h-4" />
-                      Category *
-                    </label>
-                    <select
-                      name="eventCategory"
-                      value={formData.eventCategory}
-                      onChange={handleInputChange}
-                      required
-                      className="form-input"
-                    >
-                      <option value="">Select a category</option>
-                      {eventCategories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group col-span-2">
-                    <label className="form-label">Event Description *</label>
-                    <textarea
-                      name="eventDescription"
-                      value={formData.eventDescription}
-                      onChange={handleInputChange}
-                      required
-                      rows="6"
-                      className="form-textarea"
-                      placeholder="Describe your event in detail..."
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Event Type *</label>
-                    <div className="radio-group">
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          name="eventType"
-                          value="physical"
-                          checked={formData.eventType === "physical"}
-                          onChange={handleInputChange}
-                        />
-                        <span>Physical Event</span>
-                      </label>
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          name="eventType"
-                          value="online"
-                          checked={formData.eventType === "online"}
-                          onChange={handleInputChange}
-                        />
-                        <span>Online Event</span>
-                      </label>
-                      <label className="radio-label">
-                        <input
-                          type="radio"
-                          name="eventType"
-                          value="hybrid"
-                          checked={formData.eventType === "hybrid"}
-                          onChange={handleInputChange}
-                        />
-                        <span>Hybrid Event</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: Date & Time */}
-            {currentStep === 2 && (
-              <div className="form-step">
-                <h2 className="step-title">Date & Time</h2>
-                <p className="step-description">
-                  When is your event happening?
-                </p>
-
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label className="form-label">Start Date *</label>
-                    <input
-                      type="date"
-                      name="startDate"
-                      value={formData.startDate}
-                      onChange={handleInputChange}
-                      required
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">End Date *</label>
-                    <input
-                      type="date"
-                      name="endDate"
-                      value={formData.endDate}
-                      onChange={handleInputChange}
-                      required
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Start Time *</label>
-                    <input
-                      type="time"
-                      name="startTime"
-                      value={formData.startTime}
-                      onChange={handleInputChange}
-                      required
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">End Time *</label>
-                    <input
-                      type="time"
-                      name="endTime"
-                      value={formData.endTime}
-                      onChange={handleInputChange}
-                      required
-                      className="form-input"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">Timezone</label>
-                    <select
-                      name="timezone"
-                      value={formData.timezone}
-                      onChange={handleInputChange}
-                      className="form-input"
-                    >
-                      <option value="WAT">West Africa Time (WAT)</option>
-                      <option value="GMT">Greenwich Mean Time (GMT)</option>
-                      <option value="EST">Eastern Standard Time (EST)</option>
-                      <option value="PST">Pacific Standard Time (PST)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Location */}
-            {currentStep === 3 && (
-              <div className="form-step">
-                <h2 className="step-title">Location</h2>
-                <p className="step-description">
-                  Where is your event taking place?
-                </p>
-
-                {formData.eventType !== "online" && (
-                  <div className="form-grid">
-                    <div className="form-group">
-                      <label className="form-label">Venue Name *</label>
-                      <input
-                        type="text"
-                        name="venueName"
-                        value={formData.venueName}
-                        onChange={handleInputChange}
-                        required={formData.eventType !== "online"}
-                        className="form-input"
-                        placeholder="Enter venue name"
-                      />
-                    </div>
-
-                    <div className="form-group col-span-2">
-                      <label className="form-label">Address *</label>
-                      <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        required={formData.eventType !== "online"}
-                        className="form-input"
-                        placeholder="Enter full address"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">City *</label>
-                      <input
-                        type="text"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        required={formData.eventType !== "online"}
-                        className="form-input"
-                        placeholder="Enter city"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">State *</label>
-                      <input
-                        type="text"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleInputChange}
-                        required={formData.eventType !== "online"}
-                        className="form-input"
-                        placeholder="Enter state"
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label className="form-label">ZIP Code</label>
-                      <input
-                        type="text"
-                        name="zipCode"
-                        value={formData.zipCode}
-                        onChange={handleInputChange}
-                        className="form-input"
-                        placeholder="Enter ZIP code"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {formData.eventType !== "physical" && (
-                  <div className="form-group">
-                    <label className="form-label">Online Event Link</label>
-                    <input
-                      type="url"
-                      name="onlineLink"
-                      value={formData.onlineLink}
-                      onChange={handleInputChange}
-                      required={formData.eventType === "online"}
-                      className="form-input"
-                      placeholder="https://meet.google.com/your-event"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Step 4: Tickets */}
-            {currentStep === 4 && (
-              <div className="form-step">
-                <h2 className="step-title">Tickets & Pricing</h2>
-                <p className="step-description">
-                  Set up your ticket types and pricing
-                </p>
-
-                <div className="tickets-section">
-                  {formData.tickets.map((ticket, index) => (
-                    <div key={ticket.id} className="ticket-card">
-                      <div className="ticket-header">
-                        <h4>Ticket Type {index + 1}</h4>
-                        {formData.tickets.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeTicket(index)}
-                            className="remove-ticket-btn"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-
-                      <div className="ticket-form-grid">
-                        <div className="form-group">
-                          <label className="form-label">Ticket Name *</label>
-                          <input
-                            type="text"
-                            value={ticket.name}
-                            onChange={(e) =>
-                              handleTicketChange(index, "name", e.target.value)
-                            }
-                            required
-                            className="form-input"
-                            placeholder="General Admission"
-                          />
-                        </div>
-
-                        <div className="form-group">
-                          <label className="form-label">Price (#) *</label>
-                          <input
-                            type="number"
-                            value={ticket.price}
-                            onChange={(e) =>
-                              handleTicketChange(index, "price", e.target.value)
-                            }
-                            required
-                            min="0"
-                            step="0.01"
-                            className="form-input"
-                            placeholder="0.00"
-                          />
-                        </div>
-
-                        <div className="form-group">
-                          <label className="form-label">Quantity *</label>
-                          <input
-                            type="number"
-                            value={ticket.quantity}
-                            onChange={(e) =>
-                              handleTicketChange(
-                                index,
-                                "quantity",
-                                e.target.value
-                              )
-                            }
-                            required
-                            min="1"
-                            className="form-input"
-                            placeholder="100"
-                          />
-                        </div>
-
-                        <div className="form-group col-span-2">
-                          <label className="form-label">Description</label>
-                          <input
-                            type="text"
-                            value={ticket.description}
-                            onChange={(e) =>
-                              handleTicketChange(
-                                index,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                            className="form-input"
-                            placeholder="Describe this ticket type"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  <button
-                    type="button"
-                    onClick={addTicket}
-                    className="add-ticket-btn"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Add Another Ticket Type
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 5: Media */}
-            {currentStep === 5 && (
-              <div className="form-step">
-                <h2 className="step-title">Media & Settings</h2>
-                <p className="step-description">
-                  Add images and configure event settings
-                </p>
-
-                <div className="form-grid">
-                  <div className="form-group col-span-2">
-                    <label className="form-label">Cover Image *</label>
-                    <div className="image-upload-container">
-                      {formData.coverImage ? (
-                        <div className="image-preview">
-                          <img src={formData.coverImage} alt="Cover preview" />
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                coverImage: null,
-                              }))
-                            }
-                            className="remove-image-btn"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <label className="upload-area">
-                          <Upload className="w-8 h-8 text-gray-400" />
-                          <span>Click to upload cover image</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleImageUpload(e, "cover")}
-                            className="hidden"
-                          />
-                        </label>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="form-group col-span-2">
-                    <label className="form-label">Gallery Images</label>
-                    <div className="gallery-upload">
-                      <div className="gallery-grid">
-                        {formData.galleryImages.map((image, index) => (
-                          <div key={index} className="gallery-image">
-                            <img src={image} alt={`Gallery ${index + 1}`} />
-                            <button
-                              type="button"
-                              onClick={() => removeGalleryImage(index)}
-                              className="remove-gallery-image"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-                        {formData.galleryImages.length < 5 && (
-                          <label className="gallery-upload-btn">
-                            <Plus className="w-6 h-6" />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleImageUpload(e, "gallery")}
-                              className="hidden"
-                            />
-                          </label>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        name="isPublic"
-                        checked={formData.isPublic}
-                        onChange={handleInputChange}
-                      />
-                      <span>Make event public</span>
-                    </label>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        name="allowRegistration"
-                        checked={formData.allowRegistration}
-                        onChange={handleInputChange}
-                      />
-                      <span>Allow registration</span>
-                    </label>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label">
-                      <Users className="w-4 h-4" />
-                      Maximum Attendees
-                    </label>
-                    <input
-                      type="number"
-                      name="maxAttendees"
-                      value={formData.maxAttendees}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      min="1"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="form-navigation">
-              {currentStep > 1 && (
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="nav-button secondary"
-                >
-                  Previous
-                </button>
-              )}
-
-              <div className="navigation-right">
-                {currentStep < 5 ? (
-                  <button
-                    type="button"
-                    onClick={nextStep}
-                    className="nav-button primary"
-                  >
-                    Next Step
-                  </button>
-                ) : (
-                  <button type="submit" className="nav-button success">
-                    <Save className="w-4 h-4" />
-                    Create Event
-                  </button>
-                )}
-              </div>
+  const renderStep3 = () => (
+    <FormSection title="Location" description="Where is the magic happening?">
+      {formData.eventType === 'online' ? (
+         <InputGroup label="Online Event Link" required>
+            <div className="relative">
+              <Globe className="absolute left-3 top-3 text-gray-400" size={20} />
+              <input
+                type="url"
+                name="onlineLink"
+                value={formData.onlineLink}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+                placeholder="https://zoom.us/j/..."
+              />
             </div>
-          </form>
-
-          {/* Event Preview Sidebar */}
-          <div className="event-preview">
-            <h3 className="preview-title">
-              <Eye className="w-4 h-4" />
-              Event Preview
-            </h3>
-            <div className="preview-content">
-              <div className="preview-card">
-                {formData.coverImage && (
-                  <img
-                    src={formData.coverImage}
-                    alt="Event cover"
-                    className="preview-cover"
-                  />
-                )}
-                <div className="preview-details">
-                  <h4 className="preview-event-title">
-                    {formData.eventTitle || "Your Event Title"}
-                  </h4>
-                  <p className="preview-event-description">
-                    {formData.eventDescription ||
-                      "Event description will appear here..."}
-                  </p>
-
-                  <div className="preview-meta">
-                    {formData.startDate && (
-                      <div className="preview-meta-item">
-                        <Calendar className="w-4 h-4" />
-                        <span>{formData.startDate}</span>
-                      </div>
-                    )}
-
-                    {formData.venueName && (
-                      <div className="preview-meta-item">
-                        <MapPin className="w-4 h-4" />
-                        <span>{formData.venueName}</span>
-                      </div>
-                    )}
-
-                    {formData.tickets.length > 0 && (
-                      <div className="preview-meta-item">
-                        <span className="text-gray-600 font-bold">₦</span>
-                        <span>
-                          {formData.tickets[0].price === "0"
-                            ? "Free"
-                            : `From ₦${formData.tickets[0].price}`}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+         </InputGroup>
+      ) : (
+        <div className="space-y-6">
+          <InputGroup label="Venue Name" required>
+            <input
+              type="text"
+              name="venueName"
+              value={formData.venueName}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g., Eko Hotel & Suites"
+            />
+          </InputGroup>
+          <InputGroup label="Address" required>
+             <div className="relative">
+              <MapPin className="absolute left-3 top-3 text-gray-400" size={20} />
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+                placeholder="Street address"
+              />
+             </div>
+          </InputGroup>
+          <div className="grid md:grid-cols-2 gap-6">
+             <InputGroup label="City" required>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+                />
+             </InputGroup>
+             <InputGroup label="State" required>
+                <input
+                  type="text"
+                  name="state"
+                  value={formData.state}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500"
+                />
+             </InputGroup>
           </div>
         </div>
+      )}
+    </FormSection>
+  );
+
+  const renderStep4 = () => (
+    <FormSection title="Tickets" description="Create your ticket types and pricing.">
+      <div className="space-y-4">
+        {formData.tickets.map((ticket, index) => (
+          <div key={ticket.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 relative group transition-all hover:border-blue-300">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-2">
+                <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
+                  <Ticket size={18} />
+                </div>
+                <h4 className="font-bold text-gray-700">Ticket #{index + 1}</h4>
+              </div>
+              {formData.tickets.length > 1 && (
+                <button onClick={() => removeTicket(index)} className="text-gray-400 hover:text-red-500 transition-colors">
+                  <X size={20} />
+                </button>
+              )}
+            </div>
+            
+            <div className="grid md:grid-cols-12 gap-4">
+               <div className="md:col-span-5">
+                  <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Name</label>
+                  <input
+                    type="text"
+                    value={ticket.name}
+                    onChange={(e) => handleTicketChange(index, "name", e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
+                    placeholder="e.g. General Admission"
+                  />
+               </div>
+               <div className="md:col-span-3">
+                  <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Price (₦)</label>
+                  <input
+                    type="number"
+                    value={ticket.price}
+                    onChange={(e) => handleTicketChange(index, "price", e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
+                    placeholder="0"
+                  />
+               </div>
+               <div className="md:col-span-4">
+                  <label className="text-xs font-semibold text-gray-500 uppercase mb-1 block">Quantity</label>
+                  <input
+                    type="number"
+                    value={ticket.quantity}
+                    onChange={(e) => handleTicketChange(index, "quantity", e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:border-blue-500 outline-none"
+                    placeholder="100"
+                  />
+               </div>
+            </div>
+          </div>
+        ))}
       </div>
-    </section>
+      
+      <button
+        onClick={addTicket}
+        className="mt-4 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-blue-500 hover:text-blue-600 transition-all flex items-center justify-center gap-2 font-medium"
+      >
+        <Plus size={20} />
+        Add Another Ticket Type
+      </button>
+    </FormSection>
+  );
+
+  const renderStep5 = () => (
+    <FormSection title="Media" description="Visuals make your event stand out.">
+       <InputGroup label="Cover Image" required>
+          <label className="block w-full cursor-pointer group">
+             <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-all ${formData.coverImage ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'}`}>
+                {formData.coverImage ? (
+                   <div className="relative">
+                      <img src={formData.coverImage} alt="Preview" className="max-h-64 mx-auto rounded-lg shadow-sm" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center text-white font-medium">
+                         Click to Change
+                      </div>
+                   </div>
+                ) : (
+                   <div className="space-y-2">
+                      <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-blue-600">
+                         <Upload size={24} />
+                      </div>
+                      <p className="font-medium text-gray-700">Click to upload cover image</p>
+                      <p className="text-sm text-gray-500">SVG, PNG, JPG or GIF (max. 2MB)</p>
+                   </div>
+                )}
+                <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "cover")} className="hidden" />
+             </div>
+          </label>
+       </InputGroup>
+
+       <InputGroup label="Gallery (Optional)">
+         <div className="grid grid-cols-4 gap-4 mt-2">
+            {formData.galleryImages.map((img, idx) => (
+              <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
+                <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                <button 
+                  onClick={() => setFormData(prev => ({ ...prev, galleryImages: prev.galleryImages.filter((_, i) => i !== idx) }))}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+            {formData.galleryImages.length < 5 && (
+              <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                 <Plus size={24} className="text-gray-400" />
+                 <span className="text-xs text-gray-500 mt-1">Add Photo</span>
+                 <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, "gallery")} className="hidden" />
+              </label>
+            )}
+         </div>
+       </InputGroup>
+    </FormSection>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* --- NEW HERO SECTION --- */}
+      <div className="bg-gradient-to-br from-blue-900 via-blue-700 to-purple-900 py-20 relative overflow-hidden">
+         {/* Decorative Elements */}
+         <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+         <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+         
+         <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-blue-50 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+               <Sparkles size={16} className="text-yellow-300" />
+               <span>Host Your Experience</span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+               Create Your Event
+            </h1>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+               Bring your vision to life. Fill in the details below to start selling tickets and managing attendees in minutes.
+            </p>
+         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-12 grid lg:grid-cols-12 gap-8 -mt-8 relative z-20">
+        {/* Left Sidebar - Navigation */}
+        <div className="lg:col-span-3 hidden lg:block">
+           <div className="sticky top-8 space-y-2 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 px-3">Progress</h3>
+             {STEPS.map((step) => (
+               <div 
+                 key={step.number}
+                 className={`flex items-center p-3 rounded-xl transition-all ${
+                   currentStep === step.number ? 'bg-blue-50 border border-blue-100 shadow-sm' : 'hover:bg-gray-50 border border-transparent'
+                 }`}
+               >
+                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3 transition-colors ${
+                    currentStep === step.number ? 'bg-blue-600 text-white' : 
+                    currentStep > step.number ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'
+                 }`}>
+                    {currentStep > step.number ? <CheckCircle2 size={16} /> : step.number}
+                 </div>
+                 <div>
+                   <p className={`text-sm font-bold ${currentStep === step.number ? 'text-gray-900' : 'text-gray-500'}`}>{step.title}</p>
+                 </div>
+               </div>
+             ))}
+           </div>
+        </div>
+
+        {/* Center - Form */}
+        <div className="lg:col-span-6">
+          <form onSubmit={(e) => e.preventDefault()}>
+            {currentStep === 1 && renderStep1()}
+            {currentStep === 2 && renderStep2()}
+            {currentStep === 3 && renderStep3()}
+            {currentStep === 4 && renderStep4()}
+            {currentStep === 5 && renderStep5()}
+
+            {/* Navigation Buttons */}
+            <div className="mt-8 flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+              <button
+                type="button"
+                onClick={prevStep}
+                disabled={currentStep === 1}
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors ${
+                   currentStep === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <ChevronLeft size={20} /> Back
+              </button>
+
+              {currentStep < 5 ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-blue-600/20 flex items-center gap-2 transition-all transform active:scale-95"
+                >
+                  Next Step <ChevronRight size={20} />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-green-600/20 flex items-center gap-2 transition-all transform active:scale-95"
+                  onClick={() => alert("Event Created! (Check Console)")}
+                >
+                  <Save size={20} /> Publish Event
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Right - Preview */}
+        <div className="lg:col-span-3 hidden lg:block">
+           <LivePreview formData={formData} />
+           
+           <div className="mt-6 bg-indigo-50 p-5 rounded-2xl border border-indigo-100">
+              <div className="flex items-start gap-3">
+                 <div className="bg-indigo-100 p-2 rounded-full text-indigo-600 mt-1">
+                    <Users size={16} />
+                 </div>
+                 <div>
+                    <h4 className="text-sm font-bold text-indigo-900">Pro Tip</h4>
+                    <p className="text-xs text-indigo-700 mt-1 leading-relaxed">
+                       Events with cover images get <strong>2x more engagement</strong>. Add a high-quality image to stand out!
+                    </p>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
