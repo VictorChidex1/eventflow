@@ -3,7 +3,9 @@ import { useState } from 'react';
 import paymentService from '../../services/paymentService';
 import { env } from '../../config/environment';
 
-// Get currency symbol based on active gateway (defaulting to Naira for now)
+// IMPORT THE IMAGE: Ensure this file exists at src/assets/paystack-logo.png
+import paystackLogo from '../../assets/paystack-logo.png'; 
+
 const currencySymbol = '₦'; 
 
 const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
@@ -31,7 +33,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
     try {
       const paymentData = {
         email: user.email,
-        amount: totalAmount, // Service expects standard units (Naira)
+        amount: totalAmount,
         reference: generateReference(),
         eventId: event.id,
         ticketId: ticket.id,
@@ -45,7 +47,6 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
       const response = await paymentService.initializePaystackPayment(paymentData);
       
       if (response.status && response.data.authorization_url) {
-        console.log('🔗 Redirecting to Paystack...', response.data.authorization_url);
         window.location.href = response.data.authorization_url;
       } else {
         throw new Error(response.message || 'Failed to initialize payment');
@@ -71,8 +72,9 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all">
+        {/* Modal Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900">Complete Payment</h2>
           <button 
@@ -83,6 +85,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
           </button>
         </div>
 
+        {/* Error Display */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm mb-4 flex items-start">
             <span className="mr-2">⚠️</span>
@@ -104,7 +107,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
           </div>
         </div>
 
-        {/* Payment Method */}
+        {/* Payment Method Selection */}
         <div className="space-y-3 mb-8">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Select Payment Method
@@ -122,11 +125,11 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
               />
               <div className="ml-3 flex items-center w-full">
-                {/* OFFICIAL LOGO HERE */}
+                {/* Logo Image from Assets */}
                 <img 
-                  src="images/paystack-logo.png" 
+                  src={paystackLogo} 
                   alt="Paystack" 
-                  className="h-8 w-8 object-contain rounded-md mr-3"
+                  className="h-8 w-auto max-w-[50px] object-contain rounded-md mr-3"
                 />
                 <div>
                   <span className="block text-sm font-medium text-gray-900">Paystack</span>
@@ -135,7 +138,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
               </div>
             </label>
 
-            {/* Stripe Option (Placeholder for future) */}
+            {/* Stripe Option (Conditional) */}
             {env.stripePublicKey && (
                <label className={`relative flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${selectedGateway === 'stripe' ? 'border-blue-500 ring-1 ring-blue-500 bg-blue-50/30' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}>
                <input
@@ -174,10 +177,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
           >
             {isProcessing ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 Processing...
               </>
             ) : (
@@ -186,7 +186,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
           </button>
         </div>
 
-        {/* Security Notice */}
+        {/* Security Footer */}
         <div className="mt-6 flex items-center justify-center text-xs text-gray-500">
           <span className="mr-1">🔒</span> Secure payment · Your data is protected
         </div>
