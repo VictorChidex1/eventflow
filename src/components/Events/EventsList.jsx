@@ -1,3 +1,4 @@
+// src/components/Events/EventsList.jsx
 import React, {
   useState,
   useMemo,
@@ -23,6 +24,7 @@ import EventCard from "./EventCard";
 import EventDetail from "./EventDetail";
 import "./EventsList.css";
 
+// --- Constants ---
 const PRICE_RANGES = [
   { id: "All", label: "All Prices", min: null, max: null },
   { id: "free", label: "Free", min: 0, max: 0 },
@@ -51,7 +53,8 @@ const DATE_RANGES = [
   { id: "this-month", label: "This Month" },
 ];
 
-// Reusable Components
+// --- Sub-Components ---
+
 const SearchInput = React.memo(
   ({
     value,
@@ -102,96 +105,84 @@ const MultiSelectDropdown = React.memo(
     handleToggle,
     options,
     label,
-    icon: Icon,
+    icon, // Recieve as lowercase prop
     dropdownRef,
-  }) => (
-    <div className="w-full lg:w-64" ref={dropdownRef}>
-      <label className="block text-sm font-semibold text-gray-700 mb-3">
-        {label}
-      </label>
-      <div className="relative">
-        <button
-          onClick={setIsOpen}
-          className="w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
-        >
-          <span className="truncate flex items-center">
-            <Icon size={18} className="mr-2 text-gray-500 flex-shrink-0" />
-            {selectedItems.includes("All")
-              ? `All ${label}`
-              : `${selectedItems.length} selected`}
-          </span>
-          <svg
-            className={`h-5 w-5 transform transition-transform flex-shrink-0 ${
-              isOpen ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
+  }) => {
+    // Assign to Capitalized variable for JSX usage. 
+    // This fixes the "unused variable" linter error explicitly.
+    const IconComponent = icon;
 
-        {isOpen && (
-          <div className="category-dropdown absolute z-50 w-full mt-2 bg-white/95 border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
-            <div className="p-2">
-              {options.map((option) => (
-                <div
-                  key={option.id}
-                  onClick={() => handleToggle(option.id)}
-                  className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedItems.includes(option.id)
-                      ? "bg-blue-50 text-blue-700"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
+    return (
+      <div className="w-full lg:w-64" ref={dropdownRef}>
+        <label className="block text-sm font-semibold text-gray-700 mb-3">
+          {label}
+        </label>
+        <div className="relative">
+          <button
+            onClick={setIsOpen}
+            className="w-full px-4 py-3 lg:py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-3 focus:ring-blue-500/20 focus:border-blue-500 bg-white/50 transition-all duration-200 font-medium text-left flex justify-between items-center"
+          >
+            <span className="truncate flex items-center">
+              {/* Check if component exists before rendering */}
+              {IconComponent && (
+                <IconComponent size={18} className="mr-2 text-gray-500 flex-shrink-0" />
+              )}
+              {selectedItems.includes("All")
+                ? `All ${label}`
+                : `${selectedItems.length} selected`}
+            </span>
+            <svg
+              className={`h-5 w-5 transform transition-transform flex-shrink-0 ${
+                isOpen ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {isOpen && (
+            <div className="category-dropdown absolute z-50 w-full mt-2 bg-white/95 border border-gray-200 rounded-xl shadow-lg max-h-80 overflow-y-auto">
+              <div className="p-2">
+                {options.map((option) => (
                   <div
-                    className={`w-5 h-5 border rounded mr-3 flex items-center justify-center flex-shrink-0 ${
+                    key={option.id}
+                    onClick={() => handleToggle(option.id)}
+                    className={`flex items-center px-3 py-3 rounded-lg cursor-pointer transition-colors ${
                       selectedItems.includes(option.id)
-                        ? "bg-blue-600 border-blue-600"
-                        : "border-gray-300"
+                        ? "bg-blue-50 text-blue-700"
+                        : "hover:bg-gray-50"
                     }`}
                   >
-                    {selectedItems.includes(option.id) && (
-                      <Check size={14} className="text-white" />
-                    )}
+                    <div
+                      className={`w-5 h-5 border rounded mr-3 flex items-center justify-center flex-shrink-0 ${
+                        selectedItems.includes(option.id)
+                          ? "bg-blue-600 border-blue-600"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {selectedItems.includes(option.id) && (
+                        <Check size={14} className="text-white" />
+                      )}
+                    </div>
+                    <span className="text-sm">{option.label}</span>
                   </div>
-                  <span className="text-sm">{option.label}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-);
-
-const FilterChips = React.memo(({ selectedItems, handleToggle, getLabel }) => (
-  <div className="flex flex-wrap gap-2">
-    {selectedItems
-      .filter((item) => item !== "All")
-      .map((item) => (
-        <div
-          key={item}
-          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center"
-        >
-          {getLabel(item)}
-          <button
-            onClick={() => handleToggle(item)}
-            className="ml-2 hover:bg-blue-200 rounded-full p-0.5"
-          >
-            <X size={14} />
-          </button>
+          )}
         </div>
-      ))}
-  </div>
-));
+      </div>
+    );
+  }
+);
 
 const MobileFiltersModal = React.memo(
   ({
@@ -222,7 +213,6 @@ const MobileFiltersModal = React.memo(
       setIsLocationDropdownOpen,
       isDateDropdownOpen,
       setIsDateDropdownOpen,
-      closeAllDropdowns,
       createDropdownToggle,
     } = dropdownState;
 
@@ -249,56 +239,11 @@ const MobileFiltersModal = React.memo(
       }
     };
 
-    const handleCategoryToggle = (itemId) => {
+    const createToggleHandler = (currentSelection, setSelection) => (itemId) => {
       if (itemId === "All") {
-        filterState.setSelectedCategories(["All"]);
+        setSelection(["All"]);
       } else {
-        filterState.setSelectedCategories((prev) => {
-          const newSelection = prev.filter((item) => item !== "All");
-          if (newSelection.includes(itemId)) {
-            return newSelection.filter((item) => item !== itemId);
-          } else {
-            return [...newSelection, itemId];
-          }
-        });
-      }
-    };
-
-    const handlePriceToggle = (itemId) => {
-      if (itemId === "All") {
-        filterState.setSelectedPriceRanges(["All"]);
-      } else {
-        filterState.setSelectedPriceRanges((prev) => {
-          const newSelection = prev.filter((item) => item !== "All");
-          if (newSelection.includes(itemId)) {
-            return newSelection.filter((item) => item !== itemId);
-          } else {
-            return [...newSelection, itemId];
-          }
-        });
-      }
-    };
-
-    const handleLocationToggle = (itemId) => {
-      if (itemId === "All") {
-        filterState.setSelectedLocations(["All"]);
-      } else {
-        filterState.setSelectedLocations((prev) => {
-          const newSelection = prev.filter((item) => item !== "All");
-          if (newSelection.includes(itemId)) {
-            return newSelection.filter((item) => item !== itemId);
-          } else {
-            return [...newSelection, itemId];
-          }
-        });
-      }
-    };
-
-    const handleDateToggle = (itemId) => {
-      if (itemId === "All") {
-        filterState.setSelectedDateRanges(["All"]);
-      } else {
-        filterState.setSelectedDateRanges((prev) => {
+        setSelection((prev) => {
           const newSelection = prev.filter((item) => item !== "All");
           if (newSelection.includes(itemId)) {
             return newSelection.filter((item) => item !== itemId);
@@ -361,7 +306,7 @@ const MobileFiltersModal = React.memo(
                 isOpen={isCategoryDropdownOpen}
                 setIsOpen={createDropdownToggle(setIsCategoryDropdownOpen)}
                 selectedItems={selectedCategories}
-                handleToggle={handleCategoryToggle}
+                handleToggle={createToggleHandler(selectedCategories, filterState.setSelectedCategories)}
                 options={[
                   { id: "All", label: "All Categories" },
                   ...(categories || [])
@@ -377,7 +322,7 @@ const MobileFiltersModal = React.memo(
                 isOpen={isPriceDropdownOpen}
                 setIsOpen={createDropdownToggle(setIsPriceDropdownOpen)}
                 selectedItems={selectedPriceRanges}
-                handleToggle={handlePriceToggle}
+                handleToggle={createToggleHandler(selectedPriceRanges, filterState.setSelectedPriceRanges)}
                 options={PRICE_RANGES}
                 label="Price"
                 icon={Wallet}
@@ -388,7 +333,7 @@ const MobileFiltersModal = React.memo(
                 isOpen={isLocationDropdownOpen}
                 setIsOpen={createDropdownToggle(setIsLocationDropdownOpen)}
                 selectedItems={selectedLocations}
-                handleToggle={handleLocationToggle}
+                handleToggle={createToggleHandler(selectedLocations, filterState.setSelectedLocations)}
                 options={LOCATIONS}
                 label="Location"
                 icon={MapPin}
@@ -399,7 +344,7 @@ const MobileFiltersModal = React.memo(
                 isOpen={isDateDropdownOpen}
                 setIsOpen={createDropdownToggle(setIsDateDropdownOpen)}
                 selectedItems={selectedDateRanges}
-                handleToggle={handleDateToggle}
+                handleToggle={createToggleHandler(selectedDateRanges, filterState.setSelectedDateRanges)}
                 options={DATE_RANGES}
                 label="Date"
                 icon={Calendar}
@@ -479,13 +424,10 @@ const DesktopFilters = React.memo(
 
     const activeFiltersCount = useMemo(() => {
       let count = 0;
-      if (!selectedCategories.includes("All"))
-        count += selectedCategories.length;
-      if (!selectedPriceRanges.includes("All"))
-        count += selectedPriceRanges.length;
+      if (!selectedCategories.includes("All")) count += selectedCategories.length;
+      if (!selectedPriceRanges.includes("All")) count += selectedPriceRanges.length;
       if (!selectedLocations.includes("All")) count += selectedLocations.length;
-      if (!selectedDateRanges.includes("All"))
-        count += selectedDateRanges.length;
+      if (!selectedDateRanges.includes("All")) count += selectedDateRanges.length;
       if (searchTerm) count += 1;
       return count;
     }, [
@@ -500,56 +442,11 @@ const DesktopFilters = React.memo(
       .filter((cat) => cat !== "All")
       .slice(0, 4);
 
-    const handleCategoryToggle = (itemId) => {
+    const createToggleHandler = (currentSelection, setSelection) => (itemId) => {
       if (itemId === "All") {
-        filterState.setSelectedCategories(["All"]);
+        setSelection(["All"]);
       } else {
-        filterState.setSelectedCategories((prev) => {
-          const newSelection = prev.filter((item) => item !== "All");
-          if (newSelection.includes(itemId)) {
-            return newSelection.filter((item) => item !== itemId);
-          } else {
-            return [...newSelection, itemId];
-          }
-        });
-      }
-    };
-
-    const handlePriceToggle = (itemId) => {
-      if (itemId === "All") {
-        filterState.setSelectedPriceRanges(["All"]);
-      } else {
-        filterState.setSelectedPriceRanges((prev) => {
-          const newSelection = prev.filter((item) => item !== "All");
-          if (newSelection.includes(itemId)) {
-            return newSelection.filter((item) => item !== itemId);
-          } else {
-            return [...newSelection, itemId];
-          }
-        });
-      }
-    };
-
-    const handleLocationToggle = (itemId) => {
-      if (itemId === "All") {
-        filterState.setSelectedLocations(["All"]);
-      } else {
-        filterState.setSelectedLocations((prev) => {
-          const newSelection = prev.filter((item) => item !== "All");
-          if (newSelection.includes(itemId)) {
-            return newSelection.filter((item) => item !== itemId);
-          } else {
-            return [...newSelection, itemId];
-          }
-        });
-      }
-    };
-
-    const handleDateToggle = (itemId) => {
-      if (itemId === "All") {
-        filterState.setSelectedDateRanges(["All"]);
-      } else {
-        filterState.setSelectedDateRanges((prev) => {
+        setSelection((prev) => {
           const newSelection = prev.filter((item) => item !== "All");
           if (newSelection.includes(itemId)) {
             return newSelection.filter((item) => item !== itemId);
@@ -598,7 +495,7 @@ const DesktopFilters = React.memo(
             isOpen={isCategoryDropdownOpen}
             setIsOpen={createDropdownToggle(setIsCategoryDropdownOpen)}
             selectedItems={selectedCategories}
-            handleToggle={handleCategoryToggle}
+            handleToggle={createToggleHandler(selectedCategories, filterState.setSelectedCategories)}
             options={[
               { id: "All", label: "All Categories" },
               ...(categories || [])
@@ -614,7 +511,7 @@ const DesktopFilters = React.memo(
             isOpen={isPriceDropdownOpen}
             setIsOpen={createDropdownToggle(setIsPriceDropdownOpen)}
             selectedItems={selectedPriceRanges}
-            handleToggle={handlePriceToggle}
+            handleToggle={createToggleHandler(selectedPriceRanges, filterState.setSelectedPriceRanges)}
             options={PRICE_RANGES}
             label="Price"
             icon={Wallet}
@@ -627,7 +524,7 @@ const DesktopFilters = React.memo(
             isOpen={isLocationDropdownOpen}
             setIsOpen={createDropdownToggle(setIsLocationDropdownOpen)}
             selectedItems={selectedLocations}
-            handleToggle={handleLocationToggle}
+            handleToggle={createToggleHandler(selectedLocations, filterState.setSelectedLocations)}
             options={LOCATIONS}
             label="Location"
             icon={MapPin}
@@ -638,7 +535,7 @@ const DesktopFilters = React.memo(
             isOpen={isDateDropdownOpen}
             setIsOpen={createDropdownToggle(setIsDateDropdownOpen)}
             selectedItems={selectedDateRanges}
-            handleToggle={handleDateToggle}
+            handleToggle={createToggleHandler(selectedDateRanges, filterState.setSelectedDateRanges)}
             options={DATE_RANGES}
             label="Date"
             icon={Calendar}
@@ -674,7 +571,7 @@ const DesktopFilters = React.memo(
             {popularCategories.map((category) => (
               <button
                 key={category}
-                onClick={() => handleCategoryToggle(category)}
+                onClick={() => createToggleHandler(selectedCategories, filterState.setSelectedCategories)(category)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
                   selectedCategories.includes(category)
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25 border-blue-600"
@@ -691,7 +588,7 @@ const DesktopFilters = React.memo(
   }
 );
 
-// Main Component
+// --- Main Component ---
 const EventsList = () => {
   // State management
   const [searchTerm, setSearchTerm] = useState("");
