@@ -124,7 +124,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
               <div className="ml-3 flex items-center w-full">
                 {/* OFFICIAL LOGO HERE */}
                 <img 
-                  src="/images/paystack-logo.png" 
+                  src="images/paystack-logo.png" 
                   alt="Paystack" 
                   className="h-8 w-8 object-contain rounded-md mr-3"
                 />
