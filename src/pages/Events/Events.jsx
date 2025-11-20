@@ -1,5 +1,3 @@
-// Events.jsx – Refactored with duplicate mobile pagination removed
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   Search,

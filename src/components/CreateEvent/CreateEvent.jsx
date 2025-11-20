@@ -76,6 +76,9 @@ const CreateEvent = () => {
     "Religious",
     "Cultural",
     "Entertainment",
+     "Comedy",
+  "Gaming",
+  "Dating",
   ];
 
   const handleInputChange = (e) => {
