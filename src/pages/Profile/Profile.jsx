@@ -1,3 +1,4 @@
+// src/components/Profile/Profile.jsx
 import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -8,23 +9,24 @@ import {
   Bell,
   CreditCard,
   ArrowLeft,
-  Save,
-  Camera,
+  Ticket, // Imported Ticket Icon
 } from "lucide-react";
 import ProfileOverview from "./components/ProfileOverview";
 import EditProfile from "./components/EditProfile";
 import SecuritySettings from "./components/SecuritySettings";
 import NotificationSettings from "./components/NotificationSettings";
+// UPDATED IMPORT PATH: Sibling file, not nested in ./components
+import ProfileTickets from "../../components/Profile/ProfileTickets";
 import "./Profile.css";
 
 const Profile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
-  const [isEditing, setIsEditing] = useState(false);
 
   const tabs = [
     { id: "overview", label: "Overview", icon: User },
+    { id: "tickets", label: "My Tickets", icon: Ticket }, // Added Ticket Tab
     { id: "edit", label: "Edit Profile", icon: Settings },
     { id: "security", label: "Security", icon: Shield },
     { id: "notifications", label: "Notifications", icon: Bell },
@@ -37,6 +39,8 @@ const Profile = () => {
         return (
           <ProfileOverview user={user} onEdit={() => setActiveTab("edit")} />
         );
+      case "tickets":
+        return <ProfileTickets user={user} />;
       case "edit":
         return (
           <EditProfile user={user} onSave={() => setActiveTab("overview")} />
