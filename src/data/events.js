@@ -506,7 +506,7 @@ export const events = [
   },
   {
     id: 22,
-    title: "Tech Career Fair 2024",
+    title: "Tech Career Fair 2026",
     description:
       "Connect with top tech companies and find your dream job in Nigeria's booming tech scene.",
     date: "2026-10-08",

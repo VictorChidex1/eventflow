@@ -13,6 +13,7 @@ import {
   Users,
   SlidersHorizontal,
   ChevronDown,
+  ChevronUp, // Added ChevronUp
   Tag,
   Music,
   Briefcase,
@@ -26,7 +27,7 @@ import {
   Microscope,
   Camera,
   Sparkles,
-  ArrowUp // Added ArrowUp
+  ArrowUp
 } from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "../../components/Events/EventCard";
@@ -45,8 +46,7 @@ const Events = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Removed isSticky state
-  // Added ShowBackToTop state
+  // Back to Top State
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   // Dropdown states
@@ -55,7 +55,11 @@ const Events = () => {
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showDateDropdown, setShowDateDropdown] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  
+  // Mobile Filters State
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  // Independent state for mobile dropdown toggles
+  const [mobileOpenSection, setMobileOpenSection] = useState(""); 
 
   const eventsPerPage = 9;
 
@@ -99,7 +103,7 @@ const Events = () => {
     { id: "next-month", label: "Next Month" },
   ];
 
-  // Category icons mapping (Shortened for brevity, kept your logic)
+  // Category icons mapping
   const categoryIcons = {
     "All": Sparkles,
     "Music": Music,
@@ -138,7 +142,6 @@ const Events = () => {
   // --- SCROLL LISTENER FOR BACK TO TOP ---
   useEffect(() => {
     const handleScroll = () => {
-      // Show button if scrolled more than 400px
       if (window.scrollY > 400) {
         setShowBackToTop(true);
       } else {
@@ -162,7 +165,7 @@ const Events = () => {
     return () => clearTimeout(t);
   }, []);
 
-  // ... [Click outside handlers remain the same] ...
+  // Handle click outside for desktop dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (categoriesRef.current && !categoriesRef.current.contains(event.target)) setShowCategoriesDropdown(false);
@@ -175,6 +178,7 @@ const Events = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Mobile Filters Click Outside
   useEffect(() => {
     if (!isMobileFiltersOpen) return;
     const handler = (event) => {
@@ -191,7 +195,7 @@ const Events = () => {
     };
   }, [isMobileFiltersOpen]);
 
-  // ... [Toggle/Helper Functions remain the same] ...
+  // Toggle Helper
   const toggleOnly = (setter, id) => {
     if (id === "All") return setter(["All"]);
     setter((prev) => {
@@ -226,7 +230,12 @@ const Events = () => {
   const closeMobileFilters = () => setIsMobileFiltersOpen(false);
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
 
-  // ... [Filtering Logic remains the same] ...
+  // Toggle mobile sections
+  const toggleMobileSection = (section) => {
+    setMobileOpenSection(mobileOpenSection === section ? "" : section);
+  };
+
+  // Filtering Logic
   const filteredEvents = useMemo(() => {
     const q = (searchTerm || "").trim().toLowerCase();
     return safeEvents
@@ -329,6 +338,42 @@ const Events = () => {
 
   const popularCategories = safeCategories.filter((c) => c !== "All").slice(0, 6);
 
+  // Helper for Mobile Filters
+  const MobileFilterDropdown = ({ title, options, selected, onToggle, icon: Icon, isOpen, onOpen }) => (
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">{title}</label>
+      <button
+        onClick={onOpen}
+        className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl text-left"
+      >
+        <div className="flex items-center gap-2">
+          {Icon && <Icon size={18} className="text-gray-500" />}
+          <span className="text-gray-700 text-sm font-medium">
+            {selected.includes("All") ? `All ${title}` : `${selected.length} selected`}
+          </span>
+        </div>
+        {isOpen ? <ChevronUp size={18} className="text-gray-500" /> : <ChevronDown size={18} className="text-gray-500" />}
+      </button>
+      
+      {isOpen && (
+        <div className="mt-2 bg-gray-50 border border-gray-100 rounded-xl p-2 space-y-1 animate-slide-down">
+          {options.map((opt) => (
+            <div
+              key={opt.id}
+              onClick={() => onToggle(opt.id)}
+              className={`flex items-center px-3 py-2.5 rounded-lg cursor-pointer ${selected.includes(opt.id) ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100 text-gray-700"}`}
+            >
+              <div className={`w-5 h-5 border rounded mr-3 flex items-center justify-center bg-white ${selected.includes(opt.id) ? "border-blue-600" : "border-gray-300"}`}>
+                {selected.includes(opt.id) && <Check size={12} className="text-blue-600" />}
+              </div>
+              <span className="text-sm">{opt.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <section id="events" className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 pb-12">
       {/* Header */}
@@ -378,8 +423,8 @@ const Events = () => {
         </div>
       </div>
 
-      {/* Main Content Container - REFACTORING LAYOUT */}
-      <div className="container mx-auto px-4 relative z-10 -mt-8"> {/* Negative margin pulls it up */}
+      {/* Main Content Container */}
+      <div className="container mx-auto px-4 relative z-10 -mt-8">
         
         {/* Desktop Filters - STATIC POSITIONING */}
         <div className="hidden lg:block mb-8 relative z-30">
@@ -410,7 +455,7 @@ const Events = () => {
               </div>
             </div>
 
-            {/* Filters Grid - DROP DOWNS */}
+            {/* Filters Grid - DESKTOP */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-4">
               {/* Categories Dropdown */}
               <div className="relative" ref={categoriesRef}>
@@ -551,7 +596,7 @@ const Events = () => {
           </div>
         </div>
 
-        {/* Mobile filter trigger (Unchanged) */}
+        {/* Mobile filter trigger */}
         <div className="lg:hidden flex items-center justify-between mb-6 pt-4">
           <button onClick={openMobileFilters} className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium">
             <SlidersHorizontal size={20} />
@@ -574,10 +619,8 @@ const Events = () => {
           </div>
         </div>
 
-        {/* Results Section (Unchanged) */}
+        {/* Results Section */}
         <div className="mb-12 pt-4">
-           {/* ... [Keep existing results code exactly as is] ... */}
-           {/* For brevity, I am assuming the result grid code here is the same as before */}
            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-8">
             <div>
               <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
@@ -626,38 +669,118 @@ const Events = () => {
           )}
         </div>
 
-        {/* Mobile: Filters Modal (Unchanged) */}
+        {/* --- REFACTORED MOBILE FILTERS MODAL --- */}
         {isMobileFiltersOpen && (
-            /* ... Keep Existing Mobile Modal Code ... */
-            <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
-                {/* ... content ... */}
-                <div ref={mobileFiltersRef} className="bg-white w-full max-h-[80vh] rounded-t-3xl overflow-y-auto animate-slide-up">
-                    <div className="p-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-xl font-bold text-gray-900">Filters</h3>
-                            <button onClick={closeMobileFilters} className="p-2 hover:bg-gray-100 rounded-lg"><X size={20} /></button>
-                        </div>
-                        <div className="space-y-4">
-                             {/* Search, Categories, etc sections... */}
-                            <div>
-                                <details open className="group">
-                                <summary className="flex items-center justify-between px-3 py-3 bg-white border border-gray-200 rounded-md cursor-pointer">
-                                    <div className="flex items-center space-x-2"><Search size={18} className="text-gray-500" /><div className="text-sm font-semibold text-gray-700">Search</div></div>
-                                </summary>
-                                <div className="mt-3">
-                                    <input ref={mobileSearchInputRef} type="text" value={searchTerm} onChange={handleSearchChange} placeholder="Search events..." className="w-full pl-4 pr-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                </div>
-                                </details>
-                            </div>
-                             {/* ... Other mobile details ... */}
-                            <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                                <button onClick={clearAllFilters} className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors">Clear All</button>
-                                <button onClick={closeMobileFilters} className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors">Apply</button>
-                            </div>
-                        </div>
-                    </div>
+          <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
+            <div ref={mobileFiltersRef} className="bg-white w-full max-h-[85vh] rounded-t-3xl overflow-y-auto animate-slide-up flex flex-col">
+              <div className="p-6 flex-1 overflow-y-auto">
+                {/* Mobile Header */}
+                <div className="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 py-2">
+                  <h3 className="text-xl font-bold text-gray-900">Filters & Search</h3>
+                  <button onClick={closeMobileFilters} className="p-2 hover:bg-gray-100 rounded-lg">
+                    <X size={20} />
+                  </button>
                 </div>
+
+                <div className="space-y-6">
+                  {/* 1. Search */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Search Events</label>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <input
+                        ref={mobileSearchInputRef}
+                        type="text"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        placeholder="Type to search events..."
+                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2. Categories Dropdown */}
+                  <MobileFilterDropdown
+                    title="Categories"
+                    icon={Users}
+                    options={[{ id: "All", label: "All Categories" }, ...safeCategories.filter(c => c !== "All").map(c => ({ id: c, label: c }))]}
+                    selected={selectedCategories}
+                    onToggle={handleCategoryToggle}
+                    isOpen={mobileOpenSection === "Categories"}
+                    onOpen={() => toggleMobileSection("Categories")}
+                  />
+
+                  {/* 3. Price Dropdown */}
+                  <MobileFilterDropdown
+                    title="Price"
+                    icon={Wallet}
+                    options={priceRanges}
+                    selected={selectedPriceRanges}
+                    onToggle={handlePriceToggle}
+                    isOpen={mobileOpenSection === "Price"}
+                    onOpen={() => toggleMobileSection("Price")}
+                  />
+
+                  {/* 4. Location Dropdown */}
+                  <MobileFilterDropdown
+                    title="Location"
+                    icon={MapPin}
+                    options={locations}
+                    selected={selectedLocations}
+                    onToggle={handleLocationToggle}
+                    isOpen={mobileOpenSection === "Location"}
+                    onOpen={() => toggleMobileSection("Location")}
+                  />
+
+                  {/* 5. Date Dropdown */}
+                  <MobileFilterDropdown
+                    title="Date"
+                    icon={Calendar}
+                    options={dateRanges}
+                    selected={selectedDateRanges}
+                    onToggle={handleDateToggle}
+                    isOpen={mobileOpenSection === "Date"}
+                    onOpen={() => toggleMobileSection("Date")}
+                  />
+
+                  {/* 6. Sort By (Native Select) */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Sort By</label>
+                    <div className="relative">
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium text-base"
+                      >
+                        <option value="date">Date</option>
+                        <option value="price">Price</option>
+                        <option value="name">Name</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                        <TrendingUp size={18} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Action Buttons */}
+                  <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                    <button
+                      onClick={clearAllFilters}
+                      className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Clear All
+                    </button>
+                    <button
+                      onClick={closeMobileFilters}
+                      className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         )}
 
         {/* Event Detail Modal */}

@@ -16,7 +16,9 @@ import {
   Clock,
   Star,
   Zap,
-  Crown
+  Crown,
+  CheckCircle, // Added
+  Loader2 // Added
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import PaymentModal from "../Payment/PaymentModal";
@@ -24,6 +26,9 @@ import "./EventDetail.css";
 
 const EventDetail = ({ event, onClose, onBack, user }) => {
   const [showTicketPurchase, setShowTicketPurchase] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // New State
+  const [isProcessing, setIsProcessing] = useState(false); // New State
+  
   const [quantity, setQuantity] = useState(1);
   const [selectedTicketType, setSelectedTicketType] = useState('general');
   const { user: authUser } = useAuth();
@@ -164,18 +169,55 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
   const serviceFee = Math.round(totalAmount * 0.029); // 2.9% service fee
   const finalTotal = totalAmount + serviceFee;
 
+  // --- UPDATED TICKET HANDLER WITH PERSISTENCE ---
   const handleGetTickets = () => {
     // Check if user is authenticated
     if (!authUser) {
-      // Redirect to login page with return URL
       navigate('/login', { 
         state: { from: `/event/${event.id}` } 
       });
       return;
     }
     
-    // User is authenticated, show payment modal
-    setShowTicketPurchase(true);
+    // If Free, Save to LocalStorage directly then show Success
+    if (finalTotal === 0) {
+      setIsProcessing(true);
+      
+      // 1. Create the Ticket Object (Standardized format)
+      const newTicket = {
+        id: `tkt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        eventId: event.id,
+        userId: authUser.id || authUser.email || 'guest', // Fallback for auth
+        eventTitle: event.title,
+        eventDate: event.date,
+        eventTime: event.time,
+        eventLocation: event.location,
+        eventImage: event.image,
+        ticketType: selectedTicket.name,
+        quantity: quantity,
+        price: 0,
+        purchaseDate: new Date().toISOString(),
+        status: 'confirmed',
+        paymentMethod: 'Free Registration'
+      };
+
+      setTimeout(() => {
+        // 2. Save to LocalStorage (Simulating DB)
+        try {
+          const existingTickets = JSON.parse(localStorage.getItem('userTickets') || '[]');
+          const updatedTickets = [...existingTickets, newTicket];
+          localStorage.setItem('userTickets', JSON.stringify(updatedTickets));
+        } catch (error) {
+          console.error("Failed to save ticket", error);
+        }
+
+        setIsProcessing(false);
+        setShowSuccessModal(true);
+      }, 1500);
+    } else {
+      // User is authenticated & Paid Event, show payment modal
+      setShowTicketPurchase(true);
+    }
   };
 
   // Use authenticated user or fallback to prop
@@ -463,11 +505,19 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                 <div className="space-y-3">
                   <button
                     onClick={handleGetTickets}
-                    disabled={event.availableTickets === 0}
-                    className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg"
+                    disabled={event.availableTickets === 0 || isProcessing}
+                    className={`w-full bg-primary-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg ${isProcessing ? 'opacity-75 cursor-wait' : ''}`}
                   >
-                    <Ticket size={20} className="mr-2" />
-                    {!authUser ? 'Login to Buy Tickets' : event.availableTickets === 0 ? 'Sold Out' : 'Get Tickets Now'}
+                    {isProcessing ? (
+                      <>
+                         <Loader2 size={20} className="mr-2 animate-spin" /> Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Ticket size={20} className="mr-2" />
+                        {!authUser ? 'Login to Buy Tickets' : event.availableTickets === 0 ? 'Sold Out' : finalTotal === 0 ? 'Get Free Tickets' : 'Get Tickets Now'}
+                      </>
+                    )}
                   </button>
 
                   <button className="w-full border border-primary-600 text-primary-600 py-3 px-6 rounded-lg font-semibold hover:bg-primary-50 transition-colors flex items-center justify-center">
@@ -518,6 +568,40 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
           quantity={quantity}
           user={currentUser}
         />
+      )}
+
+      {/* Success Modal For Free Tickets */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 text-center shadow-2xl transform scale-100 transition-all">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+              <CheckCircle className="w-10 h-10 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Successful!</h2>
+            <p className="text-gray-600 mb-8">
+              You have successfully registered for <span className="font-semibold text-gray-900">{event.title}</span>.
+              <br/>Your ticket has been sent to your email.
+            </p>
+            <div className="space-y-3">
+              <button 
+                onClick={() => {
+                    setShowSuccessModal(false);
+                    onClose(); // Close the main event modal
+                    navigate('/my-tickets'); // Redirect to tickets page
+                }}
+                className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
+              >
+                View My Tickets
+              </button>
+              <button 
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
