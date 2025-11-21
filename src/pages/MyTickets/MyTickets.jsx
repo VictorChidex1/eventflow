@@ -12,6 +12,8 @@ import {
   QrCode
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+// 1. Import the generator
+import { generateReceipt } from "../../utils/pdfGenerator";
 
 const MyTickets = () => {
   const { user } = useAuth();
@@ -45,6 +47,28 @@ const MyTickets = () => {
     }
   }, [user, navigate]);
 
+  // 2. Implement the Download Handler
+  const handleDownloadTicket = (ticket) => {
+    // We need to adapt our LocalStorage data shape to match 
+    // what pdfGenerator.js expects
+    const ticketForPdf = {
+      reference: ticket.paymentReference || ticket.id.split('_')[1] || 'FREE', // Handle Paid vs Free refs
+      paymentDate: ticket.purchaseDate,
+      eventTitle: ticket.eventTitle,
+      tickets: ticket.quantity, // Mapping 'quantity' to 'tickets'
+      amount: ticket.price,     // Mapping 'price' to 'amount'
+      customerName: user?.name,
+      customerEmail: user?.email
+    };
+
+    try {
+      generateReceipt(ticketForPdf, user);
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      alert("Could not download ticket. Please try again.");
+    }
+  };
+
   const filterTickets = (status) => {
     const now = new Date();
     return tickets.filter(ticket => {
@@ -66,17 +90,11 @@ const MyTickets = () => {
   }
 
   return (
-    /* UI FIX: 
-       Changed 'py-12' to 'pt-6 pb-12 md:py-12' 
-       This reduces top spacing from 48px to 24px on mobile, 
-       bringing "My Tickets" closer to the nav bar.
-    */
     <div className="min-h-screen bg-gray-50 pt-6 pb-12 md:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
           <div>
-            {/* Adjusted text size for mobile (2xl) vs desktop (3xl) */}
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Tickets</h1>
             <p className="text-gray-500 mt-1 text-sm md:text-base">Manage your upcoming events and tickets</p>
           </div>
@@ -190,13 +208,17 @@ const MyTickets = () => {
 
                     {/* Actions */}
                     <div className="mt-6 pt-4 md:pt-6 border-t border-gray-100 flex flex-wrap gap-2 md:gap-3">
-                       <button className="flex-1 bg-primary-50 text-primary-700 px-3 py-2 md:px-4 rounded-lg text-sm md:text-base font-medium hover:bg-primary-100 transition-colors flex items-center justify-center">
+                       {/* 3. Attached onClick event to the Download Button */}
+                       <button 
+                         onClick={() => handleDownloadTicket(ticket)}
+                         className="flex-1 bg-primary-50 text-primary-700 px-3 py-2 md:px-4 rounded-lg text-sm md:text-base font-medium hover:bg-primary-100 transition-colors flex items-center justify-center"
+                       >
                          <Download className="w-4 h-4 mr-2" />
-                         Download
+                         Download Ticket
                        </button>
                        <button className="flex-1 bg-gray-50 text-gray-700 px-3 py-2 md:px-4 rounded-lg text-sm md:text-base font-medium hover:bg-gray-100 transition-colors flex items-center justify-center">
                          <Share2 className="w-4 h-4 mr-2" />
-                         Share
+                         Share Event
                        </button>
                        <button className="flex-none bg-gray-900 text-white p-2 rounded-lg hover:bg-black transition-colors" title="Show QR Code">
                          <QrCode className="w-5 h-5" />
