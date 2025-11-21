@@ -33,6 +33,7 @@ const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSticky, setIsSticky] = useState(false);
 
   // Dropdown states
   const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false);
@@ -53,6 +54,8 @@ const Events = () => {
   const mobileFiltersRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
   const containerRef = useRef(null);
+  const heroRef = useRef(null);
+  const stickySentinelRef = useRef(null);
 
   // Filter options
   const priceRanges = [
@@ -85,6 +88,22 @@ const Events = () => {
 
   const safeEvents = events || [];
   const safeCategories = categories || ["All"];
+
+  // Sticky header intersection observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsSticky(!entry.isIntersecting);
+      },
+      { threshold: [0] }
+    );
+
+    if (stickySentinelRef.current) {
+      observer.observe(stickySentinelRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 700);
@@ -357,7 +376,10 @@ const Events = () => {
       className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30"
     >
       {/* Header - UPDATED to "Midnight Professional" Theme */}
-      <div className="relative bg-slate-900 pt-20 pb-32 lg:pt-24 lg:pb-40 overflow-hidden">
+      <div 
+        ref={heroRef}
+        className="relative bg-slate-900 pt-20 pb-32 lg:pt-24 lg:pb-40 overflow-hidden"
+      >
         {/* Decorative Background Effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0">
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]"></div>
@@ -415,179 +437,26 @@ const Events = () => {
         </div>
       </div>
 
-      {/* --- NEW STICKY GLASS FILTER BAR --- */}
-      <div className="sticky top-0 z-40 glass-panel shadow-sm transition-all duration-300">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-            
-            {/* 1. Compact Search Input */}
-            <div className="relative w-full lg:w-96 group">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" size={18} />
-              <input 
-                type="text" 
-                value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="Search events..." 
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-sm"
-              />
-            </div>
-
-            {/* 2. Horizontal Filter Pills (Scrollable) */}
-            <div className="flex items-center gap-2 w-full lg:w-auto overflow-x-auto scrollbar-hide pb-1 lg:pb-0">
-              
-              {/* Mobile Trigger (Visible only on mobile) */}
-              <button
-                onClick={openMobileFilters}
-                className="lg:hidden flex items-center space-x-2 bg-gray-100 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap"
-              >
-                <SlidersHorizontal size={16} />
-                <span>Filters</span>
-                {activeFiltersCount > 0 && (
-                  <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-1">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Desktop Dropdowns (Converted to Pills) */}
-              <div className="hidden lg:flex items-center gap-2">
-                {/* Categories Pill */}
-                <div className="relative" ref={categoriesRef}>
-                  <button
-                    onClick={() => setShowCategoriesDropdown(!showCategoriesDropdown)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
-                      selectedCategories.includes("All") 
-                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
-                        : "bg-blue-50 border-blue-200 text-blue-700"
-                    }`}
-                  >
-                    <span>Category</span>
-                    <ChevronDown size={14} />
-                  </button>
-                  {showCategoriesDropdown && (
-                    <div className="absolute top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-200">
-                      <div className="max-h-64 overflow-y-auto">
-                        {[{ id: "All", label: "All Categories" }, ...safeCategories.map(c => ({ id: c, label: c }))].map(opt => (
-                          <FilterItem key={opt.id} checked={selectedCategories.includes(opt.id)} onClick={() => handleCategoryToggle(opt.id)} label={opt.label} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Price Pill */}
-                <div className="relative" ref={priceRef}>
-                  <button
-                    onClick={() => setShowPriceDropdown(!showPriceDropdown)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
-                      selectedPriceRanges.includes("All") 
-                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
-                        : "bg-blue-50 border-blue-200 text-blue-700"
-                    }`}
-                  >
-                    <span>Price</span>
-                    <ChevronDown size={14} />
-                  </button>
-                  {showPriceDropdown && (
-                    <div className="absolute top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
-                      {priceRanges.map(opt => (
-                        <FilterItem key={opt.id} checked={selectedPriceRanges.includes(opt.id)} onClick={() => handlePriceToggle(opt.id)} label={opt.label} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Location Pill */}
-                <div className="relative" ref={locationRef}>
-                  <button
-                    onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
-                      selectedLocations.includes("All") 
-                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
-                        : "bg-blue-50 border-blue-200 text-blue-700"
-                    }`}
-                  >
-                    <span>Location</span>
-                    <ChevronDown size={14} />
-                  </button>
-                  {showLocationDropdown && (
-                    <div className="absolute top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
-                      {locations.map(opt => (
-                        <FilterItem key={opt.id} checked={selectedLocations.includes(opt.id)} onClick={() => handleLocationToggle(opt.id)} label={opt.label} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Date Pill */}
-                <div className="relative" ref={dateRef}>
-                  <button
-                    onClick={() => setShowDateDropdown(!showDateDropdown)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all ${
-                      selectedDateRanges.includes("All") 
-                        ? "bg-white border-gray-200 text-gray-700 hover:border-gray-300" 
-                        : "bg-blue-50 border-blue-200 text-blue-700"
-                    }`}
-                  >
-                    <span>Date</span>
-                    <ChevronDown size={14} />
-                  </button>
-                  {showDateDropdown && (
-                    <div className="absolute top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
-                      {dateRanges.map(opt => (
-                        <FilterItem key={opt.id} checked={selectedDateRanges.includes(opt.id)} onClick={() => handleDateToggle(opt.id)} label={opt.label} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              
-                <div className="w-px h-6 bg-gray-300 mx-2"></div>
-
-                {/* Sort Dropdown (Text only) */}
-                <div className="relative" ref={sortRef}>
-                   <button 
-                      onClick={() => setShowSortDropdown(!showSortDropdown)}
-                      className="flex items-center gap-1 text-sm font-medium text-gray-600 hover:text-gray-900"
-                   >
-                      <TrendingUp size={16} />
-                      <span className="capitalize">{sortBy}</span>
-                      <ChevronDown size={12} />
-                   </button>
-                   {showSortDropdown && (
-                    <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
-                      {["date", "price", "name"].map((option) => (
-                        <div
-                          key={option}
-                          onClick={() => { setSortBy(option); setShowSortDropdown(false); }}
-                          className={`px-3 py-2 rounded-lg cursor-pointer text-sm capitalize transition-colors ${
-                            sortBy === option ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50"
-                          }`}
-                        >
-                          {option}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Sticky Sentinel for Intersection Observer */}
+      <div ref={stickySentinelRef} className="h-0" />
 
       {/* Main */}
       <div
         className="container mx-auto px-4 lg:-mt-8 relative z-10"
         ref={containerRef}
       >
-
-
-        {/* Desktop: Top Card Filters */}
-        <div className="hidden lg:block mb-8">
-          <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+        {/* Sticky Glass Filter Bar - ONLY FILTER SECTION FOR DESKTOP */}
+        <div className={`hidden lg:block transition-all duration-300 ${
+          isSticky 
+            ? "fixed top-0 left-0 right-0 z-40 mt-0 mx-auto max-w-[1200px] px-4 py-4" 
+            : "mb-8"
+        }`}>
+          <div className={`bg-white/80 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl p-6 transition-all duration-300 ${
+            isSticky ? "shadow-2xl border-white/30" : "border-gray-100"
+          }`}>
             {/* Search Row */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Search Events
               </label>
               <div className="relative">
@@ -600,36 +469,36 @@ const Events = () => {
                   value={searchTerm}
                   onChange={handleSearchChange}
                   placeholder="Search by event name, description, or category..."
-                  className="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base bg-white/70 backdrop-blur-sm"
                 />
               </div>
             </div>
 
             {/* Filters Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-4">
               {/* Categories */}
               <div className="relative" ref={categoriesRef}>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Categories
                 </label>
                 <button
                   onClick={() =>
                     setShowCategoriesDropdown(!showCategoriesDropdown)
                   }
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur-sm border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
-                    <Tag size={18} className="text-gray-500" />
-                    <span className="text-gray-700">
+                    <Tag size={16} className="text-gray-500" />
+                    <span className="text-gray-700 text-sm">
                       {selectedCategories.includes("All")
                         ? "All Categories"
                         : `${selectedCategories.length} selected`}
                     </span>
                   </div>
-                  <ChevronDown size={18} className="text-gray-500" />
+                  <ChevronDown size={16} className="text-gray-500" />
                 </button>
                 {showCategoriesDropdown && (
-                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                  <div className="absolute z-50 mt-1 w-full bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
                     <div className="p-2">
                       {[
                         { id: "All", label: "All Categories" },
@@ -651,25 +520,25 @@ const Events = () => {
 
               {/* Price */}
               <div className="relative" ref={priceRef}>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Price
                 </label>
                 <button
                   onClick={() => setShowPriceDropdown(!showPriceDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur-sm border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
-                    <Wallet size={18} className="text-gray-500" />
-                    <span className="text-gray-700">
+                    <Wallet size={16} className="text-gray-500" />
+                    <span className="text-gray-700 text-sm">
                       {selectedPriceRanges.includes("All")
                         ? "All Price"
                         : `${selectedPriceRanges.length} selected`}
                     </span>
                   </div>
-                  <ChevronDown size={18} className="text-gray-500" />
+                  <ChevronDown size={16} className="text-gray-500" />
                 </button>
                 {showPriceDropdown && (
-                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                  <div className="absolute z-50 mt-1 w-full bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
                     <div className="p-2">
                       {priceRanges.map((opt) => (
                         <FilterItem
@@ -686,25 +555,25 @@ const Events = () => {
 
               {/* Location */}
               <div className="relative" ref={locationRef}>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Location
                 </label>
                 <button
                   onClick={() => setShowLocationDropdown(!showLocationDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur-sm border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
-                    <MapPin size={18} className="text-gray-500" />
-                    <span className="text-gray-700">
+                    <MapPin size={16} className="text-gray-500" />
+                    <span className="text-gray-700 text-sm">
                       {selectedLocations.includes("All")
                         ? "All Location"
                         : `${selectedLocations.length} selected`}
                     </span>
                   </div>
-                  <ChevronDown size={18} className="text-gray-500" />
+                  <ChevronDown size={16} className="text-gray-500" />
                 </button>
                 {showLocationDropdown && (
-                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                  <div className="absolute z-50 mt-1 w-full bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
                     <div className="p-2">
                       {locations.map((opt) => (
                         <FilterItem
@@ -721,25 +590,25 @@ const Events = () => {
 
               {/* Date */}
               <div className="relative" ref={dateRef}>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Date
                 </label>
                 <button
                   onClick={() => setShowDateDropdown(!showDateDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur-sm border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
-                    <Calendar size={18} className="text-gray-500" />
-                    <span className="text-gray-700">
+                    <Calendar size={16} className="text-gray-500" />
+                    <span className="text-gray-700 text-sm">
                       {selectedDateRanges.includes("All")
                         ? "All Date"
                         : `${selectedDateRanges.length} selected`}
                     </span>
                   </div>
-                  <ChevronDown size={18} className="text-gray-500" />
+                  <ChevronDown size={16} className="text-gray-500" />
                 </button>
                 {showDateDropdown && (
-                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-80 overflow-y-auto">
+                  <div className="absolute z-50 mt-1 w-full bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl max-h-64 overflow-y-auto">
                     <div className="p-2">
                       {dateRanges.map((opt) => (
                         <FilterItem
@@ -753,26 +622,24 @@ const Events = () => {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Sort By Row */}
-            <div className="flex items-end justify-between">
-              <div className="flex-1 max-w-xs relative" ref={sortRef}>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+              {/* Sort By */}
+              <div className="relative" ref={sortRef}>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Sort By
                 </label>
                 <button
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  className="w-full flex items-center justify-between px-3 py-2 bg-white/70 backdrop-blur-sm border border-gray-300 rounded-xl hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 >
                   <div className="flex items-center space-x-2">
-                    <TrendingUp size={18} className="text-gray-500" />
-                    <span className="text-gray-700 capitalize">{sortBy}</span>
+                    <TrendingUp size={16} className="text-gray-500" />
+                    <span className="text-gray-700 text-sm capitalize">{sortBy}</span>
                   </div>
-                  <ChevronDown size={18} className="text-gray-500" />
+                  <ChevronDown size={16} className="text-gray-500" />
                 </button>
                 {showSortDropdown && (
-                  <div className="absolute z-50 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-2xl">
+                  <div className="absolute z-50 mt-1 w-full bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl">
                     <div className="p-2">
                       {["date", "price", "name"].map((option) => (
                         <div
@@ -781,7 +648,7 @@ const Events = () => {
                             setSortBy(option);
                             setShowSortDropdown(false);
                           }}
-                          className={`px-4 py-3 rounded-lg cursor-pointer transition-colors capitalize ${
+                          className={`px-3 py-2 rounded-lg cursor-pointer transition-colors capitalize text-sm ${
                             sortBy === option
                               ? "bg-blue-50 text-blue-700"
                               : "hover:bg-gray-50"
@@ -794,62 +661,80 @@ const Events = () => {
                   </div>
                 )}
               </div>
-
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={clearAllFilters}
-                  className="px-6 py-3 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition-colors border border-red-200"
-                >
-                  Clear All Filters
-                </button>
-              )}
             </div>
 
-            {/* Popular Categories */}
-            {popularCategories.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                  Popular Categories
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {popularCategories.map((cat) => (
+            {/* Bottom Row - Active Filters & Actions */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {activeFiltersCount > 0 && (
+                  <>
+                    <div className="flex items-center space-x-2 text-sm text-gray-700">
+                      <Filter size={14} />
+                      <span>
+                        {activeFiltersCount} active filter{activeFiltersCount !== 1 ? "s" : ""}
+                      </span>
+                    </div>
                     <button
-                      key={cat}
-                      onClick={() => {
-                        setSelectedCategories([cat]);
-                      }}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors text-sm font-medium"
+                      onClick={clearAllFilters}
+                      className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center transition-colors"
                     >
-                      {cat}
+                      <X size={14} className="mr-1" /> Clear all
                     </button>
-                  ))}
-                </div>
+                  </>
+                )}
               </div>
-            )}
+
+              {/* Popular Categories Quick Actions */}
+              {popularCategories.length > 0 && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-500 font-medium">Quick:</span>
+                  <div className="flex space-x-1">
+                    {popularCategories.slice(0, 3).map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => {
+                          setSelectedCategories([cat]);
+                        }}
+                        className="px-2 py-1 bg-gray-100/80 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors text-xs font-medium"
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Results Section */}
-        <div className="mb-12">
-          {/* Active filters bar */}
+        {/* Mobile filter trigger */}
+        <div className="lg:hidden flex items-center justify-between mb-6 pt-4">
+          <button
+            onClick={openMobileFilters}
+            className="mobile-filters-trigger flex items-center space-x-2 bg-white px-4 py-3 rounded-2xl shadow-lg border border-gray-200 font-medium"
+          >
+            <SlidersHorizontal size={20} />
+            <span>Filters</span>
+            {activeFiltersCount > 0 && (
+              <span className="bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {activeFiltersCount}
+              </span>
+            )}
+          </button>
           {activeFiltersCount > 0 && (
-            <div className="hidden lg:flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-              <div className="flex items-center space-x-2">
-                <Filter size={16} className="text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">
-                  {activeFiltersCount} active filter
-                  {activeFiltersCount !== 1 ? "s" : ""}
-                </span>
-              </div>
-              <button
-                onClick={clearAllFilters}
-                className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center"
-              >
-                <X size={16} className="mr-1" /> Clear all
-              </button>
-            </div>
+            <button
+              onClick={clearAllFilters}
+              className="text-red-600 text-sm font-medium"
+            >
+              Clear All
+            </button>
           )}
+        </div>
 
+        {/* REMOVED: Original Desktop Filter Card (Duplicate) */}
+
+        {/* Results Section */}
+        <div className="mb-12 pt-4">
           {/* Header + summary */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 lg:mb-8">
             <div>
