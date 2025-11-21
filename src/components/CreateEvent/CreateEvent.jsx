@@ -514,7 +514,7 @@ const CreateEvent = () => {
   return (
     <div className="min-h-screen bg-slate-50/50">
     {/* --- NEW HERO SECTION (ALL GRAY) --- */}
-      <div className="relative py-24 overflow-hidden bg-slate-900 isolate">
+     <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-gray-900 py-20 relative overflow-hidden">
         {/* 1. Background Texture (Subtle Grid) */}
         <svg
           className="absolute inset-0 -z-10 h-full w-full stroke-white/10 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
@@ -557,9 +557,9 @@ const CreateEvent = () => {
                Create Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Event</span>
             </h1>
             
-            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-               Bring your vision to life. Fill in the details below to start selling tickets and managing attendees in minutes.
-            </p>
+            <p className="text-xl text-white max-w-2xl mx-auto leading-relaxed">
+  Bring your vision to life. Fill in the details below to start selling tickets and managing attendees in minutes.
+</p>
          </div>
       </div>
 
