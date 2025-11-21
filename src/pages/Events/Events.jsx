@@ -16,6 +16,18 @@ import {
   ChevronUp,
   Tag,
   Clock,
+  Music,
+  Briefcase,
+  Camera,
+  Utensils,
+  GraduationCap,
+  Heart,
+  Gamepad,
+  Microscope,
+  Palette,
+  Dumbbell,
+  Code,
+  Sparkles,
 } from "lucide-react";
 import { events, categories } from "../../data/events";
 import EventCard from "../../components/Events/EventCard";
@@ -56,6 +68,7 @@ const Events = () => {
   const containerRef = useRef(null);
   const heroRef = useRef(null);
   const stickySentinelRef = useRef(null);
+  const categoriesScrollRef = useRef(null);
 
   // Filter options
   const priceRanges = [
@@ -84,10 +97,46 @@ const Events = () => {
     { id: "weekend", label: "This Weekend" },
     { id: "next-week", label: "Next 7 Days" },
     { id: "this-month", label: "This Month" },
+    { id: "next-month", label: "Next Month" },
   ];
+
+  // Category icons mapping
+  const categoryIcons = {
+    "All": Sparkles,
+    "Music": Music,
+    "Business": Briefcase,
+    "Technology": Code,
+    "Food & Drink": Utensils,
+    "Arts": Palette,
+    "Sports": Dumbbell,
+    "Health": Heart,
+    "Education": GraduationCap,
+    "Gaming": Gamepad,
+    "Science": Microscope,
+    "Photography": Camera,
+    "Carnival": Users,           // Crowds/celebration
+  "Afrobeats": Music,          // Music genre
+  "Wellness": Heart,           // Health/wellbeing
+  "Art": Palette,              // Creative arts
+  "Religious": GraduationCap,  // Represents learning/faith
+  "Cultural": Users,           // Community/culture
+  "Entertainment": Sparkles,   // Glamour/excitement
+  "Comedy": Heart,             // Laughter/love
+  "Dating": Heart,             // Romance/connections
+    // Fallback for any other categories
+  };
 
   const safeEvents = events || [];
   const safeCategories = categories || ["All"];
+
+  // Enhanced categories with icons
+  const enhancedCategories = useMemo(() => {
+    return safeCategories.map(category => ({
+      id: category,
+      label: category,
+      icon: categoryIcons[category] || Tag
+    }));
+  }, [safeCategories]);
 
   // Sticky header intersection observer
   useEffect(() => {
@@ -178,6 +227,7 @@ const Events = () => {
   };
 
   const handleCategoryToggle = (id) => toggleOnly(setSelectedCategories, id);
+
   const handlePriceToggle = (id) => toggleOnly(setSelectedPriceRanges, id);
   const handleLocationToggle = (id) => toggleOnly(setSelectedLocations, id);
   const handleDateToggle = (id) => toggleOnly(setSelectedDateRanges, id);
@@ -332,6 +382,24 @@ const Events = () => {
     </div>
   );
 
+  // Category Pill Component
+  const CategoryPill = ({ category, isSelected, onClick }) => {
+    const IconComponent = category.icon;
+    return (
+      <button
+        onClick={() => onClick(category.id)}
+        className={`flex items-center space-x-2 px-4 py-3 rounded-full border transition-all duration-200 whitespace-nowrap flex-shrink-0 ${
+          isSelected
+            ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200"
+            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"
+        }`}
+      >
+        <IconComponent size={16} className="flex-shrink-0" />
+        <span className="text-sm font-medium">{category.label}</span>
+      </button>
+    );
+  };
+
   const EventCardSkeleton = () => (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden animate-pulse">
       <div className="h-48 bg-gradient-to-r from-gray-200 to-gray-300 relative overflow-hidden">
@@ -445,7 +513,7 @@ const Events = () => {
         className="container mx-auto px-4 lg:-mt-8 relative z-10"
         ref={containerRef}
       >
-        {/* Sticky Glass Filter Bar - ONLY FILTER SECTION FOR DESKTOP */}
+        {/* Sticky Glass Filter Bar - ENHANCED WITH PILL CATEGORIES */}
         <div className={`hidden lg:block transition-all duration-300 ${
           isSticky 
             ? "fixed top-0 left-0 right-0 z-40 mt-0 mx-auto max-w-[1200px] px-4 py-4" 
@@ -474,9 +542,30 @@ const Events = () => {
               </div>
             </div>
 
+            {/* Horizontal Category Pills - NEW COMPONENT */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Browse Categories
+              </label>
+              <div 
+                ref={categoriesScrollRef}
+                className="flex space-x-2 pb-3 overflow-x-auto scrollbar-hide scroll-smooth"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {enhancedCategories.map((category) => (
+                  <CategoryPill
+                    key={category.id}
+                    category={category}
+                    isSelected={selectedCategories.includes(category.id)}
+                    onClick={handleCategoryToggle}
+                  />
+                ))}
+              </div>
+            </div>
+
             {/* Filters Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3 mb-4">
-              {/* Categories */}
+              {/* Categories Dropdown (Fallback) */}
               <div className="relative" ref={categoriesRef}>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                   Categories
@@ -731,7 +820,20 @@ const Events = () => {
           )}
         </div>
 
-        {/* REMOVED: Original Desktop Filter Card (Duplicate) */}
+        {/* Mobile Category Pills - HORIZONTAL SCROLLING */}
+        <div className="lg:hidden mb-6">
+          <div className="flex space-x-3 pb-3 overflow-x-auto scrollbar-hide scroll-smooth px-1"
+               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {enhancedCategories.map((category) => (
+              <CategoryPill
+                key={category.id}
+                category={category}
+                isSelected={selectedCategories.includes(category.id)}
+                onClick={handleCategoryToggle}
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Results Section */}
         <div className="mb-12 pt-4">

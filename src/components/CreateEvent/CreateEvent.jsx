@@ -512,22 +512,52 @@ const CreateEvent = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* --- NEW HERO SECTION --- */}
-      <div className="bg-gradient-to-br from-blue-900 via-blue-700 to-purple-900 py-20 relative overflow-hidden">
-         {/* Decorative Elements */}
-         <div className="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-         <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
-         
+    <div className="min-h-screen bg-slate-50/50">
+    {/* --- NEW HERO SECTION (ALL GRAY) --- */}
+      <div className="relative py-24 overflow-hidden bg-slate-900 isolate">
+        {/* 1. Background Texture (Subtle Grid) */}
+        <svg
+          className="absolute inset-0 -z-10 h-full w-full stroke-white/10 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
+          aria-hidden="true"
+        >
+          <defs>
+            <pattern
+              id="983e3e4c-de6d-4c3f-8d64-b9761d1534cc"
+              width={200}
+              height={200}
+              x="50%"
+              y={-1}
+              patternUnits="userSpaceOnUse"
+            >
+              <path d="M.5 200V.5H200" fill="none" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" strokeWidth={0} fill="url(#983e3e4c-de6d-4c3f-8d64-b9761d1534cc)" />
+        </svg>
+
+        {/* 2. Subtle Gradient Glow (Top Center) - Adjusted to be dark */}
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.slate.800),theme(colors.slate.900))] opacity-50" />
+        
+        {/* 3. Aurora Blob (Right Side) - Kept for premium feel */}
+        <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/4 blur-3xl opacity-30 pointer-events-none">
+            <div className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc]" 
+                 style={{ clipPath: 'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)' }} 
+            />
+        </div>
+        
          <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-blue-50 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-               <Sparkles size={16} className="text-yellow-300" />
-               <span>Host Your Experience</span>
+            {/* Pill Badge */}
+            <div className="inline-flex items-center gap-2 bg-slate-800/50 backdrop-blur-md border border-slate-700 text-indigo-200 px-4 py-1.5 rounded-full text-sm font-medium mb-6 shadow-lg">
+               <Sparkles size={16} className="text-yellow-400" />
+               <span className="tracking-wide">Host Your Experience</span>
             </div>
+            
+            {/* Main Title */}
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">
-               Create Your Event
+               Create Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Event</span>
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+            
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
                Bring your vision to life. Fill in the details below to start selling tickets and managing attendees in minutes.
             </p>
          </div>
