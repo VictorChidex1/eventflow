@@ -21,18 +21,13 @@ const MyTickets = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
 
   useEffect(() => {
-    // Simulate fetching data from API (Local Storage in this case)
     const fetchTickets = async () => {
       try {
-        // 1. Fetch All persisted tickets
         const storedTickets = JSON.parse(localStorage.getItem('userTickets') || '[]');
         
-        // 2. Filter by current User ID/Email
-        // Note: In production, the backend handles this filtering
         const userKey = user?.id || user?.email;
         const myTickets = storedTickets.filter(t => t.userId === userKey);
         
-        // Sort by purchase date (newest first)
         myTickets.sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate));
         
         setTickets(myTickets);
@@ -46,7 +41,6 @@ const MyTickets = () => {
     if (user) {
       fetchTickets();
     } else {
-      // Redirect if not logged in
       navigate('/login');
     }
   }, [user, navigate]);
@@ -72,16 +66,22 @@ const MyTickets = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    /* UI FIX: 
+       Changed 'py-12' to 'pt-6 pb-12 md:py-12' 
+       This reduces top spacing from 48px to 24px on mobile, 
+       bringing "My Tickets" closer to the nav bar.
+    */
+    <div className="min-h-screen bg-gray-50 pt-6 pb-12 md:py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Tickets</h1>
-            <p className="text-gray-500 mt-1">Manage your upcoming events and tickets</p>
+            {/* Adjusted text size for mobile (2xl) vs desktop (3xl) */}
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Tickets</h1>
+            <p className="text-gray-500 mt-1 text-sm md:text-base">Manage your upcoming events and tickets</p>
           </div>
           <div className="mt-4 md:mt-0">
-            <Link to="/events" className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center justify-center">
+            <Link to="/events" className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors flex items-center justify-center w-full md:w-auto">
               <Ticket className="w-5 h-5 mr-2" />
               Browse Events
             </Link>
@@ -89,11 +89,11 @@ const MyTickets = () => {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6 md:mb-8">
           <div className="flex border-b border-gray-200">
             <button
               onClick={() => setActiveTab("upcoming")}
-              className={`flex-1 py-4 text-sm font-medium text-center transition-colors relative ${
+              className={`flex-1 py-3 md:py-4 text-sm font-medium text-center transition-colors relative ${
                 activeTab === "upcoming" ? "text-primary-600" : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -104,7 +104,7 @@ const MyTickets = () => {
             </button>
             <button
               onClick={() => setActiveTab("past")}
-              className={`flex-1 py-4 text-sm font-medium text-center transition-colors relative ${
+              className={`flex-1 py-3 md:py-4 text-sm font-medium text-center transition-colors relative ${
                 activeTab === "past" ? "text-primary-600" : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -123,33 +123,33 @@ const MyTickets = () => {
               <div key={ticket.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                 <div className="flex flex-col md:flex-row">
                   {/* Event Image */}
-                  <div className="md:w-1/3 lg:w-1/4 h-48 md:h-auto relative">
+                  <div className="md:w-1/3 lg:w-1/4 h-40 md:h-auto relative">
                     <img
                       src={ticket.eventImage || "/api/placeholder/400/300"}
                       alt={ticket.eventTitle}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-primary-700 uppercase tracking-wider">
+                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-primary-700 uppercase tracking-wider shadow-sm">
                       {ticket.ticketType}
                     </div>
                   </div>
 
                   {/* Ticket Details */}
-                  <div className="p-6 md:w-2/3 lg:w-3/4 flex flex-col justify-between">
+                  <div className="p-5 md:p-6 md:w-2/3 lg:w-3/4 flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-bold text-gray-900">{ticket.eventTitle}</h3>
-                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                        <h3 className="text-lg md:text-xl font-bold text-gray-900 line-clamp-1">{ticket.eventTitle}</h3>
+                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full flex-shrink-0 ml-2">
                           Confirmed
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mt-3 md:mt-4">
                         <div className="flex items-center text-gray-600">
-                          <Calendar className="w-5 h-5 mr-3 text-primary-500" />
+                          <Calendar className="w-4 h-4 md:w-5 md:h-5 mr-3 text-primary-500" />
                           <div>
-                            <p className="text-xs text-gray-400 uppercase">Date</p>
-                            <p className="font-medium">
+                            <p className="text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Date</p>
+                            <p className="font-medium text-sm md:text-base">
                               {new Date(ticket.eventDate).toLocaleDateString("en-US", {
                                 weekday: "short",
                                 month: "long",
@@ -161,42 +161,42 @@ const MyTickets = () => {
                         </div>
                         
                         <div className="flex items-center text-gray-600">
-                          <Clock className="w-5 h-5 mr-3 text-primary-500" />
+                          <Clock className="w-4 h-4 md:w-5 md:h-5 mr-3 text-primary-500" />
                           <div>
-                             <p className="text-xs text-gray-400 uppercase">Time</p>
-                             <p className="font-medium">{ticket.eventTime || "TBA"}</p>
+                             <p className="text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Time</p>
+                             <p className="font-medium text-sm md:text-base">{ticket.eventTime || "TBA"}</p>
                           </div>
                         </div>
 
                         <div className="flex items-center text-gray-600">
-                          <MapPin className="w-5 h-5 mr-3 text-primary-500" />
+                          <MapPin className="w-4 h-4 md:w-5 md:h-5 mr-3 text-primary-500" />
                           <div>
-                            <p className="text-xs text-gray-400 uppercase">Location</p>
-                            <p className="font-medium truncate max-w-[200px]" title={ticket.eventLocation}>
+                            <p className="text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Location</p>
+                            <p className="font-medium text-sm md:text-base truncate max-w-[200px]" title={ticket.eventLocation}>
                               {ticket.eventLocation}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex items-center text-gray-600">
-                          <Ticket className="w-5 h-5 mr-3 text-primary-500" />
+                          <Ticket className="w-4 h-4 md:w-5 md:h-5 mr-3 text-primary-500" />
                           <div>
-                             <p className="text-xs text-gray-400 uppercase">Quantity</p>
-                             <p className="font-medium">{ticket.quantity} Ticket(s)</p>
+                             <p className="text-[10px] md:text-xs text-gray-400 uppercase font-semibold">Quantity</p>
+                             <p className="font-medium text-sm md:text-base">{ticket.quantity} Ticket(s)</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="mt-6 pt-6 border-t border-gray-100 flex flex-wrap gap-3">
-                       <button className="flex-1 bg-primary-50 text-primary-700 px-4 py-2 rounded-lg font-medium hover:bg-primary-100 transition-colors flex items-center justify-center">
+                    <div className="mt-6 pt-4 md:pt-6 border-t border-gray-100 flex flex-wrap gap-2 md:gap-3">
+                       <button className="flex-1 bg-primary-50 text-primary-700 px-3 py-2 md:px-4 rounded-lg text-sm md:text-base font-medium hover:bg-primary-100 transition-colors flex items-center justify-center">
                          <Download className="w-4 h-4 mr-2" />
-                         Download Ticket
+                         Download
                        </button>
-                       <button className="flex-1 bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center">
+                       <button className="flex-1 bg-gray-50 text-gray-700 px-3 py-2 md:px-4 rounded-lg text-sm md:text-base font-medium hover:bg-gray-100 transition-colors flex items-center justify-center">
                          <Share2 className="w-4 h-4 mr-2" />
-                         Share Event
+                         Share
                        </button>
                        <button className="flex-none bg-gray-900 text-white p-2 rounded-lg hover:bg-black transition-colors" title="Show QR Code">
                          <QrCode className="w-5 h-5" />
@@ -208,19 +208,19 @@ const MyTickets = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-2xl border border-gray-200 shadow-sm">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Ticket className="w-10 h-10 text-gray-400" />
+          <div className="text-center py-12 md:py-16 bg-white rounded-2xl border border-gray-200 shadow-sm">
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
+              <Ticket className="w-8 h-8 md:w-10 md:h-10 text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No tickets found</h3>
-            <p className="text-gray-500 mb-8 max-w-md mx-auto">
+            <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-2">No tickets found</h3>
+            <p className="text-gray-500 mb-6 md:mb-8 max-w-md mx-auto text-sm md:text-base px-4">
               {activeTab === "upcoming" 
                 ? "You haven't purchased any tickets for upcoming events yet." 
                 : "You don't have any past events in your history."}
             </p>
             <Link
               to="/events"
-              className="inline-flex items-center bg-primary-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-200"
+              className="inline-flex items-center bg-primary-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-lg shadow-primary-200 text-sm md:text-base"
             >
               Explore Events
             </Link>
