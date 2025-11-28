@@ -3,11 +3,24 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* Ensure skeleton elements have consistent background */
+.bg-gray-200 {
+  background-color: #e5e7eb;
+}
+
+/* Pricing Header adjustments */
 .pricing-header {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 3rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  /* Background handled by image overlay now */
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pricing-title {
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.pricing-subtitle {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .pricing-title {

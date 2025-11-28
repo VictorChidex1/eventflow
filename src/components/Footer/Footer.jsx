@@ -1,6 +1,8 @@
 import React from "react";
 import { Calendar, Twitter, Facebook, Instagram } from "lucide-react";
 
+import logo from "../../assets/images/logo.png";
+
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white py-12">
@@ -9,9 +11,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-primary-600 text-white p-2 rounded-lg">
-                <Calendar size={24} />
-              </div>
+              <img src={logo} alt="EventFlow Logo" className="h-10 w-auto" />
               <span className="text-2xl font-bold">EventFlow</span>
             </div>
             <p className="text-gray-400 max-w-md">

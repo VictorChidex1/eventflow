@@ -7,6 +7,7 @@ import PaymentCurrency from "../PaymentCurrency/PaymentCurrency";
 import SocialProof from "../SocialProof/SocialProof";
 import EnterpriseContactForm from "../EnterpriseContact/EnterpriseContactForm";
 import SmartTicketing from "../FeatureDeepDive/SmartTicketing/SmartTicketing";
+import pricingHero from "../../assets/images/pricing-hero.png";
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState("monthly");
@@ -301,15 +302,23 @@ const Pricing = () => {
         {/* Subtitle Skeleton */}
         <div className="h-6 bg-white/30 rounded w-1/2 mx-auto mb-6"></div>
 
-        {/* Billing Toggle Skeleton */}
-        <div className="billing-toggle-container">
-          <div className="billing-toggle bg-white/20 p-1 rounded-lg">
-            <div className="flex space-x-1">
-              <div className="h-10 bg-white/30 rounded-lg w-24"></div>
-              <div className="h-10 bg-white/30 rounded-lg w-24"></div>
+        {/* Header Content Skeleton */}
+        <div className="relative z-10 max-w-4xl mx-auto text-center pt-20 pb-32">
+          {/* Icon Skeleton */}
+          <div className="h-10 w-10 bg-white/30 rounded-lg mx-auto mb-4"></div>
+          <div className="h-12 bg-white/30 rounded w-3/4 mx-auto mb-4"></div>
+          <div className="h-6 bg-white/30 rounded w-1/2 mx-auto mb-6"></div>
+
+          {/* Billing Toggle Skeleton */}
+          <div className="billing-toggle-container">
+            <div className="billing-toggle bg-white/20 p-1 rounded-lg">
+              <div className="flex space-x-1">
+                <div className="h-10 bg-white/30 rounded-lg w-24"></div>
+                <div className="h-10 bg-white/30 rounded-lg w-24"></div>
+              </div>
             </div>
+            <div className="h-8 bg-white/30 rounded-full w-48 mt-2"></div>
           </div>
-          <div className="h-8 bg-white/30 rounded-full w-48"></div>
         </div>
       </div>
     </div>
@@ -329,20 +338,34 @@ const Pricing = () => {
       {isLoading ? (
         <HeaderSkeleton />
       ) : (
-        <div className="pricing-header">
-          <div className="max-w-4xl mx-auto text-center">
+        <div className="pricing-header relative overflow-hidden">
+          {/* Background Image & Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img 
+              src={pricingHero} 
+              alt="Pricing Background" 
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+          </div>
+
+          <div className="relative z-10 max-w-4xl mx-auto text-center pt-20 pb-32 px-4">
             <div className="flex justify-center mb-4">
-              <CreditCard className="w-10 h-10 text-white" />
+              <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm border border-white/10">
+                <CreditCard className="w-8 h-8 text-white" />
+              </div>
             </div>
-            <h1 className="pricing-title">Simple, Transparent Pricing</h1>
-            <p className="pricing-subtitle">
+            <h1 className="pricing-title text-5xl md:text-6xl font-bold text-white mb-6 tracking-tight">
+              Simple, Transparent Pricing
+            </h1>
+            <p className="pricing-subtitle text-xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed">
               Choose the perfect plan for your events. All plans include our
               core features with no hidden fees.
             </p>
 
             {/* Billing Toggle */}
             <div className="billing-toggle-container">
-              <div className="billing-toggle">
+              <div className="billing-toggle bg-white/10 backdrop-blur-md border border-white/20 p-1.5 rounded-xl">
                 <button
                   className={`toggle-option ${
                     billingCycle === "monthly" ? "active" : ""
@@ -360,7 +383,7 @@ const Pricing = () => {
                   Annual
                 </button>
               </div>
-              <div className="savings-badge">
+              <div className="savings-badge mt-4 bg-[#2561e9] backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg border border-[#2561e9]/30">
                 Save up to 20% with annual billing
               </div>
             </div>
@@ -369,24 +392,15 @@ const Pricing = () => {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Plan Calculator - Assuming it has its own loading state */}
-        <PlanCalculator />
-
-        <SmartTicketing />
-
-        <PaymentCurrency />
-
-        <SocialProof />
-
-        {/* Pricing Plans with Skeleton */}
+        {/* Pricing Plans with Skeleton - Moved to top with overlap */}
         {isLoading ? (
-          <div className="pricing-grid">
+          <div className="pricing-grid -mt-24 relative z-20">
             {Array.from({ length: 3 }).map((_, index) => (
               <PricingCardSkeleton key={index} />
             ))}
           </div>
         ) : (
-          <div className="pricing-grid">
+          <div className="pricing-grid -mt-24 relative z-20">
             {plans.map((plan, index) => (
               <div
                 key={index}
@@ -456,8 +470,8 @@ const Pricing = () => {
           </div>
         )}
 
-        {/* Features Comparison Table with Skeleton */}
-        <div className="features-comparison">
+        {/* Features Comparison Table with Skeleton - Moved to follow pricing plans */}
+        <div className="features-comparison relative z-20 mt-12">
           <div className="text-center mb-12">
             <h2 className="comparison-title">Compare Plans</h2>
             <p className="comparison-subtitle">
@@ -520,6 +534,19 @@ const Pricing = () => {
           )}
         </div>
 
+        {/* Plan Calculator - Assuming it has its own loading state */}
+        <PlanCalculator />
+
+        <SmartTicketing />
+
+        <PaymentCurrency />
+
+        <SocialProof />
+
+
+
+
+
         {/* FAQ Section with Skeleton */}
         <div className="faq-section">
           <div className="text-center mb-12">
@@ -563,6 +590,23 @@ const Pricing = () => {
                 <p className="faq-answer">
                   Absolutely! We offer special pricing for registered nonprofit
                   organizations. Contact us for details.
+                </p>
+              </div>
+
+              <div className="faq-item">
+                <h4 className="faq-question">What is your cancellation policy?</h4>
+                <p className="faq-answer">
+                  You can cancel your subscription at any time. Your access will
+                  continue until the end of your current billing period.
+                </p>
+              </div>
+
+              <div className="faq-item">
+                <h4 className="faq-question">How can I contact support?</h4>
+                <p className="faq-answer">
+                  Our support team is available 24/7 via email for all plans,
+                  and we offer priority chat and phone support for higher-tier
+                  plans.
                 </p>
               </div>
             </div>
