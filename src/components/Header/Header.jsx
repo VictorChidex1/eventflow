@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
+import logo from "../../assets/images/logo.png";
+
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
@@ -35,9 +37,8 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <img src="/src/assets/images/logo.png" alt="EventFlow Logo" className="h-10 w-auto" />
+              <img src={logo} alt="EventFlow Logo" className="h-10 w-auto" />
               <span className="text-xl font-bold text-gray-900">EventFlow</span>
             </Link>
 
