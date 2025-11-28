@@ -35,10 +35,9 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
+            {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
-                <Calendar size={20} />
-              </div>
+              <img src="/src/assets/images/logo.png" alt="EventFlow Logo" className="h-10 w-auto" />
               <span className="text-xl font-bold text-gray-900">EventFlow</span>
             </Link>
 
