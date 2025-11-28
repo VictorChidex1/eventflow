@@ -1,4 +1,3 @@
-// src/components/Tickets/MyTickets.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -12,7 +11,7 @@ import {
   QrCode
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-// 1. Import the generator
+
 import { generateReceipt } from "../../utils/pdfGenerator";
 
 const MyTickets = () => {
@@ -47,10 +46,8 @@ const MyTickets = () => {
     }
   }, [user, navigate]);
 
-  // 2. Implement the Download Handler
   const handleDownloadTicket = (ticket) => {
-    // We need to adapt our LocalStorage data shape to match 
-    // what pdfGenerator.js expects
+   
     const ticketForPdf = {
       reference: ticket.paymentReference || ticket.id.split('_')[1] || 'FREE', // Handle Paid vs Free refs
       paymentDate: ticket.purchaseDate,
