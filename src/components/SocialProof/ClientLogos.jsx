@@ -5,7 +5,7 @@ const ClientLogos = () => {
   const clients = [
     {
       name: "Paystack",
-      logo: "./images/Paystack-logo.png",
+      logo: "./images/paystack-logo.png",
       width: 160,
       height: 60,
     },

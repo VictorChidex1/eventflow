@@ -1,7 +1,6 @@
 import React from "react";
 import TrustMetrics from "./TrustMetrics";
 import ClientTestimonials from "./ClientTestimonials";
-import TrustBadges from "./TrustBadges";
 import ClientLogos from "./ClientLogos"; // Keeping the original import path
 import "./SocialProof.css";
 
@@ -17,11 +16,6 @@ const SocialProof = () => {
         {/* Client Logos Section */}
         <div className="mb-20">
           <ClientLogos />
-        </div>
-
-        {/* Trust Badges Section */}
-        <div className="mb-20">
-          <TrustBadges />
         </div>
 
         {/* Testimonials Section */}

@@ -1,5 +1,6 @@
 // src/components/Events/EventDetail.jsx
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -245,9 +246,24 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
     return colors[category] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
+
+
+// ... [Keep other imports]
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="bg-white rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto"
+      >
         {/* Header with Back Button */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl z-10">
           <div className="flex items-center justify-between">
@@ -556,7 +572,7 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Ticket Purchase & Payment Flow - Only show if user is authenticated */}
       {showTicketPurchase && selectedTicket && authUser && (
@@ -603,7 +619,7 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

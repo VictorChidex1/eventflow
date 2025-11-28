@@ -17,8 +17,9 @@ import {
   Wallet,
   Users,
   SlidersHorizontal,
-  ArrowUp, // <--- 1. Added Import
+  ArrowUp,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { events, categories } from "../../data/events";
 import EventCard from "./EventCard";
 import EventDetail from "./EventDetail";
@@ -480,18 +481,56 @@ const EventsList = () => {
         </div>
 
         {/* Events Grid */}
-        {filteredEvents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
-            {filteredEvents.map((event) => (<div key={event.id} onClick={() => handleEventClick(event)} className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl rounded-2xl"><EventCard event={event} /></div>))}
-          </div>
-        ) : (
-          <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 mb-12">
-            <div className="text-gray-300 mb-6"><Filter size={80} className="mx-auto" /></div>
-            <h3 className="text-2xl font-semibold text-gray-600 mb-3">No events found</h3>
-            <p className="text-gray-500 max-w-md mx-auto mb-6">{searchTerm ? `No events found for "${searchTerm}". Try adjusting your search or filters.` : "We couldn't find any events matching your search criteria."}</p>
-            {activeFiltersCount > 0 && (<button onClick={clearAllFilters} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl">Clear All Filters</button>)}
-          </div>
-        )}
+        <motion.div
+          layout
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredEvents.length > 0 ? (
+              filteredEvents.map((event) => (
+                <motion.div
+                  key={event.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3 }}
+                  onClick={() => handleEventClick(event)}
+                  className="h-full"
+                >
+                  <EventCard event={event} />
+                </motion.div>
+              ))
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="col-span-full text-center py-16 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 mb-12"
+              >
+                <div className="text-gray-300 mb-6">
+                  <Filter size={80} className="mx-auto" />
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-600 mb-3">
+                  No events found
+                </h3>
+                <p className="text-gray-500 max-w-md mx-auto mb-6">
+                  {searchTerm
+                    ? `No events found for "${searchTerm}". Try adjusting your search or filters.`
+                    : "We couldn't find any events matching your search criteria."}
+                </p>
+                {activeFiltersCount > 0 && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* View All Events CTA */}
         {filteredEvents.length > 0 && (
