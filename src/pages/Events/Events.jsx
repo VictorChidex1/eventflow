@@ -29,12 +29,37 @@ import {
   Sparkles,
   ArrowUp
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { events, categories } from "../../data/events";
 import EventCard from "../../components/Events/EventCard";
 import EventDetail from "../../components/Events/EventDetail";
 import "./Events.css";
 
 const Events = () => {
+  // Animation Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+  };
+
   // State
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategories, setSelectedCategories] = useState(["All"]);
@@ -380,30 +405,45 @@ const Events = () => {
       <div className="relative bg-slate-900 pt-20 pb-32 lg:pt-24 lg:pb-40 overflow-hidden">
         {/* Decorative Background Effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full z-0">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[120px]"></div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]"
+          ></motion.div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
+            className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[120px]"
+          ></motion.div>
         </div>
 
-        <div className="container mx-auto px-4 relative z-10">
+        <motion.div 
+          className="container mx-auto px-4 relative z-10"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 text-blue-100 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/10 text-blue-100 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
                <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                 </span>
                <span>Live Events Happening Now</span>
-            </div>
+            </motion.div>
             
-            <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-white tracking-tight">
+            <motion.h1 variants={itemVariants} className="text-4xl lg:text-6xl font-bold mb-6 text-white tracking-tight">
               Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Trending Events</span>
-            </h1>
+            </motion.h1>
             
-            <p className="text-lg lg:text-xl text-slate-300 mb-8 leading-relaxed px-4 max-w-2xl mx-auto">
+            <motion.p variants={itemVariants} className="text-lg lg:text-xl text-slate-300 mb-8 leading-relaxed px-4 max-w-2xl mx-auto">
               Find your next unforgettable experience. From intimate workshops to massive music festivals, it's all happening on EventFlow.
-            </p>
+            </motion.p>
             
             {/* Stats Row */}
-            <div className="flex justify-center items-center gap-8 lg:gap-12 pt-4 border-t border-white/10 max-w-lg mx-auto">
+            <motion.div variants={itemVariants} className="flex justify-center items-center gap-8 lg:gap-12 pt-4 border-t border-white/10 max-w-lg mx-auto">
               <div>
                 <div className="text-2xl lg:text-3xl font-bold text-white">{safeEvents.length}+</div>
                 <div className="text-slate-400 text-xs lg:text-sm font-medium uppercase tracking-wide">Events</div>
@@ -418,16 +458,21 @@ const Events = () => {
                 <div className="text-2xl lg:text-3xl font-bold text-white">{safeEvents.filter((e) => e.price === 0).length}</div>
                 <div className="text-slate-400 text-xs lg:text-sm font-medium uppercase tracking-wide">Free Entry</div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Main Content Container */}
       <div className="container mx-auto px-4 relative z-10 -mt-8">
         
         {/* Desktop Filters - STATIC POSITIONING */}
-        <div className="hidden lg:block mb-8 relative z-30">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="hidden lg:block mb-8 relative z-30"
+        >
           <div className="bg-white/95 backdrop-blur-md border border-gray-100 rounded-3xl shadow-xl p-6">
             
             {/* Search Row */}
@@ -594,7 +639,7 @@ const Events = () => {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Mobile filter trigger */}
         <div className="lg:hidden flex items-center justify-between mb-6 pt-4">
@@ -634,16 +679,47 @@ const Events = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
               {Array.from({ length: eventsPerPage }).map((_, i) => <EventCardSkeleton key={i} />)}
             </div>
-          ) : currentEvents.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
-                {currentEvents.map((ev) => (
-                  <div key={ev.id} onClick={() => setSelectedEvent(ev)} className="group cursor-pointer transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl">
-                    <EventCard event={ev} />
-                  </div>
-                ))}
-              </div>
-              {totalPages > 1 && (
+          ) : (
+            <motion.div layout className="min-h-[400px]">
+              <AnimatePresence mode="popLayout">
+                {currentEvents.length > 0 ? (
+                  <motion.div 
+                    layout
+                    className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-12"
+                  >
+                    {currentEvents.map((ev) => (
+                      <motion.div
+                        layout
+                        key={ev.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={() => setSelectedEvent(ev)}
+                        className="group cursor-pointer h-full"
+                      >
+                        <div className="transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl h-full">
+                          <EventCard event={ev} />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-center py-12 lg:py-16 bg-white rounded-2xl shadow-sm border border-gray-100 mb-12"
+                  >
+                     <div className="text-gray-300 mb-6"><Filter size={60} className="lg:size-80 mx-auto" /></div>
+                     <h3 className="text-xl lg:text-2xl font-semibold text-gray-600 mb-3">No events found</h3>
+                     <p className="text-gray-500 max-w-md mx-auto mb-6 text-sm lg:text-base">We couldn't find any events matching your search criteria.</p>
+                     <button onClick={clearAllFilters} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base">Clear All Filters</button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {currentEvents.length > 0 && totalPages > 1 && (
                 <div className="flex justify-center items-center space-x-1 lg:space-x-2 mb-12">
                   <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className={`flex items-center px-3 lg:px-4 py-2 rounded-lg border transition-all duration-200 text-sm lg:text-base ${currentPage === 1 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400"}`}>
                     <ChevronLeft size={16} className="mr-1" /> Previous
@@ -658,130 +734,137 @@ const Events = () => {
                   </button>
                 </div>
               )}
-            </>
-          ) : (
-            <div className="text-center py-12 lg:py-16 bg-white rounded-2xl shadow-sm border border-gray-100 mb-12">
-               <div className="text-gray-300 mb-6"><Filter size={60} className="lg:size-80 mx-auto" /></div>
-               <h3 className="text-xl lg:text-2xl font-semibold text-gray-600 mb-3">No events found</h3>
-               <p className="text-gray-500 max-w-md mx-auto mb-6 text-sm lg:text-base">We couldn't find any events matching your search criteria.</p>
-               <button onClick={clearAllFilters} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 text-sm lg:text-base">Clear All Filters</button>
-            </div>
+            </motion.div>
           )}
         </div>
 
         {/* --- REFACTORED MOBILE FILTERS MODAL --- */}
-        {isMobileFiltersOpen && (
-          <div className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center">
-            <div ref={mobileFiltersRef} className="bg-white w-full max-h-[85vh] rounded-t-3xl overflow-y-auto animate-slide-up flex flex-col">
-              <div className="p-6 flex-1 overflow-y-auto">
-                {/* Mobile Header */}
-                <div className="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 py-2">
-                  <h3 className="text-xl font-bold text-gray-900">Filters & Search</h3>
-                  <button onClick={closeMobileFilters} className="p-2 hover:bg-gray-100 rounded-lg">
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="space-y-6">
-                  {/* 1. Search */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Search Events</label>
-                    <div className="relative">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                      <input
-                        ref={mobileSearchInputRef}
-                        type="text"
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        placeholder="Type to search events..."
-                        className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
+        <AnimatePresence>
+          {isMobileFiltersOpen && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-end justify-center"
+            >
+              <motion.div 
+                ref={mobileFiltersRef} 
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="bg-white w-full max-h-[85vh] rounded-t-3xl overflow-y-auto flex flex-col"
+              >
+                <div className="p-6 flex-1 overflow-y-auto">
+                  {/* Mobile Header */}
+                  <div className="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 py-2">
+                    <h3 className="text-xl font-bold text-gray-900">Filters & Search</h3>
+                    <button onClick={closeMobileFilters} className="p-2 hover:bg-gray-100 rounded-lg">
+                      <X size={20} />
+                    </button>
                   </div>
 
-                  {/* 2. Categories Dropdown */}
-                  <MobileFilterDropdown
-                    title="Categories"
-                    icon={Users}
-                    options={[{ id: "All", label: "All Categories" }, ...safeCategories.filter(c => c !== "All").map(c => ({ id: c, label: c }))]}
-                    selected={selectedCategories}
-                    onToggle={handleCategoryToggle}
-                    isOpen={mobileOpenSection === "Categories"}
-                    onOpen={() => toggleMobileSection("Categories")}
-                  />
-
-                  {/* 3. Price Dropdown */}
-                  <MobileFilterDropdown
-                    title="Price"
-                    icon={Wallet}
-                    options={priceRanges}
-                    selected={selectedPriceRanges}
-                    onToggle={handlePriceToggle}
-                    isOpen={mobileOpenSection === "Price"}
-                    onOpen={() => toggleMobileSection("Price")}
-                  />
-
-                  {/* 4. Location Dropdown */}
-                  <MobileFilterDropdown
-                    title="Location"
-                    icon={MapPin}
-                    options={locations}
-                    selected={selectedLocations}
-                    onToggle={handleLocationToggle}
-                    isOpen={mobileOpenSection === "Location"}
-                    onOpen={() => toggleMobileSection("Location")}
-                  />
-
-                  {/* 5. Date Dropdown */}
-                  <MobileFilterDropdown
-                    title="Date"
-                    icon={Calendar}
-                    options={dateRanges}
-                    selected={selectedDateRanges}
-                    onToggle={handleDateToggle}
-                    isOpen={mobileOpenSection === "Date"}
-                    onOpen={() => toggleMobileSection("Date")}
-                  />
-
-                  {/* 6. Sort By (Native Select) */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Sort By</label>
-                    <div className="relative">
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium text-base"
-                      >
-                        <option value="date">Date</option>
-                        <option value="price">Price</option>
-                        <option value="name">Name</option>
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                        <TrendingUp size={18} />
+                  <div className="space-y-6">
+                    {/* 1. Search */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Search Events</label>
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                        <input
+                          ref={mobileSearchInputRef}
+                          type="text"
+                          value={searchTerm}
+                          onChange={handleSearchChange}
+                          placeholder="Type to search events..."
+                          className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                       </div>
                     </div>
-                  </div>
 
-                  {/* Mobile Action Buttons */}
-                  <div className="flex space-x-3 pt-4 border-t border-gray-200">
-                    <button
-                      onClick={clearAllFilters}
-                      className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
-                    >
-                      Clear All
-                    </button>
-                    <button
-                      onClick={closeMobileFilters}
-                      className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg"
-                    >
-                      Apply Filters
-                    </button>
+                    {/* 2. Categories Dropdown */}
+                    <MobileFilterDropdown
+                      title="Categories"
+                      icon={Users}
+                      options={[{ id: "All", label: "All Categories" }, ...safeCategories.filter(c => c !== "All").map(c => ({ id: c, label: c }))]}
+                      selected={selectedCategories}
+                      onToggle={handleCategoryToggle}
+                      isOpen={mobileOpenSection === "Categories"}
+                      onOpen={() => toggleMobileSection("Categories")}
+                    />
+
+                    {/* 3. Price Dropdown */}
+                    <MobileFilterDropdown
+                      title="Price"
+                      icon={Wallet}
+                      options={priceRanges}
+                      selected={selectedPriceRanges}
+                      onToggle={handlePriceToggle}
+                      isOpen={mobileOpenSection === "Price"}
+                      onOpen={() => toggleMobileSection("Price")}
+                    />
+
+                    {/* 4. Location Dropdown */}
+                    <MobileFilterDropdown
+                      title="Location"
+                      icon={MapPin}
+                      options={locations}
+                      selected={selectedLocations}
+                      onToggle={handleLocationToggle}
+                      isOpen={mobileOpenSection === "Location"}
+                      onOpen={() => toggleMobileSection("Location")}
+                    />
+
+                    {/* 5. Date Dropdown */}
+                    <MobileFilterDropdown
+                      title="Date"
+                      icon={Calendar}
+                      options={dateRanges}
+                      selected={selectedDateRanges}
+                      onToggle={handleDateToggle}
+                      isOpen={mobileOpenSection === "Date"}
+                      onOpen={() => toggleMobileSection("Date")}
+                    />
+
+                    {/* 6. Sort By (Native Select) */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Sort By</label>
+                      <div className="relative">
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value)}
+                          className="appearance-none w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium text-base"
+                        >
+                          <option value="date">Date</option>
+                          <option value="price">Price</option>
+                          <option value="name">Name</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                          <TrendingUp size={18} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mobile Action Buttons */}
+                    <div className="flex space-x-3 pt-4 border-t border-gray-200">
+                      <button
+                        onClick={clearAllFilters}
+                        className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors"
+                      >
+                        Clear All
+                      </button>
+                      <button
+                        onClick={closeMobileFilters}
+                        className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg"
+                      >
+                        Apply Filters
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Event Detail Modal */}
         {selectedEvent && <EventDetail event={selectedEvent} onClose={() => setSelectedEvent(null)} onBack={() => setSelectedEvent(null)} />}

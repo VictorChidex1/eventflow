@@ -18,8 +18,8 @@ import {
   Star,
   Zap,
   Crown,
-  CheckCircle, // Added
-  Loader2 // Added
+  CheckCircle, 
+  Loader2 
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import PaymentModal from "../Payment/PaymentModal";
@@ -149,7 +149,7 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
         }
       ];
     } else {
-      // Default ticket structure for other categories
+      
       return [
         {
           id: 'general',

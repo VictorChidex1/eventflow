@@ -383,7 +383,7 @@ const Pricing = () => {
                   Annual
                 </button>
               </div>
-              <div className="savings-badge mt-4 bg-[#2561e9] backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg border border-[#2561e9]/30">
+              <div className="savings-badge mt-4 shadow-lg">
                 Save up to 20% with annual billing
               </div>
             </div>
