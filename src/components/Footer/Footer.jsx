@@ -1,7 +1,7 @@
 import React from "react";
 import { Twitter, Facebook, Instagram } from "lucide-react";
 import { motion } from "framer-motion";
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/logo.webp";
 
 const Footer = () => {
   const containerVariants = {

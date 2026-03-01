@@ -7,7 +7,7 @@ import PaymentCurrency from "../PaymentCurrency/PaymentCurrency";
 import SocialProof from "../SocialProof/SocialProof";
 import EnterpriseContactForm from "../EnterpriseContact/EnterpriseContactForm";
 import SmartTicketing from "../FeatureDeepDive/SmartTicketing/SmartTicketing";
-import pricingHero from "../../assets/images/pricing-hero.png";
+import pricingHero from "../../assets/images/pricing-hero.webp";
 
 const Pricing = () => {
   const [billingCycle, setBillingCycle] = useState("monthly");
@@ -341,9 +341,9 @@ const Pricing = () => {
         <div className="pricing-header relative overflow-hidden">
           {/* Background Image & Overlay */}
           <div className="absolute inset-0 z-0">
-            <img 
-              src={pricingHero} 
-              alt="Pricing Background" 
+            <img
+              src={pricingHero}
+              alt="Pricing Background"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
@@ -543,10 +543,6 @@ const Pricing = () => {
 
         <SocialProof />
 
-
-
-
-
         {/* FAQ Section with Skeleton */}
         <div className="faq-section">
           <div className="text-center mb-12">
@@ -594,7 +590,9 @@ const Pricing = () => {
               </div>
 
               <div className="faq-item">
-                <h4 className="faq-question">What is your cancellation policy?</h4>
+                <h4 className="faq-question">
+                  What is your cancellation policy?
+                </h4>
                 <p className="faq-answer">
                   You can cancel your subscription at any time. Your access will
                   continue until the end of your current billing period.

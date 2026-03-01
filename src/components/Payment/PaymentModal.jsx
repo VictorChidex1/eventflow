@@ -1,20 +1,26 @@
 // src/components/Payment/PaymentModal.jsx
-import React, { useState } from 'react';
-import { Loader2, Shield, AlertCircle, CreditCard, CheckCircle } from 'lucide-react';
-import paymentService from '../../services/paymentService';
-import { env } from '../../config/environment';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import {
+  Loader2,
+  Shield,
+  AlertCircle,
+  CreditCard,
+  CheckCircle,
+} from "lucide-react";
+import paymentService from "../../services/paymentService";
+import { env } from "../../config/environment";
+import { useAuth } from "../../contexts/AuthContext";
 
-// IMPORT THE IMAGE: Ensure this file exists at src/assets/paystack-logo.png
-import paystackLogo from '../../assets/paystack-logo.png'; 
+// IMPORT THE IMAGE: Ensure this file exists at src/assets/paystack-logo.webp
+import paystackLogo from "../../assets/paystack-logo.webp";
 
-const currencySymbol = '₦'; 
+const currencySymbol = "₦";
 
 const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
-  const [selectedGateway, setSelectedGateway] = useState('paystack');
+  const [selectedGateway, setSelectedGateway] = useState("paystack");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   // We need the auth context to ensure we have the correct User ID for binding the ticket
   const { user: authUser } = useAuth();
   const currentUser = user || authUser;
@@ -24,7 +30,9 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
   const totalAmount = ticket ? ticket.price * quantity : 0;
 
   const generateReference = () => {
-    return `EVT_${event?.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `EVT_${event?.id}_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
   };
 
   // --- ARCHITECTURAL FIX: CENTRALIZED TICKET SAVING ---
@@ -34,7 +42,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
       const newTicket = {
         id: `tkt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         eventId: event.id,
-        userId: currentUser.id || currentUser.email || 'guest',
+        userId: currentUser.id || currentUser.email || "guest",
         eventTitle: event.title,
         eventDate: event.date,
         eventTime: event.time,
@@ -44,18 +52,20 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
         quantity: quantity,
         price: totalAmount,
         purchaseDate: new Date().toISOString(),
-        status: 'confirmed', // Optimistically confirming for this prototype flow
+        status: "confirmed", // Optimistically confirming for this prototype flow
         paymentMethod: method,
-        paymentReference: paymentRef
+        paymentReference: paymentRef,
       };
 
       // 2. Fetch existing tickets
-      const existingTickets = JSON.parse(localStorage.getItem('userTickets') || '[]');
-      
+      const existingTickets = JSON.parse(
+        localStorage.getItem("userTickets") || "[]"
+      );
+
       // 3. Append and Save
       const updatedTickets = [...existingTickets, newTicket];
-      localStorage.setItem('userTickets', JSON.stringify(updatedTickets));
-      
+      localStorage.setItem("userTickets", JSON.stringify(updatedTickets));
+
       console.log("✅ Ticket persisted successfully:", newTicket);
       return true;
     } catch (err) {
@@ -66,12 +76,14 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
 
   const handleRealPaystackPayment = async () => {
     if (!currentUser?.email) {
-      setError('Please provide your email address associated with your account.');
+      setError(
+        "Please provide your email address associated with your account."
+      );
       return;
     }
 
     setIsProcessing(true);
-    setError('');
+    setError("");
 
     const reference = generateReference();
 
@@ -83,29 +95,36 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
         eventId: event.id,
         ticketId: ticket.id,
         quantity: quantity,
-        customerName: currentUser.name || 'EventFlow User',
-        eventTitle: event.title
+        customerName: currentUser.name || "EventFlow User",
+        eventTitle: event.title,
       };
 
-      console.log('🚀 Starting Paystack payment flow...', paymentData);
+      console.log("🚀 Starting Paystack payment flow...", paymentData);
 
       // 1. Initialize Payment with Service
-      const response = await paymentService.initializePaystackPayment(paymentData);
-      
+      const response = await paymentService.initializePaystackPayment(
+        paymentData
+      );
+
       if (response.status && response.data.authorization_url) {
         // 2. CRITICAL FIX: Save Ticket BEFORE Redirect
-        // In a real production app, this happens via Webhook. 
+        // In a real production app, this happens via Webhook.
         // For this prototype/mock, we save it now so it appears in "My Tickets".
-        persistTicketToStorage(reference, 'Paystack');
+        persistTicketToStorage(reference, "Paystack");
 
         // 3. Redirect user to Paystack
         window.location.href = response.data.authorization_url;
       } else {
-        throw new Error(response.message || 'Failed to initialize payment gateway.');
+        throw new Error(
+          response.message || "Failed to initialize payment gateway."
+        );
       }
     } catch (err) {
-      console.error('💥 Payment error:', err);
-      setError(err.message || 'Payment initialization failed. Please check your network.');
+      console.error("💥 Payment error:", err);
+      setError(
+        err.message ||
+          "Payment initialization failed. Please check your network."
+      );
     } finally {
       // Note: We might not reach here if redirect is fast, which is fine.
       setIsProcessing(false);
@@ -114,11 +133,11 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
 
   const handleStripePayment = async () => {
     // Placeholder for future integration
-    alert('Stripe integration coming soon! Please use Paystack for now.');
+    alert("Stripe integration coming soon! Please use Paystack for now.");
   };
 
   const handlePayment = () => {
-    if (selectedGateway === 'paystack') {
+    if (selectedGateway === "paystack") {
       handleRealPaystackPayment();
     } else {
       handleStripePayment();
@@ -134,8 +153,8 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
             <CreditCard className="w-6 h-6 text-primary-600" />
             Checkout
           </h2>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
           >
             ✕
@@ -152,13 +171,15 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
 
         {/* Order Summary */}
         <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 mb-2 truncate">{event?.title}</h3>
-          
+          <h3 className="font-semibold text-gray-900 mb-2 truncate">
+            {event?.title}
+          </h3>
+
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>Ticket Type</span>
             <span className="font-medium text-gray-900">{ticket?.name}</span>
           </div>
-          
+
           <div className="flex justify-between text-sm text-gray-600 mb-4">
             <span>Quantity</span>
             <span className="font-medium text-gray-900">× {quantity}</span>
@@ -167,7 +188,8 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
           <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
             <span className="font-medium text-gray-700">Total to Pay</span>
             <span className="text-2xl font-bold text-primary-600">
-              {currencySymbol}{totalAmount.toLocaleString()}
+              {currencySymbol}
+              {totalAmount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -177,70 +199,82 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
           <label className="block text-sm font-medium text-gray-700">
             Select Payment Method
           </label>
-          
+
           <div className="space-y-3">
             {/* Paystack Option */}
-            <label 
+            <label
               className={`relative flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
-                selectedGateway === 'paystack' 
-                  ? 'border-blue-500 ring-2 ring-blue-500 ring-opacity-20 bg-blue-50' 
-                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                selectedGateway === "paystack"
+                  ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-20 bg-blue-50"
+                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
               }`}
             >
               <input
                 type="radio"
                 name="paymentGateway"
                 value="paystack"
-                checked={selectedGateway === 'paystack'}
+                checked={selectedGateway === "paystack"}
                 onChange={(e) => setSelectedGateway(e.target.value)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
               />
               <div className="ml-3 flex items-center w-full justify-between">
                 <div className="flex items-center">
-                  <img 
-                    src={paystackLogo} 
-                    alt="Paystack" 
+                  <img
+                    src={paystackLogo}
+                    alt="Paystack"
                     className="h-6 w-auto object-contain mr-3"
                   />
                   <div>
-                    <span className="block text-sm font-bold text-gray-900">Pay with Paystack</span>
-                    <span className="block text-xs text-gray-500">Card, Bank Transfer, USSD</span>
+                    <span className="block text-sm font-bold text-gray-900">
+                      Pay with Paystack
+                    </span>
+                    <span className="block text-xs text-gray-500">
+                      Card, Bank Transfer, USSD
+                    </span>
                   </div>
                 </div>
-                {selectedGateway === 'paystack' && <CheckCircle className="w-5 h-5 text-blue-600" />}
+                {selectedGateway === "paystack" && (
+                  <CheckCircle className="w-5 h-5 text-blue-600" />
+                )}
               </div>
             </label>
 
             {/* Stripe Option (Conditional) */}
             {env.stripePublicKey && (
-               <label 
-                 className={`relative flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
-                   selectedGateway === 'stripe' 
-                     ? 'border-blue-500 ring-2 ring-blue-500 ring-opacity-20 bg-blue-50' 
-                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                 }`}
-               >
-               <input
-                 type="radio"
-                 name="paymentGateway"
-                 value="stripe"
-                 checked={selectedGateway === 'stripe'}
-                 onChange={(e) => setSelectedGateway(e.target.value)}
-                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-               />
-               <div className="ml-3 flex items-center w-full justify-between">
-                 <div className="flex items-center">
+              <label
+                className={`relative flex items-center p-4 border rounded-xl cursor-pointer transition-all duration-200 ${
+                  selectedGateway === "stripe"
+                    ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-20 bg-blue-50"
+                    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="paymentGateway"
+                  value="stripe"
+                  checked={selectedGateway === "stripe"}
+                  onChange={(e) => setSelectedGateway(e.target.value)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                />
+                <div className="ml-3 flex items-center w-full justify-between">
+                  <div className="flex items-center">
                     <div className="h-6 w-8 bg-[#635BFF] rounded flex items-center justify-center mr-3 text-white font-bold text-[10px]">
-                        Stripe
+                      Stripe
                     </div>
-                   <div>
-                     <span className="block text-sm font-bold text-gray-900">Pay with Stripe</span>
-                     <span className="block text-xs text-gray-500">International Cards</span>
-                   </div>
-                 </div>
-                 {selectedGateway === 'stripe' && <CheckCircle className="w-5 h-5 text-blue-600" />}
-               </div>
-             </label>
+                    <div>
+                      <span className="block text-sm font-bold text-gray-900">
+                        Pay with Stripe
+                      </span>
+                      <span className="block text-xs text-gray-500">
+                        International Cards
+                      </span>
+                    </div>
+                  </div>
+                  {selectedGateway === "stripe" && (
+                    <CheckCircle className="w-5 h-5 text-blue-600" />
+                  )}
+                </div>
+              </label>
             )}
           </div>
         </div>

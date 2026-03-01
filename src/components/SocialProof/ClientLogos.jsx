@@ -5,37 +5,37 @@ const ClientLogos = () => {
   const clients = [
     {
       name: "Paystack",
-      logo: "./images/paystack-logo.png",
+      logo: "./images/paystack-logo.webp",
       width: 160,
       height: 60,
     },
     {
       name: "Flutterwave",
-      logo: "./images/flutterwave-logo.png",
+      logo: "./images/flutterwave-logo.webp",
       width: 180,
       height: 50,
     },
     {
       name: "Moniepoint Inc",
-      logo: "./images/moniepoint-inc-logo.png",
+      logo: "./images/moniepoint-inc-logo.webp",
       width: 170,
       height: 55,
     },
     {
       name: "Mavins Record",
-      logo: "./images/mavin-records-logo.jpg",
+      logo: "./images/mavin-records-logo.webp",
       width: 160,
       height: 60,
     },
     {
       name: "Livespot 360",
-      logo: "./images/livespot360.png",
+      logo: "./images/livespot360.webp",
       width: 175,
       height: 52,
     },
     {
       name: "Osas Didit",
-      logo: "./images/osas-didit.png",
+      logo: "./images/osas-didit.webp",
       width: 165,
       height: 58,
     },
