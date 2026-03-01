@@ -6,6 +6,7 @@ import {
   AlertCircle,
   CreditCard,
   CheckCircle,
+  X,
 } from "lucide-react";
 import paymentService from "../../services/paymentService";
 import { env } from "../../config/environment";
@@ -145,7 +146,7 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-start md:items-center justify-center p-4 pt-20 md:p-12 z-[100] backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all scale-100">
         {/* Modal Header */}
         <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
@@ -155,9 +156,10 @@ const PaymentModal = ({ isOpen, onClose, event, ticket, quantity, user }) => {
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-2 bg-gray-100 text-gray-500 hover:text-white hover:bg-red-500 rounded-full shadow-sm transition-all transform hover:scale-110 flex items-center justify-center"
+            aria-label="Close checkout"
           >
-            ✕
+            <X size={20} className="stroke-2" />
           </button>
         </div>
 

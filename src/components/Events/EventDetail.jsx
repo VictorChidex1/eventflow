@@ -18,8 +18,9 @@ import {
   Star,
   Zap,
   Crown,
-  CheckCircle, 
-  Loader2 
+  CheckCircle,
+  Loader2,
+  X,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import PaymentModal from "../Payment/PaymentModal";
@@ -29,9 +30,9 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
   const [showTicketPurchase, setShowTicketPurchase] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false); // New State
   const [isProcessing, setIsProcessing] = useState(false); // New State
-  
+
   const [quantity, setQuantity] = useState(1);
-  const [selectedTicketType, setSelectedTicketType] = useState('general');
+  const [selectedTicketType, setSelectedTicketType] = useState("general");
   const { user: authUser } = useAuth();
   const navigate = useNavigate();
 
@@ -58,114 +59,139 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
   const getStatusColor = (available, total) => {
     const percentage = (available / total) * 100;
     if (percentage < 10) return "text-red-600 bg-red-50 border-red-200";
-    if (percentage < 30) return "text-orange-600 bg-orange-50 border-orange-200";
+    if (percentage < 30)
+      return "text-orange-600 bg-orange-50 border-orange-200";
     return "text-green-600 bg-green-50 border-green-200";
   };
 
   // Dynamic ticket types based on event category and price
   const getTicketTypes = () => {
     const basePrice = event.price;
-    
+
     // Different ticket structures based on event category
     if (event.category === "Owambe" || event.category === "Carnival") {
       return [
         {
-          id: 'general',
-          name: 'General Admission',
+          id: "general",
+          name: "General Admission",
           price: basePrice,
-          description: 'Standard event access',
+          description: "Standard event access",
           icon: <Ticket className="w-4 h-4" />,
-          features: ['Event Entry', 'Basic Seating', 'Event Materials'],
-          available: Math.floor(event.availableTickets * 0.7)
+          features: ["Event Entry", "Basic Seating", "Event Materials"],
+          available: Math.floor(event.availableTickets * 0.7),
         },
         {
-          id: 'vip',
-          name: 'VIP Access',
+          id: "vip",
+          name: "VIP Access",
           price: Math.floor(basePrice * 1.8),
-          description: 'Premium experience with extra benefits',
+          description: "Premium experience with extra benefits",
           icon: <Crown className="w-4 h-4" />,
-          features: ['Priority Entry', 'VIP Lounge', 'Premium Seating', 'Complimentary Drinks'],
-          available: Math.floor(event.availableTickets * 0.2)
+          features: [
+            "Priority Entry",
+            "VIP Lounge",
+            "Premium Seating",
+            "Complimentary Drinks",
+          ],
+          available: Math.floor(event.availableTickets * 0.2),
         },
         {
-          id: 'early_bird',
-          name: 'Early Bird',
+          id: "early_bird",
+          name: "Early Bird",
           price: Math.floor(basePrice * 0.7),
-          description: 'Limited time discounted tickets',
+          description: "Limited time discounted tickets",
           icon: <Zap className="w-4 h-4" />,
-          features: ['Event Entry', 'Basic Seating', 'Early Bird Pricing'],
-          available: Math.floor(event.availableTickets * 0.1)
-        }
+          features: ["Event Entry", "Basic Seating", "Early Bird Pricing"],
+          available: Math.floor(event.availableTickets * 0.1),
+        },
       ];
     } else if (event.category === "Afrobeats" || event.category === "Concert") {
       return [
         {
-          id: 'general',
-          name: 'General Admission',
+          id: "general",
+          name: "General Admission",
           price: basePrice,
-          description: 'Standing area access',
+          description: "Standing area access",
           icon: <Ticket className="w-4 h-4" />,
-          features: ['Event Entry', 'Standing Area', 'Basic Facilities'],
-          available: Math.floor(event.availableTickets * 0.6)
+          features: ["Event Entry", "Standing Area", "Basic Facilities"],
+          available: Math.floor(event.availableTickets * 0.6),
         },
         {
-          id: 'vip',
-          name: 'VIP Experience',
+          id: "vip",
+          name: "VIP Experience",
           price: Math.floor(basePrice * 2.5),
-          description: 'Premium concert experience',
+          description: "Premium concert experience",
           icon: <Crown className="w-4 h-4" />,
-          features: ['VIP Section', 'Premium View', 'Private Bar', 'Meet & Greet'],
-          available: Math.floor(event.availableTickets * 0.3)
+          features: [
+            "VIP Section",
+            "Premium View",
+            "Private Bar",
+            "Meet & Greet",
+          ],
+          available: Math.floor(event.availableTickets * 0.3),
         },
         {
-          id: 'vvip',
-          name: 'VVIP Package',
+          id: "vvip",
+          name: "VVIP Package",
           price: Math.floor(basePrice * 4),
-          description: 'Ultimate concert package',
+          description: "Ultimate concert package",
           icon: <Star className="w-4 h-4" />,
-          features: ['Front Row', 'Backstage Access', 'Artist Meet', 'Gift Package'],
-          available: Math.floor(event.availableTickets * 0.1)
-        }
+          features: [
+            "Front Row",
+            "Backstage Access",
+            "Artist Meet",
+            "Gift Package",
+          ],
+          available: Math.floor(event.availableTickets * 0.1),
+        },
       ];
-    } else if (event.category === "Business" || event.category === "Education") {
+    } else if (
+      event.category === "Business" ||
+      event.category === "Education"
+    ) {
       return [
         {
-          id: 'general',
-          name: 'Standard Pass',
+          id: "general",
+          name: "Standard Pass",
           price: basePrice,
-          description: 'Full conference access',
+          description: "Full conference access",
           icon: <Ticket className="w-4 h-4" />,
-          features: ['Conference Access', 'Session Materials', 'Networking'],
-          available: Math.floor(event.availableTickets * 0.8)
+          features: ["Conference Access", "Session Materials", "Networking"],
+          available: Math.floor(event.availableTickets * 0.8),
         },
         {
-          id: 'premium',
-          name: 'Premium Pass',
+          id: "premium",
+          name: "Premium Pass",
           price: Math.floor(basePrice * 1.5),
-          description: 'Enhanced learning experience',
+          description: "Enhanced learning experience",
           icon: <Star className="w-4 h-4" />,
-          features: ['Premium Seating', 'Lunch Included', 'Resource Kit', 'Mentorship'],
-          available: Math.floor(event.availableTickets * 0.2)
-        }
+          features: [
+            "Premium Seating",
+            "Lunch Included",
+            "Resource Kit",
+            "Mentorship",
+          ],
+          available: Math.floor(event.availableTickets * 0.2),
+        },
       ];
     } else {
-      
       return [
         {
-          id: 'general',
-          name: 'General Admission',
+          id: "general",
+          name: "General Admission",
           price: basePrice,
-          description: 'Standard event access',
+          description: "Standard event access",
           icon: <Ticket className="w-4 h-4" />,
-          features: ['Event Entry', 'Basic Access', 'Standard Amenities'],
-          available: event.availableTickets
-        }
+          features: ["Event Entry", "Basic Access", "Standard Amenities"],
+          available: event.availableTickets,
+        },
       ];
     }
   };
 
   const ticketTypes = getTicketTypes();
-  const selectedTicket = ticketTypes.find(ticket => ticket.id === selectedTicketType);
+  const selectedTicket = ticketTypes.find(
+    (ticket) => ticket.id === selectedTicketType
+  );
   const totalAmount = selectedTicket ? selectedTicket.price * quantity : 0;
   const serviceFee = Math.round(totalAmount * 0.029); // 2.9% service fee
   const finalTotal = totalAmount + serviceFee;
@@ -174,21 +200,21 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
   const handleGetTickets = () => {
     // Check if user is authenticated
     if (!authUser) {
-      navigate('/login', { 
-        state: { from: `/event/${event.id}` } 
+      navigate("/login", {
+        state: { from: `/event/${event.id}` },
       });
       return;
     }
-    
+
     // If Free, Save to LocalStorage directly then show Success
     if (finalTotal === 0) {
       setIsProcessing(true);
-      
+
       // 1. Create the Ticket Object (Standardized format)
       const newTicket = {
         id: `tkt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         eventId: event.id,
-        userId: authUser.id || authUser.email || 'guest', // Fallback for auth
+        userId: authUser.id || authUser.email || "guest", // Fallback for auth
         eventTitle: event.title,
         eventDate: event.date,
         eventTime: event.time,
@@ -198,16 +224,18 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
         quantity: quantity,
         price: 0,
         purchaseDate: new Date().toISOString(),
-        status: 'confirmed',
-        paymentMethod: 'Free Registration'
+        status: "confirmed",
+        paymentMethod: "Free Registration",
       };
 
       setTimeout(() => {
         // 2. Save to LocalStorage (Simulating DB)
         try {
-          const existingTickets = JSON.parse(localStorage.getItem('userTickets') || '[]');
+          const existingTickets = JSON.parse(
+            localStorage.getItem("userTickets") || "[]"
+          );
           const updatedTickets = [...existingTickets, newTicket];
-          localStorage.setItem('userTickets', JSON.stringify(updatedTickets));
+          localStorage.setItem("userTickets", JSON.stringify(updatedTickets));
         } catch (error) {
           console.error("Failed to save ticket", error);
         }
@@ -226,36 +254,34 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
 
   const getCategoryColor = (category) => {
     const colors = {
-      'Owambe': 'bg-purple-100 text-purple-800 border-purple-200',
-      'Carnival': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'Afrobeats': 'bg-green-100 text-green-800 border-green-200',
-      'Business': 'bg-blue-100 text-blue-800 border-blue-200',
-      'Education': 'bg-indigo-100 text-indigo-800 border-indigo-200',
-      'Wellness': 'bg-teal-100 text-teal-800 border-teal-200',
-      'Food & Drink': 'bg-red-100 text-red-800 border-red-200',
-      'Art': 'bg-pink-100 text-pink-800 border-pink-200',
-      'Sports': 'bg-orange-100 text-orange-800 border-orange-200',
-      'Technology': 'bg-cyan-100 text-cyan-800 border-cyan-200',
-      'Religious': 'bg-gray-100 text-gray-800 border-gray-200',
-      'Cultural': 'bg-amber-100 text-amber-800 border-amber-200',
-      'Entertainment': 'bg-rose-100 text-rose-800 border-rose-200',
-      'Comedy': 'bg-lime-100 text-lime-800 border-lime-200',
-      'Gaming': 'bg-violet-100 text-violet-800 border-violet-200',
-      'Dating': 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200'
+      Owambe: "bg-purple-100 text-purple-800 border-purple-200",
+      Carnival: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      Afrobeats: "bg-green-100 text-green-800 border-green-200",
+      Business: "bg-blue-100 text-blue-800 border-blue-200",
+      Education: "bg-indigo-100 text-indigo-800 border-indigo-200",
+      Wellness: "bg-teal-100 text-teal-800 border-teal-200",
+      "Food & Drink": "bg-red-100 text-red-800 border-red-200",
+      Art: "bg-pink-100 text-pink-800 border-pink-200",
+      Sports: "bg-orange-100 text-orange-800 border-orange-200",
+      Technology: "bg-cyan-100 text-cyan-800 border-cyan-200",
+      Religious: "bg-gray-100 text-gray-800 border-gray-200",
+      Cultural: "bg-amber-100 text-amber-800 border-amber-200",
+      Entertainment: "bg-rose-100 text-rose-800 border-rose-200",
+      Comedy: "bg-lime-100 text-lime-800 border-lime-200",
+      Gaming: "bg-violet-100 text-violet-800 border-violet-200",
+      Dating: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200",
     };
-    return colors[category] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return colors[category] || "bg-gray-100 text-gray-800 border-gray-200";
   };
 
-
-
-// ... [Keep other imports]
+  // ... [Keep other imports]
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-start md:items-center justify-center p-4 pt-20 md:p-12"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
@@ -265,7 +291,7 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
         className="bg-white rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-y-auto"
       >
         {/* Header with Back Button */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl z-10">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 pt-8 rounded-t-2xl z-20">
           <div className="flex items-center justify-between">
             <button
               onClick={onBack}
@@ -283,9 +309,10 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
               </button>
               <button
                 onClick={onClose}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-50"
+                className="p-2 ml-2 bg-gray-100 text-gray-500 hover:text-white hover:bg-red-500 transition-all rounded-full shadow-sm flex items-center justify-center transform hover:scale-110"
+                aria-label="Close modal"
               >
-                ✕
+                <X size={20} className="stroke-2" />
               </button>
             </div>
           </div>
@@ -304,7 +331,11 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                   className="w-full h-64 md:h-80 object-cover"
                 />
                 <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(event.category)}`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium border ${getCategoryColor(
+                      event.category
+                    )}`}
+                  >
                     {event.category}
                   </span>
                 </div>
@@ -328,9 +359,7 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
                   About This Event
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {event.about}
-                </p>
+                <p className="text-gray-600 leading-relaxed">{event.about}</p>
               </div>
 
               {/* What to Expect */}
@@ -342,7 +371,10 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                   <ul className="text-gray-600 space-y-3">
                     {event.whatToExpect.map((item, index) => (
                       <li key={index} className="flex items-start">
-                        <Check className="text-primary-600 mr-3 mt-1 flex-shrink-0" size={18} />
+                        <Check
+                          className="text-primary-600 mr-3 mt-1 flex-shrink-0"
+                          size={18}
+                        />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -361,8 +393,8 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                       key={ticket.id}
                       className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                         selectedTicketType === ticket.id
-                          ? 'border-primary-500 bg-primary-50 shadow-sm'
-                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                          ? "border-primary-500 bg-primary-50 shadow-sm"
+                          : "border-gray-200 hover:border-gray-300 hover:shadow-sm"
                       }`}
                       onClick={() => setSelectedTicketType(ticket.id)}
                     >
@@ -389,10 +421,13 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-2 text-sm text-gray-600">
                         {ticket.features.map((feature, index) => (
-                          <span key={index} className="flex items-center bg-white px-2 py-1 rounded border">
+                          <span
+                            key={index}
+                            className="flex items-center bg-white px-2 py-1 rounded border"
+                          >
                             <Check size={14} className="text-green-500 mr-1" />
                             {feature}
                           </span>
@@ -414,7 +449,10 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
-                    <Calendar className="text-primary-600 mt-1 flex-shrink-0" size={20} />
+                    <Calendar
+                      className="text-primary-600 mt-1 flex-shrink-0"
+                      size={20}
+                    />
                     <div>
                       <p className="font-medium text-gray-900">
                         {formatDate(event.date)}
@@ -424,7 +462,10 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <MapPin className="text-primary-600 mt-1 flex-shrink-0" size={20} />
+                    <MapPin
+                      className="text-primary-600 mt-1 flex-shrink-0"
+                      size={20}
+                    />
                     <div>
                       <p className="font-medium text-gray-900">Location</p>
                       <p className="text-gray-600">{event.location}</p>
@@ -432,11 +473,15 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                   </div>
 
                   <div className="flex items-start space-x-3">
-                    <Ticket className="text-primary-600 mt-1 flex-shrink-0" size={20} />
+                    <Ticket
+                      className="text-primary-600 mt-1 flex-shrink-0"
+                      size={20}
+                    />
                     <div>
                       <p className="font-medium text-gray-900">Tickets</p>
                       <p className="text-gray-600">
-                        {event.availableTickets} of {event.totalTickets} available
+                        {event.availableTickets} of {event.totalTickets}{" "}
+                        available
                       </p>
                       <p
                         className={`text-sm font-medium px-3 py-1 rounded-full mt-2 inline-block border ${getStatusColor(
@@ -444,7 +489,10 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                           event.totalTickets
                         )}`}
                       >
-                        {getTicketStatus(event.availableTickets, event.totalTickets)}
+                        {getTicketStatus(
+                          event.availableTickets,
+                          event.totalTickets
+                        )}
                       </p>
                     </div>
                   </div>
@@ -473,7 +521,9 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
 
                     {/* Quantity Selector */}
                     <div className="flex items-center justify-between mb-6 p-3 bg-gray-50 rounded-lg">
-                      <span className="text-gray-700 font-medium">Quantity</span>
+                      <span className="text-gray-700 font-medium">
+                        Quantity
+                      </span>
                       <div className="flex items-center space-x-3">
                         <button
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -486,7 +536,11 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                           {quantity}
                         </span>
                         <button
-                          onClick={() => setQuantity(Math.min(selectedTicket.available, quantity + 1))}
+                          onClick={() =>
+                            setQuantity(
+                              Math.min(selectedTicket.available, quantity + 1)
+                            )
+                          }
                           disabled={quantity >= selectedTicket.available}
                           className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
                         >
@@ -499,11 +553,15 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                     <div className="space-y-3 border-t border-gray-200 pt-4">
                       <div className="flex justify-between text-gray-600">
                         <span>Tickets × {quantity}</span>
-                        <span className="font-medium">{formatPrice(selectedTicket.price * quantity)}</span>
+                        <span className="font-medium">
+                          {formatPrice(selectedTicket.price * quantity)}
+                        </span>
                       </div>
                       <div className="flex justify-between text-gray-600">
                         <span>Service Fee</span>
-                        <span className="font-medium">₦{serviceFee.toLocaleString()}</span>
+                        <span className="font-medium">
+                          ₦{serviceFee.toLocaleString()}
+                        </span>
                       </div>
                       <div className="border-t border-gray-200 pt-3">
                         <div className="flex justify-between text-lg font-bold">
@@ -522,16 +580,25 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
                   <button
                     onClick={handleGetTickets}
                     disabled={event.availableTickets === 0 || isProcessing}
-                    className={`w-full bg-primary-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg ${isProcessing ? 'opacity-75 cursor-wait' : ''}`}
+                    className={`w-full bg-primary-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center shadow-lg ${
+                      isProcessing ? "opacity-75 cursor-wait" : ""
+                    }`}
                   >
                     {isProcessing ? (
                       <>
-                         <Loader2 size={20} className="mr-2 animate-spin" /> Processing...
+                        <Loader2 size={20} className="mr-2 animate-spin" />{" "}
+                        Processing...
                       </>
                     ) : (
                       <>
                         <Ticket size={20} className="mr-2" />
-                        {!authUser ? 'Login to Buy Tickets' : event.availableTickets === 0 ? 'Sold Out' : finalTotal === 0 ? 'Get Free Tickets' : 'Get Tickets Now'}
+                        {!authUser
+                          ? "Login to Buy Tickets"
+                          : event.availableTickets === 0
+                          ? "Sold Out"
+                          : finalTotal === 0
+                          ? "Get Free Tickets"
+                          : "Get Tickets Now"}
                       </>
                     )}
                   </button>
@@ -593,23 +660,28 @@ const EventDetail = ({ event, onClose, onBack, user }) => {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Successful!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Registration Successful!
+            </h2>
             <p className="text-gray-600 mb-8">
-              You have successfully registered for <span className="font-semibold text-gray-900">{event.title}</span>.
-              <br/>Your ticket has been sent to your email.
+              You have successfully registered for{" "}
+              <span className="font-semibold text-gray-900">{event.title}</span>
+              .
+              <br />
+              Your ticket has been sent to your email.
             </p>
             <div className="space-y-3">
-              <button 
+              <button
                 onClick={() => {
-                    setShowSuccessModal(false);
-                    onClose(); // Close the main event modal
-                    navigate('/my-tickets'); // Redirect to tickets page
+                  setShowSuccessModal(false);
+                  onClose(); // Close the main event modal
+                  navigate("/my-tickets"); // Redirect to tickets page
                 }}
                 className="w-full bg-primary-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-primary-700 transition-colors"
               >
                 View My Tickets
               </button>
-              <button 
+              <button
                 onClick={() => setShowSuccessModal(false)}
                 className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
               >
